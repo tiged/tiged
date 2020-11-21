@@ -5,10 +5,12 @@ import https from 'https';
 import child_process from 'child_process';
 import URL from 'url';
 import Agent from 'https-proxy-agent';
-import { rimrafSync, copydirSync } from 'sander';
+import { copydirSync } from 'sander';
 
 const tmpDirName = 'tmp';
 const degitConfigName = 'degit.json';
+export const rimrafSync = dir =>
+	fs.rmdirSync(dir, { recursive: true, force: true });
 
 export { degitConfigName };
 

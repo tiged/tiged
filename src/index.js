@@ -3,12 +3,12 @@ import path from 'path';
 import tar from 'tar';
 import { cyan, magenta, red, bold } from 'colorette';
 import EventEmitter from 'events';
-import { rimrafSync } from 'sander';
 import {
 	DegitError,
 	exec,
 	fetch,
 	mkdirp,
+	rimrafSync,
 	tryRequire,
 	stashFiles,
 	unstashFiles,
