@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import chalk from 'chalk';
+import { bold, underline, cyan, magenta, red } from 'colorette';
 import mri from 'mri';
 import glob from 'tiny-glob/sync.js';
 import fuzzysearch from 'fuzzysearch';
@@ -24,9 +24,9 @@ async function main() {
 	if (args.help) {
 		const help = fs
 			.readFileSync(path.join(__dirname, 'help.md'), 'utf-8')
-			.replace(/^(\s*)#+ (.+)/gm, (m, s, _) => s + chalk.bold(_))
-			.replace(/_([^_]+)_/g, (m, _) => chalk.underline(_))
-			.replace(/`([^`]+)`/g, (m, _) => chalk.cyan(_));
+			.replace(/^(\s*)#+ (.+)/gm, (m, s, _) => s + bold(_))
+			.replace(/_([^_]+)_/g, (m, _) => underline(_))
+			.replace(/`([^`]+)`/g, (m, _) => cyan(_));
 
 		process.stdout.write(`\n${help}\n`);
 	} else if (!src) {
@@ -106,7 +106,7 @@ async function main() {
 			]);
 
 			if (!force) {
-				console.error(chalk.magenta(`! Directory not empty — aborting`));
+				console.error(magenta(`! Directory not empty — aborting`));
 				return;
 			}
 		}
@@ -124,17 +124,15 @@ function run(src, dest, args) {
 	const d = degit(src, args);
 
 	d.on('info', event => {
-		console.error(chalk.cyan(`> ${event.message.replace('options.', '--')}`));
+		console.error(cyan(`> ${event.message.replace('options.', '--')}`));
 	});
 
 	d.on('warn', event => {
-		console.error(
-			chalk.magenta(`! ${event.message.replace('options.', '--')}`)
-		);
+		console.error(magenta(`! ${event.message.replace('options.', '--')}`));
 	});
 
 	d.clone(dest).catch(err => {
-		console.error(chalk.red(`! ${err.message.replace('options.', '--')}`));
+		console.error(red(`! ${err.message.replace('options.', '--')}`));
 		process.exit(1);
 	});
 }
