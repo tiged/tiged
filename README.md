@@ -1,4 +1,6 @@
-# degit — straightforward project scaffolding
+> Temporary [degit](https://github.com/Rich-Harris/degit) fork because it isn't being maintained
+
+# degit (degitto) — straightforward project scaffolding
 
 [![Travis CI build status](https://badgen.net/travis/Rich-Harris/degit/master)](https://travis-ci.org/Rich-Harris/degit)
 [![AppVeyor build status](https://badgen.net/appveyor/ci/Rich-Harris/degit/master)](https://ci.appveyor.com/project/Rich-Harris/degit/branch/master)
