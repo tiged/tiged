@@ -56,8 +56,6 @@ degit https://git.sr.ht/user/repo
 
 ### Specify a tag, branch or commit
 
-The default branch is `master`.
-
 ```bash
 degit user/repo#dev       # branch
 degit user/repo#v1.2.3    # release tag
