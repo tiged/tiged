@@ -1,6 +1,6 @@
-> Temporary [degit](https://github.com/Rich-Harris/degit) fork because it isn't being maintained
+> Community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained. We will be willing to give control of this repository to Rich Harris if he becomes active.
 
-# degit (degitto) — straightforward project scaffolding
+# degit (tiged) — straightforward project scaffolding
 
 [![Travis CI build status](https://badgen.net/travis/Rich-Harris/degit/master)](https://travis-ci.org/Rich-Harris/degit)
 [![AppVeyor build status](https://badgen.net/appveyor/ci/Rich-Harris/degit/master)](https://ci.appveyor.com/project/Rich-Harris/degit/branch/master)
@@ -17,7 +17,7 @@ _Requires Node 8 or above, because `async` and `await` are the cat's pyjamas_
 ## Installation
 
 ```bash
-npm install -g degit
+npm install -g tiged
 ```
 
 ## Usage

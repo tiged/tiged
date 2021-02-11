@@ -1,5 +1,25 @@
 # degit changelog
 
+## 2.9.0
+* "main" and other default branches work, not just master ([#243](https://github.com/Rich-Harris/degit/pull/243))
+* Use rimrafSync instead of rm -rf in --mode=git ([#191](https://github.com/Rich-Harris/degit/pull/191))
+* Updated dependencies
+* Forked to tiged, community driven fork of degit
+
+## 2.8.3
+
+* Stop bundling dependencies
+
+* Update all dependencies
+
+## 2.8.2
+
+* Replace `chalk` with `colorette`
+
+## 2.8.1
+
+* Fix package (https://github.com/fregante/degitto/commit/f6e1617582af34173a210c5904e1d6c6148769b0)
+
 ## 2.8.0
 
 * Sort by recency in interactive mode
