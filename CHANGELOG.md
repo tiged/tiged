@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.9.2
+* Fixed shebang. It was broken by pointing bin in package.json straight to dist/bin.js. Now pointing again to ./bin.js
+
 ## 2.9.1
 * Fixed build so that #191 from previous change log actually is in the build.
 
