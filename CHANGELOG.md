@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.9.1
+* Fixed build so that #191 from previous change log actually is in the build.
+
 ## 2.9.0
 * "main" and other default branches work, not just master ([#243](https://github.com/Rich-Harris/degit/pull/243))
 * Use rimrafSync instead of rm -rf in --mode=git ([#191](https://github.com/Rich-Harris/degit/pull/191))
