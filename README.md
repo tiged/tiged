@@ -17,12 +17,15 @@ _Requires Node 8 or above, because `async` and `await` are the cat's pyjamas_
 ## Installation
 
 ```bash
+npm uninstall -g degit
 npm install -g tiged
 ```
 
 ## Usage
 
 ### Basics
+
+> The run command stays as before, degit and not tiged. So no automated scripts break and people are used to the good old name.
 
 The simplest use of degit is to download the master branch of a repo from GitHub to the current working directory:
 
