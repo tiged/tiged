@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.9.3
+* degit --help did not work. It would throw error. Now it reads the help.md like it should. ([#179](https://github.com/Rich-Harris/degit/pull/179))
+
 ## 2.9.2
 * Fixed shebang. It was broken by pointing bin in package.json straight to dist/bin.js. Now pointing again to ./bin.js
 
