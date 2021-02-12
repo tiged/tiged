@@ -1,14 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import tar from 'tar';
+import { cyan, magenta, red, bold } from 'colorette';
 import EventEmitter from 'events';
-import chalk from 'chalk';
-import { rimrafSync } from 'sander';
 import {
 	DegitError,
 	exec,
 	fetch,
 	mkdirp,
+	rimrafSync,
 	tryRequire,
 	stashFiles,
 	unstashFiles,
@@ -54,19 +54,17 @@ class Degit extends EventEmitter {
 				const d = degit(action.src, opts);
 
 				d.on('info', event => {
-					console.error(
-						chalk.cyan(`> ${event.message.replace('options.', '--')}`)
-					);
+					console.error(cyan(`> ${event.message.replace('options.', '--')}`));
 				});
 
 				d.on('warn', event => {
 					console.error(
-						chalk.magenta(`! ${event.message.replace('options.', '--')}`)
+						magenta(`! ${event.message.replace('options.', '--')}`)
 					);
 				});
 
 				await d.clone(dest).catch(err => {
-					console.error(chalk.red(`! ${err.message}`));
+					console.error(red(`! ${err.message}`));
 					process.exit(1);
 				});
 			},
@@ -100,9 +98,9 @@ class Degit extends EventEmitter {
 
 		this._info({
 			code: 'SUCCESS',
-			message: `cloned ${chalk.bold(repo.user + '/' + repo.name)}#${chalk.bold(
-				repo.ref
-			)}${dest !== '.' ? ` to ${dest}` : ''}`,
+			message: `cloned ${bold(repo.user + '/' + repo.name)}#${bold(repo.ref)}${
+				dest !== '.' ? ` to ${dest}` : ''
+			}`,
 			repo,
 			dest
 		});
@@ -139,7 +137,7 @@ class Degit extends EventEmitter {
 				} else {
 					this._warn({
 						code: 'FILE_DOES_NOT_EXIST',
-						message: `action wants to remove ${chalk.bold(
+						message: `action wants to remove ${bold(
 							file
 						)} but it does not exist`
 					});
@@ -151,9 +149,7 @@ class Degit extends EventEmitter {
 		if (removedFiles.length > 0) {
 			this._info({
 				code: 'REMOVED',
-				message: `removed: ${chalk.bold(
-					removedFiles.map(d => chalk.bold(d)).join(', ')
-				)}`
+				message: `removed: ${bold(removedFiles.map(d => bold(d)).join(', '))}`
 			});
 		}
 	}
@@ -201,6 +197,10 @@ class Degit extends EventEmitter {
 	async _getHash(repo, cached) {
 		try {
 			const refs = await fetchRefs(repo);
+			if (repo.ref === 'HEAD') {
+				return refs.find(ref => ref.type === 'HEAD').hash;
+			}
+
 			return this._selectRef(refs, repo.ref);
 		} catch (err) {
 			this._warn(err);
@@ -315,7 +315,7 @@ class Degit extends EventEmitter {
 
 	async _cloneWithGit(dir, dest) {
 		await exec(`git clone ${this.repo.ssh} ${dest}`);
-		await exec(`rm -rf ${path.resolve(dest, '.git')}`);
+		rimrafSync(path.resolve(dest, '.git'));
 	}
 }
 
@@ -347,7 +347,7 @@ function parse(src) {
 	const user = match[4];
 	const name = match[5].replace(/\.git$/, '');
 	const subdir = match[6];
-	const ref = match[7] || 'master';
+	const ref = match[7] || 'HEAD';
 
 	const domain = `${site}.${
 		site === 'bitbucket' ? 'org' : site === 'git.sr.ht' ? '' : 'com'

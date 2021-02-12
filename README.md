@@ -1,4 +1,6 @@
-# degit — straightforward project scaffolding
+> Community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained. We will be willing to give control of this repository to Rich Harris if he becomes active.
+
+# degit (tiged) — straightforward project scaffolding
 
 [![Travis CI build status](https://badgen.net/travis/Rich-Harris/degit/master)](https://travis-ci.org/Rich-Harris/degit)
 [![AppVeyor build status](https://badgen.net/appveyor/ci/Rich-Harris/degit/master)](https://ci.appveyor.com/project/Rich-Harris/degit/branch/master)
@@ -15,12 +17,15 @@ _Requires Node 8 or above, because `async` and `await` are the cat's pyjamas_
 ## Installation
 
 ```bash
-npm install -g degit
+npm uninstall -g degit
+npm install -g tiged
 ```
 
 ## Usage
 
 ### Basics
+
+> The run command stays as before, degit and not tiged. So no automated scripts break and people are used to the good old name.
 
 The simplest use of degit is to download the master branch of a repo from GitHub to the current working directory:
 
@@ -53,8 +58,6 @@ degit https://git.sr.ht/user/repo
 ```
 
 ### Specify a tag, branch or commit
-
-The default branch is `master`.
 
 ```bash
 degit user/repo#dev       # branch
