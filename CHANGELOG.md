@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.9.4
+* Speed up git mode by doing a shallow clone ([#171](https://github.com/Rich-Harris/degit/pull/171))
+
 ## 2.9.3
 * degit --help did not work. It would throw error. Now it reads the help.md like it should. ([#179](https://github.com/Rich-Harris/degit/pull/179))
 
