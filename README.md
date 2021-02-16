@@ -2,11 +2,10 @@
 
 # degit (tiged) — straightforward project scaffolding
 
-[![Travis CI build status](https://badgen.net/travis/Rich-Harris/degit/master)](https://travis-ci.org/Rich-Harris/degit)
-[![AppVeyor build status](https://badgen.net/appveyor/ci/Rich-Harris/degit/master)](https://ci.appveyor.com/project/Rich-Harris/degit/branch/master)
-[![Known Vulnerabilities](https://snyk.io/test/npm/degit/badge.svg)](https://snyk.io/test/npm/degit)
-[![install size](https://badgen.net/packagephobia/install/degit)](https://packagephobia.now.sh/result?p=degit)
-[![npm package version](https://badgen.net/npm/v/degit)](https://npm.im/degit)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftiged%2Ftiged%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/tiged/tiged/goto?ref=main)
+[![Known Vulnerabilities](https://snyk.io/test/npm/degit/badge.svg)](https://snyk.io/test/npm/tiged)
+[![install size](https://badgen.net/packagephobia/install/tiged)](https://packagephobia.now.sh/result?p=tiged)
+[![npm package version](https://badgen.net/npm/v/tiged)](https://npm.im/tiged)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 

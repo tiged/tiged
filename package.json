@@ -1,6 +1,6 @@
 {
 	"name": "tiged",
-	"version": "2.9.4",
+	"version": "2.9.5",
 	"engines": {
 		"node": ">=8.0.0"
 	},

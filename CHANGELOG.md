@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.9.5
+* Using rimraf for older node version support. E.g. Node 10 should now work again in all uses. ([#3](https://github.com/tiged/tiged/pull/3)) 
+
 ## 2.9.4
 * Speed up git mode by doing a shallow clone ([#171](https://github.com/Rich-Harris/degit/pull/171))
 

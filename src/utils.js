@@ -6,11 +6,12 @@ import child_process from 'child_process';
 import URL from 'url';
 import Agent from 'https-proxy-agent';
 import { copydirSync } from 'sander';
+import rimraf from "rimraf"
 
 const tmpDirName = 'tmp';
 const degitConfigName = 'degit.json';
 export const rimrafSync = dir =>
-	fs.rmdirSync(dir, { recursive: true, force: true });
+	rimraf.sync(dir);
 
 export { degitConfigName };
 
@@ -91,18 +92,32 @@ export function fetch(url, dest, proxy) {
 
 export function stashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
-	rimrafSync(tmpDir);
+  try {
+	  rimrafSync(tmpDir);
+  } catch (e) {
+    if (e.errno !== -2 && e.syscall !== "rmdir" && e.code !== "ENOENT") {
+      throw e;
+    }
+  }
 	mkdirp(tmpDir);
 	fs.readdirSync(dest).forEach(file => {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
 		const isDir = fs.lstatSync(filePath).isDirectory();
+    console.log("1111111")
 		if (isDir) {
+    console.log("22222222")
 			copydirSync(filePath).to(targetPath);
+    console.log("33333333")
+      console.log(filePath)
 			rimrafSync(filePath);
+    console.log("44444444444")
 		} else {
+    console.log("5555555555")
 			fs.copyFileSync(filePath, targetPath);
+    console.log("666666666")
 			fs.unlinkSync(filePath);
+    console.log("777777777")
 		}
 	});
 }
