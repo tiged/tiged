@@ -20,6 +20,7 @@
 * -`-mode=git` with private repos now work on Windows [#191](https://github.com/Rich-Harris/degit/pull/191).
 * degit --help now works. Previously it would crash instead of displaying help.md contents. [#179](https://github.com/Rich-Harris/degit/pull/179)
 * `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
+* Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
 It might be time to move on.
 ---
 **degit** makes copies of git repositories. When you run `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
