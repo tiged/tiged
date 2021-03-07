@@ -1,5 +1,8 @@
 # degit changelog
 
+## 2.10.0
+* Add support for privately hosted git repositories ([#6](https://github.com/tiged/tiged/pull/6))
+
 ## 2.9.5
 * Using rimraf for older node version support. E.g. Node 10 should now work again in all uses. ([#3](https://github.com/tiged/tiged/pull/3)) 
 
