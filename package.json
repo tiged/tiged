@@ -1,6 +1,6 @@
 {
 	"name": "tiged",
-	"version": "2.9.5",
+	"version": "2.10.2",
 	"engines": {
 		"node": ">=8.0.0"
 	},
@@ -19,19 +19,19 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Rich-Harris/degit.git"
+		"url": "git+https://github.com/tiged/tiged.git"
 	},
 	"keywords": [
 		"scaffolding",
 		"template",
 		"git"
 	],
-	"author": "Rich Harris",
+	"author": "tiged",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/Rich-Harris/degit/issues"
+		"url": "https://github.com/tiged/tiged/issues"
 	},
-	"homepage": "https://github.com/Rich-Harris/degit#readme",
+	"homepage": "https://github.com/tiged/tiged#readme",
 	"dependencies": {
 		"colorette": "1.2.1",
 		"enquirer": "2.3.6",
