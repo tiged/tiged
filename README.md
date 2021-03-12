@@ -10,7 +10,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 ---
 ### Why fork?
-* `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering messages here.
+* `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that.
 * We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
 * Update dependencies.
 * Hopefully get multiple active maintainers.
