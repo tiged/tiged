@@ -316,10 +316,10 @@ class Degit extends EventEmitter {
 	}
 
 	async _cloneWithGit(dir, dest) {
-		const branch = this.repo.ref ? `-b ${this.repo.ref}` : '';
 		if (this.repo.subdir) {
+      fs.mkdirSync(dest);
 			const tempDir = fs.mkdtempSync(`${dest}/.degit`);
-			await exec(`git clone --depth 1 ${branch} ${this.repo.ssh} ${tempDir}`);
+			await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
 			const files = fs.readdirSync(`${tempDir}${this.repo.subdir}`);
 			files.forEach(file => {
 				fs.renameSync(
@@ -329,7 +329,7 @@ class Degit extends EventEmitter {
 			});
 			rimrafSync(tempDir);
 		} else {
-			await exec(`git clone --depth 1 ${branch} ${this.repo.ssh} ${dest}`);
+			await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
 			rimrafSync(path.resolve(dest, '.git'));
 		}
 	}
