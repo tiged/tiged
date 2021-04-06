@@ -1,4 +1,7 @@
-# degit changelog
+# tiged changelog
+
+## 2.10.3
+* GitLab changed tar.gz url. Now works again.
 
 ## 2.10.2
 * Add support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
