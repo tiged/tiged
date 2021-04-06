@@ -12,7 +12,7 @@
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
 		"dev": "npm run build -- --watch",
-		"build": "del dist && rollup -c",
+		"build": "rimraf dist && rollup -c",
 		"test": "mocha",
 		"pretest": "npm run build",
 		"prepack": "npm run build"
