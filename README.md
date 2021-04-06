@@ -1,4 +1,4 @@
-> Community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained. We will be willing to give control of this repository to Rich Harris if he becomes active.
+> Community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained. We will be willing to give control of this repository to Rich Harris if he becomes active. *Rich has now merged the main branch fix. I'm monitoring the need of this fork. Currently this is still more fully featured*
 
 # tiged — straightforward project scaffolding
 
@@ -10,7 +10,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 ---
 ### Why fork?
-* `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that.
+* `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that.*Rich has now (01.04.2021) merged the main branch fix. I'm monitoring the need of this fork. Currently this fork is still more fully featured*
 * We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
 * Update dependencies.
 * Hopefully get multiple active maintainers.
@@ -22,6 +22,8 @@
 * `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
 * Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
 * Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
+* GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
+* Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
 
 **It might be time to move on.**
 ---
