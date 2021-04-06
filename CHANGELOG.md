@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.10.4
+* Subdir now works with --mode=git
+
 ## 2.10.3
 * GitLab changed tar.gz url. Now works again.
 
