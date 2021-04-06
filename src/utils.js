@@ -104,20 +104,12 @@ export function stashFiles(dir, dest) {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
 		const isDir = fs.lstatSync(filePath).isDirectory();
-    console.log("1111111")
 		if (isDir) {
-    console.log("22222222")
 			copydirSync(filePath).to(targetPath);
-    console.log("33333333")
-      console.log(filePath)
 			rimrafSync(filePath);
-    console.log("44444444444")
 		} else {
-    console.log("5555555555")
 			fs.copyFileSync(filePath, targetPath);
-    console.log("666666666")
 			fs.unlinkSync(filePath);
-    console.log("777777777")
 		}
 	});
 }
