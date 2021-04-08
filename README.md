@@ -80,7 +80,7 @@ degit https://git.sr.ht/user/repo
 degit user/repo#dev       # branch
 degit user/repo#v1.2.3    # release tag
 degit user/repo#1234abcd  # commit hash
-````
+```
 
 ### Create a new folder for the project
 
@@ -113,12 +113,6 @@ Note: this clones over SSH, not HTTPS.
 ```bash
 degit --help
 ```
-
-## Not supported
-
-- Private repositories
-
-Pull requests are very welcome!
 
 ## Wait, isn't this just `git clone --depth 1`?
 
