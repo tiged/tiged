@@ -25,14 +25,20 @@ export default function degit(src, opts) {
 class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
 		super();
-
 		this.src = src;
 		this.cache = opts.cache;
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
-
+    this.subgroup = opts.subgroup;
 		this.repo = parse(src);
+    if (this.subgroup) {
+      this.repo.subgroup = true
+      this.repo.url = this.repo.url + this.repo.subdir
+      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git"
+      this.repo.subdir = null
+
+    }
 		this.mode = opts.mode || this.repo.mode;
 
 		if (!validModes.has(this.mode)) {
@@ -85,9 +91,7 @@ class Degit extends EventEmitter {
 
 	async clone(dest) {
 		this._checkDirIsEmpty(dest);
-
 		const { repo } = this;
-
 		const dir = path.join(base, repo.site, repo.user, repo.name);
 
 		if (this.mode === 'tar') {
