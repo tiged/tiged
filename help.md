@@ -53,6 +53,7 @@ Options:
   `--cache`,   `-c`  Only use local cache
   `--force`,   `-f`  Allow non-empty destination directory
   `--verbose`, `-v`  Extra logging
+  `--subgroup`, `-s` Use if repo is in a subroup (GitLab)
   `--mode=`,   `-m=` Force the mode by which degit clones the repo
                      Valid options are `tar` or `git` (uses SSH)
 
