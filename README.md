@@ -24,6 +24,7 @@
 * Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
 * GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
 * Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
+* Subgroups work in GitLab [#24](https://github.com/tiged/tiged/pull/24)
 
 **It might be time to move on.**
 ---
@@ -96,6 +97,15 @@ To clone a specific subdirectory instead of the entire repo, just add it to the 
 
 ```bash
 degit user/repo/subdirectory
+```
+
+### Subgroups (GitLab)
+
+To get a GitLab repo that has a subgroup use the `--subgroup` option.
+
+```bash
+degit --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
+degit -s https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
 ```
 
 ### HTTPS proxying

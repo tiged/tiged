@@ -13,9 +13,10 @@ const args = mri(process.argv.slice(2), {
 		f: 'force',
 		c: 'cache',
 		v: 'verbose',
-		m: 'mode'
+		m: 'mode',
+    s: 'subgroup'
 	},
-	boolean: ['force', 'cache', 'verbose']
+	boolean: ['force', 'cache', 'verbose', 'subgroup']
 });
 
 const [src, dest = '.'] = args._;
@@ -26,7 +27,7 @@ async function main() {
 			.readFileSync(path.join(__dirname, '..', 'help.md'), 'utf-8')
 			.replace(/^(\s*)#+ (.+)/gm, (m, s, _) => s + bold(_))
 			.replace(/_([^_]+)_/g, (m, _) => underline(_))
-			.replace(/`([^`]+)`/g, (m, _) => cyan(_));
+			.replace(/`([^`]+)`/g, (m, _) => cyan(_)); //` syntax highlighter fix
 
 		process.stdout.write(`\n${help}\n`);
 	} else if (!src) {

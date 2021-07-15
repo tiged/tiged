@@ -74,6 +74,19 @@ describe('degit', function() {
 		});
 	});
 
+	describe('gitlab subgroup', () => {
+		[
+			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
+		].forEach(src => {
+			it(src, async () => {
+				await exec(`node ${degitPath} --subgroup ${src} .tmp/test-repo -v`);
+				compare(`.tmp/test-repo`, {
+					'main.tf': 'Subgroup test'
+				});
+			});
+		});
+	});
+
 	describe('bitbucket', () => {
 		[
 			'bitbucket:Rich_Harris/degit-test-repo',

@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.11.0
+* Subgroups now work (GitLab). ([#24](https://github.com/tiged/tiged/pull/24))
+
 ## 2.10.4
 * Subdir now works with --mode=git
 
