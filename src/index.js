@@ -31,12 +31,13 @@ class Degit extends EventEmitter {
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
     this.subgroup = opts.subgroup;
+    this.subdir =  opts["sub-directory"];
 		this.repo = parse(src);
     if (this.subgroup) {
-      this.repo.subgroup = true
-      this.repo.url = this.repo.url + this.repo.subdir
-      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git"
-      this.repo.subdir = null
+      this.repo.subgroup = true;
+      this.repo.url = this.repo.url + this.repo.subdir;
+      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git";
+      this.repo.subdir = this.subdir? this.subdir: null;
 
     }
 		this.mode = opts.mode || this.repo.mode;
