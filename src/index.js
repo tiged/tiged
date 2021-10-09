@@ -31,14 +31,18 @@ class Degit extends EventEmitter {
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
     this.subgroup = opts.subgroup;
+    this.subdir = opts["sub-directory"];
 		this.repo = parse(src);
     if (this.subgroup) {
-      this.repo.subgroup = true
-      this.repo.url = this.repo.url + this.repo.subdir
-      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git"
-      this.repo.subdir = null
-
-    }
+      this.repo.subgroup = true;
+			this.repo.name = this.repo.subdir.slice(1);
+      this.repo.url = this.repo.url + this.repo.subdir;
+      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git";
+			this.repo.subdir = null;
+			if (this.subdir) {
+				this.repo.subdir = this.subdir.startsWith('/') ? this.subdir : `/${this.subdir}`;
+			}
+		}
 		this.mode = opts.mode || this.repo.mode;
 
 		if (!validModes.has(this.mode)) {
@@ -255,6 +259,7 @@ class Degit extends EventEmitter {
 			: await this._getHash(repo, cached);
 
 		const subdir = repo.subdir ? `${repo.name}-${hash}${repo.subdir}` : null;
+
 
 		if (!hash) {
 			// TODO 'did you mean...?'

@@ -108,6 +108,12 @@ degit --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo
 degit -s https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
 ```
 
+To get a subdirectory of a repo inside a subgroup, use the `--sub-directory` option.
+
+```bash
+degit --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo --sub-directory subdir1 my-dir
+```
+
 ### HTTPS proxying
 
 If you have an `https_proxy` environment variable, Degit will use it.

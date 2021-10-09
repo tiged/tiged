@@ -14,7 +14,8 @@ const args = mri(process.argv.slice(2), {
 		c: 'cache',
 		v: 'verbose',
 		m: 'mode',
-    s: 'subgroup'
+    s: 'subgroup',
+    d: 'sub-directory'
 	},
 	boolean: ['force', 'cache', 'verbose', 'subgroup']
 });
