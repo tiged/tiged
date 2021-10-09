@@ -81,7 +81,31 @@ describe('degit', function() {
 			it(src, async () => {
 				await exec(`node ${degitPath} --subgroup ${src} .tmp/test-repo -v`);
 				compare(`.tmp/test-repo`, {
-					'main.tf': 'Subgroup test'
+					'main.tf': 'Subgroup test',
+					subdir1: null,
+					'subdir1/subdir2': null,
+					'subdir1/subdir2/file.txt': 'I\'m a file.',
+				});
+			});
+		});
+	});
+
+	describe('gitlab subgroup with subdir', () => {
+		[
+			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
+		].forEach(src => {
+			it(src, async () => {
+				await exec(`node ${degitPath} --subgroup ${src} --sub-directory subdir1 .tmp/test-repo -v`);
+				compare(`.tmp/test-repo`, {
+					'subdir2': null,
+					'subdir2/file.txt': 'I\'m a file.',
+				});
+			});
+
+			it(src, async () => {
+				await exec(`node ${degitPath} --subgroup ${src} --sub-directory subdir1/subdir2 .tmp/test-repo -v`);
+				compare(`.tmp/test-repo`, {
+					'file.txt': 'I\'m a file.',
 				});
 			});
 		});
