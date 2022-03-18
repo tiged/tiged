@@ -331,7 +331,7 @@ class Degit extends EventEmitter {
 			const tempDir = path.join(dest, '.tiged');
 			if (this.repo.ref) {
 				await exec(
-					`cd ${tempDir}; git init; git remote add origin ${this.repo.ssh}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					`cd ${tempDir}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
 				await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
@@ -348,7 +348,7 @@ class Degit extends EventEmitter {
 			if (this.repo.ref) {
 				fs.mkdirSync(dest, { recursive: true });
 				await exec(
-					`cd ${dest}; git init; git remote add origin ${this.repo.ssh}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					`cd ${dest}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
 				await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
