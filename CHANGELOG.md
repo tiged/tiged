@@ -1,81 +1,97 @@
 # tiged changelog
 
+## 2.11.1
+
+- Add ability to use old hashes with --mode=git. ([#34](https://github.com/tiged/tiged/pull/34))
+
 ## 2.11.0
-* Subgroups now work (GitLab). ([#24](https://github.com/tiged/tiged/pull/24))
+
+- Subgroups now work (GitLab). ([#24](https://github.com/tiged/tiged/pull/24))
 
 ## 2.10.4
-* Subdir now works with --mode=git
+
+- Subdir now works with --mode=git
 
 ## 2.10.3
-* GitLab changed tar.gz url. Now works again.
+
+- GitLab changed tar.gz url. Now works again.
 
 ## 2.10.2
-* Add support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
+
+- Add support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
 
 ## 2.10.1
-* Reverted previous fix due to uncaught bug during testing.
+
+- Reverted previous fix due to uncaught bug during testing.
 
 ## 2.10.0
-* Add support for privately hosted git repositories ([#6](https://github.com/tiged/tiged/pull/6))
+
+- Add support for privately hosted git repositories ([#6](https://github.com/tiged/tiged/pull/6))
 
 ## 2.9.5
-* Using rimraf for older node version support. E.g. Node 10 should now work again in all uses. ([#3](https://github.com/tiged/tiged/pull/3)) 
+
+- Using rimraf for older node version support. E.g. Node 10 should now work again in all uses. ([#3](https://github.com/tiged/tiged/pull/3))
 
 ## 2.9.4
-* Speed up git mode by doing a shallow clone ([#171](https://github.com/Rich-Harris/degit/pull/171))
+
+- Speed up git mode by doing a shallow clone ([#171](https://github.com/Rich-Harris/degit/pull/171))
 
 ## 2.9.3
-* degit --help did not work. It would throw error. Now it reads the help.md like it should. ([#179](https://github.com/Rich-Harris/degit/pull/179))
+
+- degit --help did not work. It would throw error. Now it reads the help.md like it should. ([#179](https://github.com/Rich-Harris/degit/pull/179))
 
 ## 2.9.2
-* Fixed shebang. It was broken by pointing bin in package.json straight to dist/bin.js. Now pointing again to ./bin.js
+
+- Fixed shebang. It was broken by pointing bin in package.json straight to dist/bin.js. Now pointing again to ./bin.js
 
 ## 2.9.1
-* Fixed build so that #191 from previous change log actually is in the build.
+
+- Fixed build so that #191 from previous change log actually is in the build.
 
 ## 2.9.0
-* "main" and other default branches work, not just master ([#243](https://github.com/Rich-Harris/degit/pull/243))
-* Use rimrafSync instead of rm -rf in --mode=git ([#191](https://github.com/Rich-Harris/degit/pull/191))
-* Updated dependencies
-* Forked to tiged, community driven fork of degit
+
+- "main" and other default branches work, not just master ([#243](https://github.com/Rich-Harris/degit/pull/243))
+- Use rimrafSync instead of rm -rf in --mode=git ([#191](https://github.com/Rich-Harris/degit/pull/191))
+- Updated dependencies
+- Forked to tiged, community driven fork of degit
 
 ## 2.8.3
 
-* Stop bundling dependencies
+- Stop bundling dependencies
 
-* Update all dependencies
+- Update all dependencies
 
 ## 2.8.2
 
-* Replace `chalk` with `colorette`
+- Replace `chalk` with `colorette`
 
 ## 2.8.1
 
-* Fix package (https://github.com/fregante/degitto/commit/f6e1617582af34173a210c5904e1d6c6148769b0)
+- Fix package (https://github.com/fregante/degitto/commit/f6e1617582af34173a210c5904e1d6c6148769b0)
 
 ## 2.8.0
 
-* Sort by recency in interactive mode
+- Sort by recency in interactive mode
 
 ## 2.7.0
 
-* Bundle for a faster install
+- Bundle for a faster install
 
 ## 2.6.0
 
-* Add an interactive mode ([#4](https://github.com/Rich-Harris/degit/issues/4))
+- Add an interactive mode ([#4](https://github.com/Rich-Harris/degit/issues/4))
 
 ## 2.5.0
 
-* Add `--mode=git` for cloning private repos ([#29](https://github.com/Rich-Harris/degit/pull/29))
+- Add `--mode=git` for cloning private repos ([#29](https://github.com/Rich-Harris/degit/pull/29))
 
 ## 2.4.0
 
-* Clone subdirectories from repos (`user/repo/subdir`)
+- Clone subdirectories from repos (`user/repo/subdir`)
 
 ## 2.3.0
 
-* Support HTTPS proxying where `https_proxy` env var is supplied ([#26](https://github.com/Rich-Harris/degit/issues/26))
+- Support HTTPS proxying where `https_proxy` env var is supplied ([#26](https://github.com/Rich-Harris/degit/issues/26))
 
 ## 2.2.2
 

@@ -30,17 +30,19 @@ class Degit extends EventEmitter {
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
-    this.subgroup = opts.subgroup;
-    this.subdir = opts["sub-directory"];
+		this.subgroup = opts.subgroup;
+		this.subdir = opts['sub-directory'];
 		this.repo = parse(src);
-    if (this.subgroup) {
-      this.repo.subgroup = true;
+		if (this.subgroup) {
+			this.repo.subgroup = true;
 			this.repo.name = this.repo.subdir.slice(1);
-      this.repo.url = this.repo.url + this.repo.subdir;
-      this.repo.ssh = this.repo.ssh + this.repo.subdir + ".git";
+			this.repo.url = this.repo.url + this.repo.subdir;
+			this.repo.ssh = this.repo.ssh + this.repo.subdir + '.git';
 			this.repo.subdir = null;
 			if (this.subdir) {
-				this.repo.subdir = this.subdir.startsWith('/') ? this.subdir : `/${this.subdir}`;
+				this.repo.subdir = this.subdir.startsWith('/')
+					? this.subdir
+					: `/${this.subdir}`;
 			}
 		}
 		this.mode = opts.mode || this.repo.mode;
@@ -260,7 +262,6 @@ class Degit extends EventEmitter {
 
 		const subdir = repo.subdir ? `${repo.name}-${hash}${repo.subdir}` : null;
 
-
 		if (!hash) {
 			// TODO 'did you mean...?'
 			throw new DegitError(`could not find commit hash for ${repo.ref}`, {
@@ -326,9 +327,15 @@ class Degit extends EventEmitter {
 
 	async _cloneWithGit(dir, dest) {
 		if (this.repo.subdir) {
-      fs.mkdirSync(dest);
-			const tempDir = fs.mkdtempSync(`${dest}/.degit`);
-			await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
+			fs.mkdirSync(path.join(dest, '.tiged'), { recursive: true });
+			const tempDir = path.join(dest, '.tiged');
+			if (this.repo.ref) {
+				await exec(
+					`cd ${tempDir}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+				);
+			} else {
+				await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
+			}
 			const files = fs.readdirSync(`${tempDir}${this.repo.subdir}`);
 			files.forEach(file => {
 				fs.renameSync(
@@ -338,7 +345,14 @@ class Degit extends EventEmitter {
 			});
 			rimrafSync(tempDir);
 		} else {
-			await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
+			if (this.repo.ref) {
+				fs.mkdirSync(dest, { recursive: true });
+				await exec(
+					`cd ${dest}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+				);
+			} else {
+				await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
+			}
 			rimrafSync(path.resolve(dest, '.git'));
 		}
 	}
@@ -348,7 +362,7 @@ const supported = {
 	github: '.com',
 	gitlab: '.com',
 	bitbucket: '.com',
-	'git.sr.ht': '.ht',
+	'git.sr.ht': '.ht'
 };
 
 function parse(src) {
@@ -362,7 +376,7 @@ function parse(src) {
 	}
 
 	const site = match[1] || match[2] || match[3] || 'github.com';
-	const tldMatch = /\.([a-z]{2,})$/.exec(site)
+	const tldMatch = /\.([a-z]{2,})$/.exec(site);
 	const tld = tldMatch ? tldMatch[0] : null;
 	const siteName = tld ? site.replace(tld, '') : site;
 
@@ -371,7 +385,9 @@ function parse(src) {
 	const subdir = match[6];
 	const ref = match[7] || 'HEAD';
 
-	const domain = `${siteName}${tld || supported[siteName] || supported[site] || ''}`
+	const domain = `${siteName}${
+		tld || supported[siteName] || supported[site] || ''
+	}`;
 
 	const url = `https://${domain}/${user}/${name}`;
 	const ssh = `git@${domain}:${user}/${name}`;

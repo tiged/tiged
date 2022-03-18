@@ -23,7 +23,7 @@ function exec(cmd) {
 	});
 }
 
-describe('degit', function() {
+describe('degit', function () {
 	this.timeout(timeout);
 
 	function compare(dir, files) {
@@ -75,40 +75,44 @@ describe('degit', function() {
 	});
 
 	describe('gitlab subgroup', () => {
-		[
-			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
-		].forEach(src => {
-			it(src, async () => {
-				await exec(`node ${degitPath} --subgroup ${src} .tmp/test-repo -v`);
-				compare(`.tmp/test-repo`, {
-					'main.tf': 'Subgroup test',
-					subdir1: null,
-					'subdir1/subdir2': null,
-					'subdir1/subdir2/file.txt': 'I\'m a file.',
+		['https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'].forEach(
+			src => {
+				it(src, async () => {
+					await exec(`node ${degitPath} --subgroup ${src} .tmp/test-repo -v`);
+					compare(`.tmp/test-repo`, {
+						'main.tf': 'Subgroup test',
+						subdir1: null,
+						'subdir1/subdir2': null,
+						'subdir1/subdir2/file.txt': "I'm a file."
+					});
 				});
-			});
-		});
+			}
+		);
 	});
 
 	describe('gitlab subgroup with subdir', () => {
-		[
-			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
-		].forEach(src => {
-			it(src, async () => {
-				await exec(`node ${degitPath} --subgroup ${src} --sub-directory subdir1 .tmp/test-repo -v`);
-				compare(`.tmp/test-repo`, {
-					'subdir2': null,
-					'subdir2/file.txt': 'I\'m a file.',
+		['https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'].forEach(
+			src => {
+				it(src, async () => {
+					await exec(
+						`node ${degitPath} --subgroup ${src} --sub-directory subdir1 .tmp/test-repo -v`
+					);
+					compare(`.tmp/test-repo`, {
+						subdir2: null,
+						'subdir2/file.txt': "I'm a file."
+					});
 				});
-			});
 
-			it(src, async () => {
-				await exec(`node ${degitPath} --subgroup ${src} --sub-directory subdir1/subdir2 .tmp/test-repo -v`);
-				compare(`.tmp/test-repo`, {
-					'file.txt': 'I\'m a file.',
+				it(src, async () => {
+					await exec(
+						`node ${degitPath} --subgroup ${src} --sub-directory subdir1/subdir2 .tmp/test-repo -v`
+					);
+					compare(`.tmp/test-repo`, {
+						'file.txt': "I'm a file."
+					});
 				});
-			});
-		});
+			}
+		);
 	});
 
 	describe('bitbucket', () => {
@@ -245,10 +249,32 @@ describe('degit', function() {
 		});
 	});
 
+	describe('git mode old hash', () => {
+		it('is able to clone correctly using git mode with old hash', async () => {
+			await rimraf('.tmp');
+			await exec(
+				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
+			);
+			compare(`.tmp/test-repo`, {
+				subdir: false,
+				'README.md': 'tiged is awesome',
+				'subdir/file': 'Hello, champ!'
+			});
+		});
+		it('is able to clone subdir correctly using git mode with old hash', async () => {
+			await rimraf('.tmp');
+			await exec(
+				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
+			);
+			compare(`.tmp/test-repo`, {
+				file: 'Hello, champ!'
+			});
+		});
+	});
+
 	describe.skip('git mode', () => {
 		it('is able to clone correctly using git mode', async () => {
 			await rimraf('.tmp');
-
 			await exec(
 				`node ${degitPath} --mode=git https://github.com/Rich-Harris/degit-test-repo-private.git .tmp/test-repo`
 			);
