@@ -253,7 +253,7 @@ describe('degit', function () {
 		it('is able to clone correctly using git mode with old hash', async () => {
 			await rimraf('.tmp');
 			await exec(
-				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git\#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
+				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
 				subdir: false,
@@ -264,7 +264,7 @@ describe('degit', function () {
 		it('is able to clone subdir correctly using git mode with old hash', async () => {
 			await rimraf('.tmp');
 			await exec(
-				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir\#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
+				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
 				file: 'Hello, champ!'
