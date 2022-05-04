@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const {homedir, tmpdir} = require('os');
 
@@ -7,11 +7,10 @@ const https = require('https');
 const child_process = require('child_process');
 const URL = require('url');
 const Agent = require('https-proxy-agent');
-const { copydirSync } = require('sander');
-const rimraf = require("rimraf")
+const rimrafCallback = require("rimraf")
 
 const tmpDirName = 'tmp';
-const rimrafSync = dir => rimraf.sync(dir);
+const rimraf = dir => new Promise((res)=>rimrafCallback(dir, res));
 
 const degitConfigName = 'degit.json';
 
@@ -48,19 +47,6 @@ function exec(command) {
 	});
 }
 
-function mkdirp(dir) {
-	const parent = path.dirname(dir);
-	if (parent === dir) return;
-
-	mkdirp(parent);
-
-	try {
-		fs.mkdirSync(dir);
-	} catch (err) {
-		if (err.code !== 'EEXIST') throw err;
-	}
-}
-
 function fetch(url, dest, proxy) {
 	return new Promise((fulfil, reject) => {
 		let options = url;
@@ -92,57 +78,58 @@ function fetch(url, dest, proxy) {
 	});
 }
 
-function stashFiles(dir, dest) {
+async function stashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
   try {
-	  rimrafSync(tmpDir);
+	  await rimraf(tmpDir);
   } catch (e) {
     if (e.errno !== -2 && e.syscall !== "rmdir" && e.code !== "ENOENT") {
       throw e;
     }
   }
-	mkdirp(tmpDir);
-	fs.readdirSync(dest).forEach(file => {
+	await fs.mkdir(tmpDir);
+	const files = await fs.readdir(dest)
+	for(const file of files){
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
-		const isDir = fs.lstatSync(filePath).isDirectory();
+		const isDir = (await fs.lstat(filePath)).isDirectory();
 		if (isDir) {
-			copydirSync(filePath).to(targetPath);
-			rimrafSync(filePath);
+			await fs.copy(filePath, targetPath);
+			await rimraf(filePath);
 		} else {
-			fs.copyFileSync(filePath, targetPath);
-			fs.unlinkSync(filePath);
+			await fs.copy(filePath, targetPath);
+			await fs.unlink(filePath);
 		}
-	});
+	}
 }
 
-function unstashFiles(dir, dest) {
+async function unstashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
-	fs.readdirSync(tmpDir).forEach(filename => {
+	const files = await fs.readdir(tmpDir)
+	for(const filename of files){
 		const tmpFile = path.join(tmpDir, filename);
 		const targetPath = path.join(dest, filename);
-		const isDir = fs.lstatSync(tmpFile).isDirectory();
+		const isDir = (await fs.lstat(tmpFile)).isDirectory();
 		if (isDir) {
-			copydirSync(tmpFile).to(targetPath);
-			rimrafSync(tmpFile);
+			await fs.copy(tmpFile, targetPath);
+			await rimraf(tmpFile);
 		} else {
 			if (filename !== 'degit.json') {
-				fs.copyFileSync(tmpFile, targetPath);
+				await fs.copy(tmpFile, targetPath);
 			}
-			fs.unlinkSync(tmpFile);
+			await fs.unlink(tmpFile);
 		}
-	});
-	rimrafSync(tmpDir);
+	}
+	await rimraf(tmpDir);
 }
 
 const base = path.join(homeOrTmp, '.degit');
 
 module.exports = {
-	rimrafSync,
+	rimraf,
 	degitConfigName,
 	DegitError,
 	tryRequire,
-	mkdirp,
 	fetch,
 	exec,
 	stashFiles,

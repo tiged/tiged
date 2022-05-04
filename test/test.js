@@ -1,9 +1,9 @@
 require('source-map-support').install();
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const glob = require('tiny-glob/sync');
-const rimraf = require('rimraf').sync;
+const { rimraf } = require('../src/utils');
 const assert = require('assert');
 const child_process = require('child_process');
 
@@ -28,17 +28,21 @@ describe('degit', function () {
 
 	function compare(dir, files) {
 		const expected = glob('**', { cwd: dir });
-		assert.deepEqual(Object.keys(files).sort(), expected.sort());
+		assert.deepStrictEqual(Object.keys(files).sort(), expected.sort());
 
 		expected.forEach(file => {
 			if (!fs.lstatSync(`${dir}/${file}`).isDirectory()) {
-				assert.equal(files[file].trim(), read(`${dir}/${file}`).trim());
+				assert.strictEqual(files[file].trim(), read(`${dir}/${file}`).trim());
 			}
 		});
 	}
 
-	beforeEach(async () => await rimraf('.tmp'));
-	afterEach(async () => await rimraf('.tmp'));
+	beforeEach(async () => {
+		await rimraf('.tmp')
+	});
+	afterEach(async () => {
+		await rimraf('.tmp')
+	});
 
 	describe('github', () => {
 		[
@@ -222,6 +226,7 @@ describe('degit', function () {
 		});
 
 		it('clones repo and removes specified file', async () => {
+			console.log(`node ${degitPath} -v mhkeller/degit-test-repo-remove .tmp/test-repo`)
 			await exec(
 				`node ${degitPath} -v mhkeller/degit-test-repo-remove .tmp/test-repo`
 			);

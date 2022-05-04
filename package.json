@@ -31,11 +31,11 @@
 	"dependencies": {
 		"colorette": "1.2.1",
 		"enquirer": "2.3.6",
+		"fs-extra": "10.1.0",
 		"fuzzysearch": "1.0.3",
 		"https-proxy-agent": "5.0.0",
 		"mri": "1.1.6",
 		"rimraf": "3.0.2",
-		"sander": "0.6.0",
 		"tar": "^6.1.11",
 		"tiny-glob": "0.2.8"
 	},
