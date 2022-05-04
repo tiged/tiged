@@ -7,8 +7,8 @@ const rimraf = require('rimraf').sync;
 const assert = require('assert');
 const child_process = require('child_process');
 
-const degit = require('../dist/index.js');
-const degitPath = path.resolve('dist/bin.js');
+const degit = require('../src/index.js');
+const degitPath = path.resolve('src/bin.js');
 
 const timeout = 30000;
 

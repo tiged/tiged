@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import tar from 'tar';
-import { cyan, magenta, red, bold } from 'colorette';
-import EventEmitter from 'events';
-import {
+const fs = require('fs');
+const path = require('path');
+const tar = require('tar');
+const { cyan, magenta, red, bold } = require('colorette');
+const EventEmitter = require('events');
+const {
 	DegitError,
 	exec,
 	fetch,
@@ -14,13 +14,15 @@ import {
 	unstashFiles,
 	degitConfigName,
 	base
-} from './utils.js';
+} = require('./utils.js');
 
 const validModes = new Set(['tar', 'git']);
 
-export default function degit(src, opts) {
+function degit(src, opts) {
 	return new Degit(src, opts);
 }
+
+module.exports = degit
 
 class Degit extends EventEmitter {
 	constructor(src, opts = {}) {

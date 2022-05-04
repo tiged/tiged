@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import { bold, underline, cyan, magenta, red } from 'colorette';
-import mri from 'mri';
-import glob from 'tiny-glob/sync.js';
-import fuzzysearch from 'fuzzysearch';
-import enquirer from 'enquirer';
-import degit from './index.js';
-import { tryRequire, base } from './utils.js';
+const fs = require('fs');
+const path = require('path');
+const { bold, underline, cyan, magenta, red } = require('colorette');
+const mri = require('mri');
+const glob = require('tiny-glob/sync.js');
+const fuzzysearch = require('fuzzysearch');
+const enquirer = require('enquirer');
+const degit = require('./index.js');
+const { tryRequire, base } = require('./utils.js');
 
 const args = mri(process.argv.slice(2), {
 	alias: {

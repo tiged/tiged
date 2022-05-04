@@ -1,28 +1,30 @@
-import fs from 'fs';
-import path from 'path';
-import homeOrTmp from 'home-or-tmp';
-import https from 'https';
-import child_process from 'child_process';
-import URL from 'url';
-import Agent from 'https-proxy-agent';
-import { copydirSync } from 'sander';
-import rimraf from "rimraf"
+const fs = require('fs');
+const path = require('path');
+const {homedir, tmpdir} = require('os');
+
+// eslint-disable-next-line unicorn/prevent-abbreviations
+const https = require('https');
+const child_process = require('child_process');
+const URL = require('url');
+const Agent = require('https-proxy-agent');
+const { copydirSync } = require('sander');
+const rimraf = require("rimraf")
 
 const tmpDirName = 'tmp';
+const rimrafSync = dir => rimraf.sync(dir);
+
 const degitConfigName = 'degit.json';
-export const rimrafSync = dir =>
-	rimraf.sync(dir);
 
-export { degitConfigName };
+const homeOrTmp = homedir() || tmpdir();
 
-export class DegitError extends Error {
+class DegitError extends Error {
 	constructor(message, opts) {
 		super(message);
 		Object.assign(this, opts);
 	}
 }
 
-export function tryRequire(file, opts) {
+function tryRequire(file, opts) {
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];
@@ -33,7 +35,7 @@ export function tryRequire(file, opts) {
 	}
 }
 
-export function exec(command) {
+function exec(command) {
 	return new Promise((fulfil, reject) => {
 		child_process.exec(command, (err, stdout, stderr) => {
 			if (err) {
@@ -46,7 +48,7 @@ export function exec(command) {
 	});
 }
 
-export function mkdirp(dir) {
+function mkdirp(dir) {
 	const parent = path.dirname(dir);
 	if (parent === dir) return;
 
@@ -59,7 +61,7 @@ export function mkdirp(dir) {
 	}
 }
 
-export function fetch(url, dest, proxy) {
+function fetch(url, dest, proxy) {
 	return new Promise((fulfil, reject) => {
 		let options = url;
 
@@ -90,7 +92,7 @@ export function fetch(url, dest, proxy) {
 	});
 }
 
-export function stashFiles(dir, dest) {
+function stashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
   try {
 	  rimrafSync(tmpDir);
@@ -114,7 +116,7 @@ export function stashFiles(dir, dest) {
 	});
 }
 
-export function unstashFiles(dir, dest) {
+function unstashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
 	fs.readdirSync(tmpDir).forEach(filename => {
 		const tmpFile = path.join(tmpDir, filename);
@@ -133,4 +135,17 @@ export function unstashFiles(dir, dest) {
 	rimrafSync(tmpDir);
 }
 
-export const base = path.join(homeOrTmp, '.degit');
+const base = path.join(homeOrTmp, '.degit');
+
+module.exports = {
+	rimrafSync,
+	degitConfigName,
+	DegitError,
+	tryRequire,
+	mkdirp,
+	fetch,
+	exec,
+	stashFiles,
+	unstashFiles,
+	base,
+}
