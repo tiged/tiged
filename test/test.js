@@ -226,7 +226,6 @@ describe('degit', function () {
 		});
 
 		it('clones repo and removes specified file', async () => {
-			console.log(`node ${degitPath} -v mhkeller/degit-test-repo-remove .tmp/test-repo`)
 			await exec(
 				`node ${degitPath} -v mhkeller/degit-test-repo-remove .tmp/test-repo`
 			);
