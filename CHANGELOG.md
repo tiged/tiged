@@ -1,5 +1,10 @@
 # tiged changelog
 
+## 2.11.2
+
+- full async + cjs (no build need) ([#41](https://github.com/tiged/tiged/pull/41))
+- Fix bug introduced in previous version, which basically broke git mode for Windows. ([#42](https://github.com/tiged/tiged/pull/42))
+
 ## 2.11.1
 
 - Add ability to use old hashes with --mode=git. ([#34](https://github.com/tiged/tiged/pull/34))

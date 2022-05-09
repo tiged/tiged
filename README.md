@@ -8,29 +8,33 @@
 [![npm package version](https://badgen.net/npm/v/tiged)](https://npm.im/tiged)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
 ---
+
 ### Why fork?
-* `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that.*Rich has now (April 1, 2021) merged the main branch fix. Regardless currently this fork is still more fully featured and will continue to be developed.*
-* We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
-* Update dependencies.
-* Hopefully get multiple active maintainers.
+
+- `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that._Rich has now (April 1, 2021) merged the main branch fix. Regardless currently this fork is still more fully featured and will continue to be developed._
+- We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
+- Update dependencies.
+- Hopefully get multiple active maintainers.
 
 ### What has been fixed?
-* Works with `main` or any default branch automatically. [#243](https://github.com/Rich-Harris/degit/pull/243)
-* `--mode=git` with private repos now work on Windows [#191](https://github.com/Rich-Harris/degit/pull/191).
-* `degit --help` now works. Previously it would crash instead of displaying help.md contents. [#179](https://github.com/Rich-Harris/degit/pull/179)
-* `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
-* Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
-* Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
-* GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
-* Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
-* Subgroups work in GitLab [#24](https://github.com/tiged/tiged/pull/24)
 
-**It might be time to move on.**
----
+- Works with `main` or any default branch automatically. [#243](https://github.com/Rich-Harris/degit/pull/243)
+- `--mode=git` with private repos now work on Windows [#191](https://github.com/Rich-Harris/degit/pull/191).
+- `degit --help` now works. Previously it would crash instead of displaying help.md contents. [#179](https://github.com/Rich-Harris/degit/pull/179)
+- `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
+- Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
+- Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
+- GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
+- Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
+- Subgroups work in GitLab [#24](https://github.com/tiged/tiged/pull/24)
+- Hashes work with git mode [#34](https://github.com/tiged/tiged/pull/34)
+- Using full async + cjs (no build needed) [#41](https://github.com/tiged/tiged/pull/41)
+
+#### It might be time to move on.
+
 **degit** makes copies of git repositories. When you run `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
-
-_Requires Node 8 or above, because `async` and `await` are the cat's pyjamas_
 
 ## Installation
 
@@ -150,7 +154,7 @@ const degit = require('degit');
 const emitter = degit('user/repo', {
 	cache: true,
 	force: true,
-	verbose: true,
+	verbose: true
 });
 
 emitter.on('info', info => {
