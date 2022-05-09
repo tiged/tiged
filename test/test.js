@@ -1,14 +1,14 @@
 require('source-map-support').install();
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const glob = require('tiny-glob/sync');
-const rimraf = require('rimraf').sync;
+const { rimraf } = require('../src/utils');
 const assert = require('assert');
 const child_process = require('child_process');
 
-const degit = require('../dist/index.js');
-const degitPath = path.resolve('dist/bin.js');
+const degit = require('../src/index.js');
+const degitPath = path.resolve('src/bin.js');
 
 const timeout = 30000;
 
@@ -28,17 +28,21 @@ describe('degit', function () {
 
 	function compare(dir, files) {
 		const expected = glob('**', { cwd: dir });
-		assert.deepEqual(Object.keys(files).sort(), expected.sort());
+		assert.deepStrictEqual(Object.keys(files).sort(), expected.sort());
 
 		expected.forEach(file => {
 			if (!fs.lstatSync(`${dir}/${file}`).isDirectory()) {
-				assert.equal(files[file].trim(), read(`${dir}/${file}`).trim());
+				assert.strictEqual(files[file].trim(), read(`${dir}/${file}`).trim());
 			}
 		});
 	}
 
-	beforeEach(async () => await rimraf('.tmp'));
-	afterEach(async () => await rimraf('.tmp'));
+	beforeEach(async () => {
+		await rimraf('.tmp')
+	});
+	afterEach(async () => {
+		await rimraf('.tmp')
+	});
 
 	describe('github', () => {
 		[

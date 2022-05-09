@@ -1,26 +1,27 @@
-import fs from 'fs';
-import path from 'path';
-import tar from 'tar';
-import { cyan, magenta, red, bold } from 'colorette';
-import EventEmitter from 'events';
-import {
+const fs = require('fs-extra');
+const path = require('path');
+const tar = require('tar');
+const { cyan, magenta, red, bold } = require('colorette');
+const EventEmitter = require('events');
+const {
 	DegitError,
 	exec,
 	fetch,
-	mkdirp,
-	rimrafSync,
+	rimraf,
 	tryRequire,
 	stashFiles,
 	unstashFiles,
 	degitConfigName,
 	base
-} from './utils.js';
+} = require('./utils.js');
 
 const validModes = new Set(['tar', 'git']);
 
-export default function degit(src, opts) {
+function degit(src, opts) {
 	return new Degit(src, opts);
 }
+
+module.exports = degit
 
 class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
@@ -56,7 +57,7 @@ class Degit extends EventEmitter {
 		this.directiveActions = {
 			clone: async (dir, dest, action) => {
 				if (this._hasStashed === false) {
-					stashFiles(dir, dest);
+					await stashFiles(dir, dest);
 					this._hasStashed = true;
 				}
 				const opts = Object.assign(
@@ -75,28 +76,31 @@ class Degit extends EventEmitter {
 					);
 				});
 
-				await d.clone(dest).catch(err => {
+				try {
+					await d.clone(dest)
+				}
+				catch(err){
 					console.error(red(`! ${err.message}`));
 					process.exit(1);
-				});
+				}
 			},
 			remove: this.remove.bind(this)
 		};
 	}
 
-	_getDirectives(dest) {
+	async _getDirectives(dest) {
 		const directivesPath = path.resolve(dest, degitConfigName);
 		const directives =
 			tryRequire(directivesPath, { clearCache: true }) || false;
 		if (directives) {
-			fs.unlinkSync(directivesPath);
+			await fs.unlink(directivesPath);
 		}
 
 		return directives;
 	}
 
 	async clone(dest) {
-		this._checkDirIsEmpty(dest);
+		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
 		const dir = path.join(base, repo.site, repo.user, repo.name);
 
@@ -114,47 +118,44 @@ class Degit extends EventEmitter {
 			repo,
 			dest
 		});
-
-		const directives = this._getDirectives(dest);
+		const directives = await this._getDirectives(dest);
 		if (directives) {
 			for (const d of directives) {
 				// TODO, can this be a loop with an index to pass for better error messages?
 				await this.directiveActions[d.action](dir, dest, d);
 			}
 			if (this._hasStashed === true) {
-				unstashFiles(dir, dest);
+				await unstashFiles(dir, dest);
 			}
 		}
 	}
 
-	remove(dir, dest, action) {
+	async remove(_dir, dest, action) {
 		let files = action.files;
 		if (!Array.isArray(files)) {
 			files = [files];
 		}
-		const removedFiles = files
-			.map(file => {
-				const filePath = path.resolve(dest, file);
-				if (fs.existsSync(filePath)) {
-					const isDir = fs.lstatSync(filePath).isDirectory();
-					if (isDir) {
-						rimrafSync(filePath);
-						return file + '/';
-					} else {
-						fs.unlinkSync(filePath);
-						return file;
-					}
+		const removedFiles = []
+		for(const file of files){
+			const filePath = path.resolve(dest, file);
+			if (await fs.pathExists(filePath)) {
+				const isDir = (await fs.lstat(filePath)).isDirectory();
+				if (isDir) {
+					await rimraf(filePath);
+					removedFiles.push(file + '/');
 				} else {
-					this._warn({
-						code: 'FILE_DOES_NOT_EXIST',
-						message: `action wants to remove ${bold(
-							file
-						)} but it does not exist`
-					});
-					return null;
+					await fs.unlink(filePath);
+					removedFiles.push(file);
 				}
-			})
-			.filter(d => d);
+			} else {
+				this._warn({
+					code: 'FILE_DOES_NOT_EXIST',
+					message: `action wants to remove ${bold(
+						file
+					)} but it does not exist`
+				});
+			}
+		}
 
 		if (removedFiles.length > 0) {
 			this._info({
@@ -164,9 +165,9 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_checkDirIsEmpty(dir) {
+	async _checkDirIsEmpty(dir) {
 		try {
-			const files = fs.readdirSync(dir);
+			const files = await fs.readdir(dir);
 			if (files.length > 0) {
 				if (this.force) {
 					this._info({
@@ -174,7 +175,7 @@ class Degit extends EventEmitter {
 						message: `destination directory is not empty. Using options.force, continuing`
 					});
 
-					rimrafSync(dir);
+					await rimraf(dir);
 				} else {
 					throw new DegitError(
 						`destination directory is not empty, aborting. Use options.force to override`,
@@ -281,13 +282,13 @@ class Degit extends EventEmitter {
 		try {
 			if (!this.cache) {
 				try {
-					fs.statSync(file);
+					await fs.stat(file);
 					this._verbose({
 						code: 'FILE_EXISTS',
 						message: `${file} already exists locally`
 					});
 				} catch (err) {
-					mkdirp(path.dirname(file));
+					await fs.mkdir(path.dirname(file), {recursive: true});
 
 					if (this.proxy) {
 						this._verbose({
@@ -312,7 +313,7 @@ class Degit extends EventEmitter {
 			});
 		}
 
-		updateCache(dir, repo, hash, cached);
+		await updateCache(dir, repo, hash, cached);
 
 		this._verbose({
 			code: 'EXTRACTING',
@@ -321,14 +322,14 @@ class Degit extends EventEmitter {
 			}${file} to ${dest}`
 		});
 
-		mkdirp(dest);
+		await fs.mkdir(dest, {recursive: true});
 		await untar(file, dest, subdir);
 	}
 
-	async _cloneWithGit(dir, dest) {
+	async _cloneWithGit(_dir, dest) {
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
-			fs.mkdirSync(path.join(dest, '.tiged'), { recursive: true });
+			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await exec(
@@ -337,24 +338,24 @@ class Degit extends EventEmitter {
 			} else {
 				await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
 			}
-			const files = fs.readdirSync(`${tempDir}${this.repo.subdir}`);
-			files.forEach(file => {
-				fs.renameSync(
+			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
+			await Promise.all(files.map(async file => {
+				return fs.rename(
 					`${tempDir}${this.repo.subdir}/${file}`,
 					`${dest}/${file}`
 				);
-			});
-			rimrafSync(tempDir);
+			}));
+			await rimraf(tempDir);
 		} else {
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
-				fs.mkdirSync(dest, { recursive: true });
+				await fs.mkdir(dest, { recursive: true });
 				await exec(
 					`cd ${dest}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
 				await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
 			}
-			rimrafSync(path.resolve(dest, '.git'));
+			await rimraf(path.resolve(dest, '.git'));
 		}
 	}
 }
@@ -452,11 +453,11 @@ async function fetchRefs(repo) {
 	}
 }
 
-function updateCache(dir, repo, hash, cached) {
+async function updateCache(dir, repo, hash, cached) {
 	// update access logs
 	const logs = tryRequire(path.join(dir, 'access.json')) || {};
 	logs[repo.ref] = new Date().toISOString();
-	fs.writeFileSync(
+	await fs.writeFile(
 		path.join(dir, 'access.json'),
 		JSON.stringify(logs, null, '  ')
 	);
@@ -476,7 +477,7 @@ function updateCache(dir, repo, hash, cached) {
 		if (!used) {
 			// we no longer need this tar file
 			try {
-				fs.unlinkSync(path.join(dir, `${oldHash}.tar.gz`));
+				await fs.unlink(path.join(dir, `${oldHash}.tar.gz`));
 			} catch (err) {
 				// ignore
 			}
@@ -484,7 +485,7 @@ function updateCache(dir, repo, hash, cached) {
 	}
 
 	cached[repo.ref] = hash;
-	fs.writeFileSync(
+	await fs.writeFile(
 		path.join(dir, 'map.json'),
 		JSON.stringify(cached, null, '  ')
 	);
