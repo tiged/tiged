@@ -29,6 +29,6 @@
 	],
 	"parserOptions": {
 		"ecmaVersion": 8,
-		"sourceType": "cjs"
+		"sourceType": "module"
 	}
 }
