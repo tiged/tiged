@@ -1,16 +1,16 @@
 const fs = require('fs-extra');
 const path = require('path');
-const {homedir, tmpdir} = require('os');
+const { homedir, tmpdir } = require('os');
 
-// eslint-disable-next-line unicorn/prevent-abbreviations
+// eslint-disable-next-line
 const https = require('https');
 const child_process = require('child_process');
 const URL = require('url');
 const Agent = require('https-proxy-agent');
-const rimrafCallback = require("rimraf")
+const rimrafCallback = require('rimraf');
 
 const tmpDirName = 'tmp';
-const rimraf = dir => new Promise((res)=>rimrafCallback(dir, res));
+const rimraf = dir => new Promise(res => rimrafCallback(dir, res));
 
 const degitConfigName = 'degit.json';
 
@@ -80,16 +80,16 @@ function fetch(url, dest, proxy) {
 
 async function stashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
-  try {
-	  await rimraf(tmpDir);
-  } catch (e) {
-    if (e.errno !== -2 && e.syscall !== "rmdir" && e.code !== "ENOENT") {
-      throw e;
-    }
-  }
+	try {
+		await rimraf(tmpDir);
+	} catch (e) {
+		if (e.errno !== -2 && e.syscall !== 'rmdir' && e.code !== 'ENOENT') {
+			throw e;
+		}
+	}
 	await fs.mkdir(tmpDir);
-	const files = await fs.readdir(dest)
-	for(const file of files){
+	const files = await fs.readdir(dest);
+	for (const file of files) {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
 		const isDir = (await fs.lstat(filePath)).isDirectory();
@@ -105,8 +105,8 @@ async function stashFiles(dir, dest) {
 
 async function unstashFiles(dir, dest) {
 	const tmpDir = path.join(dir, tmpDirName);
-	const files = await fs.readdir(tmpDir)
-	for(const filename of files){
+	const files = await fs.readdir(tmpDir);
+	for (const filename of files) {
 		const tmpFile = path.join(tmpDir, filename);
 		const targetPath = path.join(dest, filename);
 		const isDir = (await fs.lstat(tmpFile)).isDirectory();
@@ -134,5 +134,5 @@ module.exports = {
 	exec,
 	stashFiles,
 	unstashFiles,
-	base,
-}
+	base
+};

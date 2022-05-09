@@ -327,10 +327,11 @@ class Degit extends EventEmitter {
 	}
 
 	async _cloneWithGit(_dir, dest) {
+		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
-			if (this.repo.ref) {
+			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await exec(
 					`cd ${tempDir}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
@@ -346,7 +347,7 @@ class Degit extends EventEmitter {
 			}));
 			await rimraf(tempDir);
 		} else {
-			if (this.repo.ref) {
+			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await fs.mkdir(dest, { recursive: true });
 				await exec(
 					`cd ${dest}; git init; git remote add origin ${this.repo.url}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
