@@ -5,23 +5,23 @@
 		"node": ">=8.0.0"
 	},
 	"description": "Straightforward project scaffolding",
-	"main": "dist/index.js",
+	"main": "src/index.js",
 	"bin": {
 		"degit": "bin.js"
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
-		"dev": "npm run build -- --watch",
-		"build": "rimraf dist && rollup -c",
-		"test": "mocha",
-		"pretest": "npm run build",
-		"prepack": "npm run build"
+		"test": "mocha"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/tiged/tiged.git"
 	},
-	"keywords": ["scaffolding", "template", "git"],
+	"keywords": [
+		"scaffolding",
+		"template",
+		"git"
+	],
 	"author": "tiged",
 	"license": "MIT",
 	"bugs": {
@@ -31,13 +31,12 @@
 	"dependencies": {
 		"colorette": "1.2.1",
 		"enquirer": "2.3.6",
+		"fs-extra": "10.1.0",
 		"fuzzysearch": "1.0.3",
-		"home-or-tmp": "3.0.0",
 		"https-proxy-agent": "5.0.0",
 		"mri": "1.1.6",
 		"rimraf": "3.0.2",
-		"sander": "0.6.0",
-		"tar": "6.1.0",
+		"tar": "^6.1.11",
 		"tiny-glob": "0.2.8"
 	},
 	"devDependencies": {
@@ -49,20 +48,29 @@
 		"eslint-plugin-import": "2.22.1",
 		"husky": "5.0.9",
 		"lint-staged": "10.5.4",
-		"mocha": "8.3.0",
+		"mocha": "^10.0.0",
 		"prettier": "2.2.1",
 		"rollup": "2.38.5",
 		"rollup-plugin-commonjs": "10.1.0",
 		"source-map-support": "0.5.19"
 	},
-	"files": ["dist", "help.md"],
+	"files": [
+		"src",
+		"help.md"
+	],
 	"husky": {
 		"hooks": {
 			"pre-commit": "lint-staged"
 		}
 	},
 	"lint-staged": {
-		"*.{js}": ["eslint --fix", "git add"],
-		"*.{js, json, yml, md}": ["prettier --write", "git add"]
+		"*.{js}": [
+			"eslint --fix",
+			"git add"
+		],
+		"*.{js, json, yml, md}": [
+			"prettier --write",
+			"git add"
+		]
 	}
 }

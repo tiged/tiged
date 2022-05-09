@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import { bold, underline, cyan, magenta, red } from 'colorette';
-import mri from 'mri';
-import glob from 'tiny-glob/sync.js';
-import fuzzysearch from 'fuzzysearch';
-import enquirer from 'enquirer';
-import degit from './index.js';
-import { tryRequire, base } from './utils.js';
+const fs = require('fs');
+const path = require('path');
+const { bold, underline, cyan, magenta, red } = require('colorette');
+const mri = require('mri');
+const glob = require('tiny-glob/sync.js');
+const fuzzysearch = require('fuzzysearch');
+const enquirer = require('enquirer');
+const degit = require('./index.js');
+const { tryRequire, base } = require('./utils.js');
 
 const args = mri(process.argv.slice(2), {
 	alias: {
@@ -113,16 +113,16 @@ async function main() {
 			}
 		}
 
-		run(options.src, options.dest, {
+		await run(options.src, options.dest, {
 			force: true,
 			cache: options.cache
 		});
 	} else {
-		run(src, dest, args);
+		await run(src, dest, args);
 	}
 }
 
-function run(src, dest, args) {
+async function run(src, dest, args) {
 	const d = degit(src, args);
 
 	d.on('info', event => {
@@ -133,10 +133,14 @@ function run(src, dest, args) {
 		console.error(magenta(`! ${event.message.replace('options.', '--')}`));
 	});
 
-	d.clone(dest).catch(err => {
+	try {
+		await d.clone(dest)
+
+	}
+	catch(err){
 		console.error(red(`! ${err.message.replace('options.', '--')}`));
 		process.exit(1);
-	});
+	}
 }
 
 main();
