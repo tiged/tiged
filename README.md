@@ -198,6 +198,10 @@ This will clone `user/another-repo`, preserving the contents of the existing wor
 
 Remove a file at the specified path.
 
+## Known bugs and workarounds
+
+- `zlib: unexpected end of file`: this is solved by clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
+
 ## See also
 
 - [zel](https://github.com/vutran/zel) by [Vu Tran](https://twitter.com/tranvu)
