@@ -1,5 +1,9 @@
 # tiged changelog
 
+## 2.11.3
+
+- fix: ssh in mode git ([#50](https://github.com/tiged/tiged/pull/50))
+
 ## 2.11.2
 
 - full async + cjs (no build need) ([#41](https://github.com/tiged/tiged/pull/41))
