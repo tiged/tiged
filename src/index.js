@@ -21,7 +21,7 @@ function degit(src, opts) {
 	return new Degit(src, opts);
 }
 
-module.exports = degit
+module.exports = degit;
 
 class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
@@ -77,9 +77,8 @@ class Degit extends EventEmitter {
 				});
 
 				try {
-					await d.clone(dest)
-				}
-				catch(err){
+					await d.clone(dest);
+				} catch (err) {
 					console.error(red(`! ${err.message}`));
 					process.exit(1);
 				}
@@ -135,8 +134,8 @@ class Degit extends EventEmitter {
 		if (!Array.isArray(files)) {
 			files = [files];
 		}
-		const removedFiles = []
-		for(const file of files){
+		const removedFiles = [];
+		for (const file of files) {
 			const filePath = path.resolve(dest, file);
 			if (await fs.pathExists(filePath)) {
 				const isDir = (await fs.lstat(filePath)).isDirectory();
@@ -150,9 +149,7 @@ class Degit extends EventEmitter {
 			} else {
 				this._warn({
 					code: 'FILE_DOES_NOT_EXIST',
-					message: `action wants to remove ${bold(
-						file
-					)} but it does not exist`
+					message: `action wants to remove ${bold(file)} but it does not exist`
 				});
 			}
 		}
@@ -288,7 +285,7 @@ class Degit extends EventEmitter {
 						message: `${file} already exists locally`
 					});
 				} catch (err) {
-					await fs.mkdir(path.dirname(file), {recursive: true});
+					await fs.mkdir(path.dirname(file), { recursive: true });
 
 					if (this.proxy) {
 						this._verbose({
@@ -322,38 +319,43 @@ class Degit extends EventEmitter {
 			}${file} to ${dest}`
 		});
 
-		await fs.mkdir(dest, {recursive: true});
+		await fs.mkdir(dest, { recursive: true });
 		await untar(file, dest, subdir);
 	}
 
 	async _cloneWithGit(_dir, dest) {
+		const gitPath = /https:\/\//.test(this.repo.src)
+			? this.repo.url
+			: this.repo.ssh;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await exec(
-					`cd ${tempDir}; git init; git remote add origin ${this.repo.ssh}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					`cd ${tempDir}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
-				await exec(`git clone --depth 1 ${this.repo.ssh} ${tempDir}`);
+				await exec(`git clone --depth 1 ${gitPath} ${tempDir}`);
 			}
 			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
-			await Promise.all(files.map(async file => {
-				return fs.rename(
-					`${tempDir}${this.repo.subdir}/${file}`,
-					`${dest}/${file}`
-				);
-			}));
+			await Promise.all(
+				files.map(async file => {
+					return fs.rename(
+						`${tempDir}${this.repo.subdir}/${file}`,
+						`${dest}/${file}`
+					);
+				})
+			);
 			await rimraf(tempDir);
 		} else {
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await fs.mkdir(dest, { recursive: true });
 				await exec(
-					`cd ${dest}; git init; git remote add origin ${this.repo.ssh}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					`cd ${dest}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
-				await exec(`git clone --depth 1 ${this.repo.ssh} ${dest}`);
+				await exec(`git clone --depth 1 ${gitPath} ${dest}`);
 			}
 			await rimraf(path.resolve(dest, '.git'));
 		}
@@ -368,6 +370,7 @@ const supported = {
 };
 
 function parse(src) {
+	console.log(`src: ${src}`);
 	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
 		src
 	);
@@ -396,7 +399,7 @@ function parse(src) {
 
 	const mode = supported[siteName] || supported[site] ? 'tar' : 'git';
 
-	return { site: siteName, user, name, ref, url, ssh, subdir, mode };
+	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
 
 async function untar(file, dest, subdir = null) {
