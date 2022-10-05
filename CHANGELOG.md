@@ -1,5 +1,13 @@
 # tiged changelog
 
+## 2.11.4
+
+- Fix https mode not working with git mode, which was unfortunately introduced with previous fix. ([#49](https://github.com/tiged/tiged/issues/49))
+
+## 2.11.3
+
+- Fix ssh mode not working with git mode. ([#49](https://github.com/tiged/tiged/issues/49))
+
 ## 2.11.2
 
 - full async + cjs (no build need) ([#41](https://github.com/tiged/tiged/pull/41))
