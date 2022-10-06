@@ -50,7 +50,7 @@ unless the `--force` option is used.
 Options:
 
   `--help`,    `-h`  Show this message
-  `--cache`,   `-c`  Only use local cache
+  `--offline-mode`,   `-o`  Only use local cache
   `--force`,   `-f`  Allow non-empty destination directory
   `--verbose`, `-v`  Extra logging
   `--subgroup`, `-s` Use if repo is in a subroup (GitLab)
