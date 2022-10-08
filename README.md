@@ -71,6 +71,12 @@ If the second argument is omitted, the repo will be cloned to the current direct
 tiged user/repo my-new-project
 ```
 
+### Disable cache
+Normally tiged caches tar.gz of the repo for future use. This is sometimes unwanted (e.g. scroll down for known bug)
+```bash
+tiged --no-cache user/repo
+```
+
 ### Specify a subdirectory
 
 To clone a specific subdirectory instead of the entire repo, just add it to the argument:
@@ -176,7 +182,7 @@ Remove a file at the specified path.
 
 ## Known bugs and workarounds
 
-- `zlib: unexpected end of file`: this is solved by clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
+- `zlib: unexpected end of file`: this is solved by using option `--no-cache` or clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
 
 ### Why I forked degit?
 
