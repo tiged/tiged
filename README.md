@@ -25,7 +25,7 @@ npm install -g tiged
 
 > You can use tiged or degit as the command. So no automated scripts break if you swap degit for tiged.
 
-The simplest use of tiged is to download the master branch of a repo from GitHub to the current working directory:
+The simplest use of tiged is to download the main branch of a repo from GitHub to the current working directory:
 
 ```bash
 tiged user/repo
