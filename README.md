@@ -23,7 +23,7 @@ npm install -g tiged
 
 ### Basics
 
-> You can use tiged or degit as the command. So no automated scripts break if you swap tiged for degit.
+> You can use tiged or degit as the command. So no automated scripts break if you swap degit for tiged.
 
 The simplest use of tiged is to download the master branch of a repo from GitHub to the current working directory:
 
