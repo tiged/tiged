@@ -1,13 +1,14 @@
 {
 	"name": "tiged",
-	"version": "2.11.4",
+	"version": "2.12.0",
 	"engines": {
 		"node": ">=8.0.0"
 	},
 	"description": "Straightforward project scaffolding",
 	"main": "src/index.js",
 	"bin": {
-		"degit": "bin.js"
+		"degit": "bin.js",
+    "tiged": "bin.js"
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",

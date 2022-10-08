@@ -1,4 +1,4 @@
-# _degit_
+# _tiged_
 
 Usage:
 
@@ -49,12 +49,14 @@ unless the `--force` option is used.
 
 Options:
 
-  `--help`,    `-h`  Show this message
-  `--offline-mode`,   `-o`  Only use local cache
-  `--force`,   `-f`  Allow non-empty destination directory
-  `--verbose`, `-v`  Extra logging
-  `--subgroup`, `-s` Use if repo is in a subroup (GitLab)
-  `--mode=`,   `-m=` Force the mode by which degit clones the repo
+  `--help`,    `-h`      Show this message
+  `--offline-mode`, `-o` Only use local cache. No fetching data online.
+  `--cache`,   `-c`      Same as above. Deprecated. Will be removed in v3.X
+  `--no-cache`,   `-n`   Do not use cache. Always fetch data online.
+  `--force`,   `-f`      Allow non-empty destination directory
+  `--verbose`, `-v`      Extra logging
+  `--subgroup`, `-s`     Use if repo is in a subroup (GitLab)
+  `--mode=`,   `-m=`     Force the mode by which degit clones the repo
                      Valid options are `tar` or `git` (uses SSH)
 
 See https://github.com/Rich-Harris/degit for more information
