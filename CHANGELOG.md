@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.12.0
+- Added option to not use cache. ([#36](https://github.com/tiged/tiged/36))
+
 ## 2.11.4
 
 - Fix https mode not working with git mode, which was unfortunately introduced with previous fix. ([#49](https://github.com/tiged/tiged/issues/49))
