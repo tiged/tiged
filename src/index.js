@@ -27,7 +27,10 @@ class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
 		super();
 		this.src = src;
-		this.cache = opts.cache;
+		this.offlineMode = opts["offline-mode"];
+    // Left for backward compatibility. Deprecated. Remove in next major version.
+    this.cache = opts.cache;
+    this.noCache = opts["no-cache"];
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
@@ -253,8 +256,7 @@ class Degit extends EventEmitter {
 		const { repo } = this;
 
 		const cached = tryRequire(path.join(dir, 'map.json')) || {};
-
-		const hash = this.cache
+		const hash = this.offlineMode || this.cache
 			? this._getHashFromCache(repo, cached)
 			: await this._getHash(repo, cached);
 
@@ -277,14 +279,16 @@ class Degit extends EventEmitter {
 				: `${repo.url}/archive/${hash}.tar.gz`;
 
 		try {
-			if (!this.cache) {
+			if (!this.offlineMode || !this.cache) {
 				try {
+          if (this.noCache) throw "don't use cache";
 					await fs.stat(file);
 					this._verbose({
 						code: 'FILE_EXISTS',
 						message: `${file} already exists locally`
 					});
 				} catch (err) {
+          // Not getting file from cache. Either because there is no cached tar or because option no cache is set to true. 
 					await fs.mkdir(path.dirname(file), { recursive: true });
 
 					if (this.proxy) {
@@ -309,8 +313,9 @@ class Degit extends EventEmitter {
 				original: err
 			});
 		}
-
-		await updateCache(dir, repo, hash, cached);
+    
+    if (!this.noCache)
+      await updateCache(dir, repo, hash, cached);
 
 		this._verbose({
 			code: 'EXTRACTING',

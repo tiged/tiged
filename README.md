@@ -9,32 +9,8 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
----
 
-### Why fork?
-
-- `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that._Rich has now (April 1, 2021) merged the main branch fix. Regardless currently this fork is still more fully featured and will continue to be developed._
-- We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
-- Update dependencies.
-- Hopefully get multiple active maintainers.
-
-### What has been fixed?
-
-- Works with `main` or any default branch automatically. [#243](https://github.com/Rich-Harris/degit/pull/243)
-- `--mode=git` with private repos now work on Windows [#191](https://github.com/Rich-Harris/degit/pull/191).
-- `degit --help` now works. Previously it would crash instead of displaying help.md contents. [#179](https://github.com/Rich-Harris/degit/pull/179)
-- `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
-- Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
-- Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
-- GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
-- Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
-- Subgroups work in GitLab [#24](https://github.com/tiged/tiged/pull/24)
-- Hashes work with git mode [#34](https://github.com/tiged/tiged/pull/34)
-- Using full async + cjs (no build needed) [#41](https://github.com/tiged/tiged/pull/41)
-
-#### It might be time to move on.
-
-**degit** makes copies of git repositories. When you run `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
+**tiged** makes copies of git repositories. When you run `tiged some-user/some-repo` or (for backward compatibility) `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
 
 ## Installation
 
@@ -47,44 +23,44 @@ npm install -g tiged
 
 ### Basics
 
-> The run command stays as before, degit and not tiged. So no automated scripts break and people are used to the good old name.
+> You can use tiged or degit as the command. So no automated scripts break if you swap degit for tiged.
 
-The simplest use of degit is to download the master branch of a repo from GitHub to the current working directory:
+The simplest use of tiged is to download the main branch of a repo from GitHub to the current working directory:
 
 ```bash
-degit user/repo
+tiged user/repo
 
 # these commands are equivalent
-degit github:user/repo
-degit git@github.com:user/repo
-degit https://github.com/user/repo
+tiged github:user/repo
+tiged git@github.com:user/repo
+tiged https://github.com/user/repo
 ```
 
 Or you can download from GitLab and BitBucket:
 
 ```bash
 # download from GitLab
-degit gitlab:user/repo
-degit git@gitlab.com:user/repo
-degit https://gitlab.com/user/repo
+tiged gitlab:user/repo
+tiged git@gitlab.com:user/repo
+tiged https://gitlab.com/user/repo
 
 # download from BitBucket
-degit bitbucket:user/repo
-degit git@bitbucket.org:user/repo
-degit https://bitbucket.org/user/repo
+tiged bitbucket:user/repo
+tiged git@bitbucket.org:user/repo
+tiged https://bitbucket.org/user/repo
 
 # download from Sourcehut
-degit git.sr.ht/user/repo
-degit git@git.sr.ht:user/repo
-degit https://git.sr.ht/user/repo
+tiged git.sr.ht/user/repo
+tiged git@git.sr.ht:user/repo
+tiged https://git.sr.ht/user/repo
 ```
 
 ### Specify a tag, branch or commit
 
 ```bash
-degit user/repo#dev       # branch
-degit user/repo#v1.2.3    # release tag
-degit user/repo#1234abcd  # commit hash
+tiged user/repo#dev       # branch
+tiged user/repo#v1.2.3    # release tag
+tiged user/repo#1234abcd  # commit hash
 ```
 
 ### Create a new folder for the project
@@ -92,7 +68,13 @@ degit user/repo#1234abcd  # commit hash
 If the second argument is omitted, the repo will be cloned to the current directory.
 
 ```bash
-degit user/repo my-new-project
+tiged user/repo my-new-project
+```
+
+### Disable cache
+Normally tiged caches tar.gz of the repo for future use. This is sometimes unwanted (e.g. scroll down for known bug)
+```bash
+tiged --no-cache user/repo
 ```
 
 ### Specify a subdirectory
@@ -100,7 +82,7 @@ degit user/repo my-new-project
 To clone a specific subdirectory instead of the entire repo, just add it to the argument:
 
 ```bash
-degit user/repo/subdirectory
+tiged user/repo/subdirectory
 ```
 
 ### Subgroups (GitLab)
@@ -108,30 +90,30 @@ degit user/repo/subdirectory
 To get a GitLab repo that has a subgroup use the `--subgroup` option.
 
 ```bash
-degit --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
-degit -s https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
+tiged --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
+tiged -s https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo my-dir
 ```
 
 To get a subdirectory of a repo inside a subgroup, use the `--sub-directory` option.
 
 ```bash
-degit --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo --sub-directory subdir1 my-dir
+tiged --subgroup https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo --sub-directory subdir1 my-dir
 ```
 
 ### HTTPS proxying
 
-If you have an `https_proxy` environment variable, Degit will use it.
+If you have an `https_proxy` environment variable, Tiged will use it.
 
 ### Private repositories
 
-Private repos can be cloned by specifying `--mode=git` (the default is `tar`). In this mode, Degit will use `git` under the hood. It's much slower than fetching a tarball, which is why it's not the default.
+Private repos can be cloned by specifying `--mode=git` (the default is `tar`). In this mode, Tiged will use `git` under the hood. It's much slower than fetching a tarball, which is why it's not the default.
 
 Note: this clones over SSH, not HTTPS.
 
 ### See all options
 
 ```bash
-degit --help
+tiged --help
 ```
 
 ## Wait, isn't this just `git clone --depth 1`?
@@ -140,18 +122,18 @@ A few salient differences:
 
 - If you `git clone`, you get a `.git` folder that pertains to the project template, rather than your project. You can easily forget to re-init the repository, and end up confusing yourself
 - Caching and offline support (if you already have a `.tar.gz` file for a specific commit, you don't need to fetch it again).
-- Less to type (`degit user/repo` instead of `git clone --depth 1 git@github.com:user/repo`)
+- Less to type (`tiged user/repo` instead of `git clone --depth 1 git@github.com:user/repo`)
 - Composability via [actions](#actions)
 - Future capabilities — [interactive mode](https://github.com/Rich-Harris/degit/issues/4), [friendly onboarding and postinstall scripts](https://github.com/Rich-Harris/degit/issues/6)
 
 ## JavaScript API
 
-You can also use degit inside a Node script:
+You can also use tiged inside a Node script:
 
 ```js
-const degit = require('degit');
+const tiged = require('tiged');
 
-const emitter = degit('user/repo', {
+const emitter = tiged('user/repo', {
 	cache: true,
 	force: true,
 	verbose: true
@@ -200,8 +182,31 @@ Remove a file at the specified path.
 
 ## Known bugs and workarounds
 
-- `zlib: unexpected end of file`: this is solved by clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
+- `zlib: unexpected end of file`: this is solved by using option `--no-cache` or clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
 
+### Why I forked degit?
+
+- `degit` was last released over a year ago Feb 5, 2020, and Rich is not answering pull requests or issues there. He is probably very busy with Svelte and we love him for that._Rich has now (April 1, 2021) merged the main branch fix. Regardless currently this fork is still more fully featured and will continue to be developed._
+- We want pull requests merged. E.g. like automatically working with `main` or other default branch (has been merged!).
+- Update dependencies.
+- Hopefully get multiple active maintainers.
+
+### What has been fixed?
+
+- Works with `main` or any default branch automatically. [#243](https://github.com/Rich-Harris/degit/pull/243)
+- `--mode=git` with private repos now work on Windows [#191](https://github.com/Rich-Harris/degit/pull/191).
+- `degit --help` now works. Previously it would crash instead of displaying help.md contents. [#179](https://github.com/Rich-Harris/degit/pull/179)
+- `--mode=git` is now faster. [#171](https://github.com/Rich-Harris/degit/pull/171)
+- Github Actions CI tests working. Added Github Actions badge and removed old CI badges.
+- Added support for privately hosted git repositories ([#10](https://github.com/tiged/tiged/pull/10))
+- GitLab works again. [#18](https://github.com/tiged/tiged/pull/18)
+- Subdir works in `--mode=git` [#19](https://github.com/tiged/tiged/pull/19)
+- Subgroups work in GitLab [#24](https://github.com/tiged/tiged/pull/24)
+- Hashes work with git mode [#34](https://github.com/tiged/tiged/pull/34)
+- Using full async + cjs (no build needed) [#41](https://github.com/tiged/tiged/pull/41)
+- Option to not use cache [#36](https://github.com/tiged/tiged/issue/36)
+
+#### It might be time to move on.
 ## See also
 
 - [zel](https://github.com/vutran/zel) by [Vu Tran](https://twitter.com/tranvu)

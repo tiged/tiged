@@ -11,13 +11,15 @@ const { tryRequire, base } = require('./utils.js');
 const args = mri(process.argv.slice(2), {
 	alias: {
 		f: 'force',
-		c: 'cache',
+    c: 'cache',
+		o: 'offline-mode',
+    n: 'no-cache',
 		v: 'verbose',
 		m: 'mode',
     s: 'subgroup',
     d: 'sub-directory'
 	},
-	boolean: ['force', 'cache', 'verbose', 'subgroup']
+	boolean: ['force', 'cache', 'offline-mode', 'no-cache', 'verbose', 'subgroup']
 });
 
 const [src, dest = '.'] = args._;
