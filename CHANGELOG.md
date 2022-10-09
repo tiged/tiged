@@ -1,6 +1,7 @@
 # tiged changelog
 
-## 2.12.0
+## 2.12.1
+> npm bugged out when publishing. Version 2.12.0 is the same as 2.12.1
 - Added option to not use cache. ([#36](https://github.com/tiged/tiged/36))
 
 ## 2.11.4
