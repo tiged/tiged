@@ -27,10 +27,16 @@ class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
 		super();
 		this.src = src;
-		this.offlineMode = opts["offline-mode"];
-    // Left for backward compatibility. Deprecated. Remove in next major version.
+    if (opts["offline-mode"])
+      this.offlineMode = opts["offline-mode"];
+    if (opts["offlineMode"])
+      this.offlineMode = opts["offlineMode"];
+    if (opts["no-cache"])
+      this.noCache = opts["no-cache"];
+    if (opts["noCache"])
+      this.noCache = opts["noCache"];
+    // Left cache for backward compatibility. Deprecated. Remove in next major version.
     this.cache = opts.cache;
-    this.noCache = opts["no-cache"];
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
