@@ -134,7 +134,7 @@ You can also use tiged inside a Node script:
 const tiged = require('tiged');
 
 const emitter = tiged('user/repo', {
-	cache: true,
+	noCache: true,
 	force: true,
 	verbose: true
 });
