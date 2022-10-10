@@ -74,7 +74,7 @@ tiged user/repo my-new-project
 ### Disable cache
 Normally tiged caches tar.gz of the repo for future use. This is sometimes unwanted (e.g. scroll down for known bug)
 ```bash
-tiged --no-cache user/repo
+tiged --disable-cache user/repo
 ```
 
 ### Specify a subdirectory
@@ -134,7 +134,7 @@ You can also use tiged inside a Node script:
 const tiged = require('tiged');
 
 const emitter = tiged('user/repo', {
-	noCache: true,
+	disableCache: true,
 	force: true,
 	verbose: true
 });
@@ -182,7 +182,7 @@ Remove a file at the specified path.
 
 ## Known bugs and workarounds
 
-- `zlib: unexpected end of file`: this is solved by using option `--no-cache` or clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
+- `zlib: unexpected end of file`: this is solved by using option `--disable-cache` or clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
 
 ### Why I forked degit?
 
