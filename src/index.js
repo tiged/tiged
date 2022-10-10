@@ -31,10 +31,10 @@ class Degit extends EventEmitter {
       this.offlineMode = opts["offline-mode"];
     if (opts["offlineMode"])
       this.offlineMode = opts["offlineMode"];
-    if (opts["no-cache"])
-      this.noCache = opts["no-cache"];
-    if (opts["noCache"])
-      this.noCache = opts["noCache"];
+    if (opts["disable-cache"])
+      this.noCache = opts["disable-cache"];
+    if (opts["disableCache"])
+      this.noCache = opts["disableCache"];
     // Left cache for backward compatibility. Deprecated. Remove in next major version.
     this.cache = opts.cache;
 		this.force = opts.force;
@@ -287,7 +287,13 @@ class Degit extends EventEmitter {
 		try {
 			if (!this.offlineMode || !this.cache) {
 				try {
-          if (this.noCache) throw "don't use cache";
+          if (this.noCache) {
+            this._verbose({
+              code: 'NO_CACHE',
+              message: `Not using cache. noCache set to true.`
+            });
+            throw "don't use cache";
+          }
 					await fs.stat(file);
 					this._verbose({
 						code: 'FILE_EXISTS',
@@ -381,7 +387,6 @@ const supported = {
 };
 
 function parse(src) {
-	console.log(`src: ${src}`);
 	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
 		src
 	);
