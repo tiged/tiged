@@ -13,17 +13,15 @@ const args = mri(process.argv.slice(2), {
 		f: 'force',
     c: 'cache',
 		o: 'offline-mode',
-    n: 'no-cache',
+    D: 'disable-cache',
 		v: 'verbose',
 		m: 'mode',
     s: 'subgroup',
     d: 'sub-directory'
 	},
-	boolean: ['force', 'cache', 'offline-mode', 'no-cache', 'verbose', 'subgroup']
+	boolean: ['force', 'cache', 'offline-mode', 'disable-cache', 'verbose', 'subgroup']
 });
-
 const [src, dest = '.'] = args._;
-
 async function main() {
 	if (args.help) {
 		const help = fs
