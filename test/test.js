@@ -153,7 +153,9 @@ describe('degit', function () {
 		[
 			'huggingface:severo/degit-test-repo',
 			'git@huggingface.co:severo/degit-test-repo',
-			'https://huggingface.co/severo/degit-test-repo.git'
+			'https://huggingface.co/severo/degit-test-repo.git',
+			'huggingface:gpt2',
+			'huggingface:datasets/severo/embellishments',
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
