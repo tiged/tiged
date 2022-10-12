@@ -1,6 +1,11 @@
 > This is a community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained.
+<div align="center">
 
 # tiged — straightforward project scaffolding
+
+![tiged-logo](https://user-images.githubusercontent.com/6876030/195346830-f1804e60-2842-436a-b013-a3b2095cea8e.png)
+	
+<sup>Stable diffusion (AI) generated logo</sup>
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftiged%2Ftiged%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/tiged/tiged/goto?ref=main)
 [![Known Vulnerabilities](https://snyk.io/test/npm/degit/badge.svg)](https://snyk.io/test/npm/tiged)
@@ -8,7 +13,7 @@
 [![npm package version](https://badgen.net/npm/v/tiged)](https://npm.im/tiged)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-
+</div>
 
 **tiged** makes copies of git repositories. When you run `tiged some-user/some-repo` or (for backward compatibility) `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
 
