@@ -4,6 +4,8 @@
 # tiged — straightforward project scaffolding
 
 ![tiged-logo](https://user-images.githubusercontent.com/6876030/195346830-f1804e60-2842-436a-b013-a3b2095cea8e.png)
+	
+<sup>Stable diffusion (AI) generated logo</sup>
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Ftiged%2Ftiged%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/tiged/tiged/goto?ref=main)
 [![Known Vulnerabilities](https://snyk.io/test/npm/degit/badge.svg)](https://snyk.io/test/npm/tiged)
