@@ -340,7 +340,6 @@ class Degit extends EventEmitter {
 		await untar(file, dest, subdir);
 	}
 
-<<<<<<< HEAD
 	async _cloneWithGit(_dir, dest) {
 		const gitPath = /https:\/\//.test(this.repo.src)
 			? this.repo.url
@@ -386,17 +385,6 @@ const supported = {
 	bitbucket: '.com',
 	'git.sr.ht': '.ht'
 };
-=======
-	async _cloneWithGit(dir, dest) {		
-		await exec(`git clone ${this.repo.remote} ${dest}`);
-		await exec(`rm -rf ${path.resolve(dest, '.git')}`);
-	}
-}
-
-const supported = new Set(['github', 'gitlab', 'bitbucket', 'git.sr.ht', 'huggingface']);
-const tarSupported = new Set(['github', 'gitlab', 'bitbucket', 'git.sr.ht']);
-const sshSupported = new Set(['github', 'gitlab', 'bitbucket', 'git.sr.ht']);
->>>>>>> c3fbce2 (feat: 🎸 add support for Hugging Face)
 
 function parse(src) {
 	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
@@ -408,53 +396,26 @@ function parse(src) {
 		});
 	}
 
-<<<<<<< HEAD
 	const site = match[1] || match[2] || match[3] || 'github.com';
 	const tldMatch = /\.([a-z]{2,})$/.exec(site);
 	const tld = tldMatch ? tldMatch[0] : null;
 	const siteName = tld ? site.replace(tld, '') : site;
-=======
-	const site = (match[1] || match[2] || match[3] || 'github').replace(
-		/\.(com|org|co)$/,
-		''
-	);
-	if (!supported.has(site)) {
-		throw new DegitError(
-			`degit supports GitHub, GitLab, Sourcehut, BitBucket and HuggingFace`,
-			{
-				code: 'UNSUPPORTED_HOST'
-			}
-		);
-	}
->>>>>>> c3fbce2 (feat: 🎸 add support for Hugging Face)
 
 	const user = match[4];
 	const name = match[5].replace(/\.git$/, '');
 	const subdir = match[6];
 	const ref = match[7] || 'HEAD';
 
-<<<<<<< HEAD
 	const domain = `${siteName}${
 		tld || supported[siteName] || supported[site] || ''
-=======
-	const domain = `${site}.${
-		site === 'huggingface' ? 'co' : site === 'bitbucket' ? 'org' : site === 'git.sr.ht' ? '' : 'com'
->>>>>>> c3fbce2 (feat: 🎸 add support for Hugging Face)
 	}`;
 
 	const url = `https://${domain}/${user}/${name}`;
 	const ssh = `git@${domain}:${user}/${name}`;
 
-<<<<<<< HEAD
 	const mode = supported[siteName] || supported[site] ? 'tar' : 'git';
 
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
-=======
-	const mode = tarSupported.has(site) ? 'tar' : 'git';
-	const remote = sshSupported.has(site) ? ssh : url
-
-	return { site, user, name, ref, url, ssh, subdir, mode, remote };
->>>>>>> c3fbce2 (feat: 🎸 add support for Hugging Face)
 }
 
 async function untar(file, dest, subdir = null) {
