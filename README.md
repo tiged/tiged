@@ -58,6 +58,11 @@ tiged https://bitbucket.org/user/repo
 tiged git.sr.ht/user/repo
 tiged git@git.sr.ht:user/repo
 tiged https://git.sr.ht/user/repo
+
+# download from Hugging Face
+tiged huggingface:user/repo
+tiged git@huggingface.co:user/repo
+tiged https://huggingface.co/user/repo
 ```
 
 ### Specify a tag, branch or commit

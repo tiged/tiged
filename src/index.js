@@ -341,9 +341,10 @@ class Degit extends EventEmitter {
 	}
 
 	async _cloneWithGit(_dir, dest) {
-		const gitPath = /https:\/\//.test(this.repo.src)
+		let gitPath =  /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
+    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
@@ -383,7 +384,8 @@ const supported = {
 	github: '.com',
 	gitlab: '.com',
 	bitbucket: '.com',
-	'git.sr.ht': '.ht'
+	'git.sr.ht': '.ht',
+  huggingface: '.co'
 };
 
 function parse(src) {
@@ -413,7 +415,7 @@ function parse(src) {
 	const url = `https://${domain}/${user}/${name}`;
 	const ssh = `git@${domain}:${user}/${name}`;
 
-	const mode = supported[siteName] || supported[site] ? 'tar' : 'git';
+	const mode = siteName === 'huggingface' ? 'git' : supported[siteName] || supported[site] ? 'tar' : 'git';
 
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }

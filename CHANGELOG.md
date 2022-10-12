@@ -1,6 +1,12 @@
 # tiged changelog
 
+## 2.12.3
+
+- Added huggingface.co support ([#59](https://github.com/tiged/tiged/59))
+- Updated help.md to include `--disable-cache` option and hugging face support.
+
 ## 2.12.2
+
 - Fixed previous version's buggy implementation. Previous version deprecated. 
 
 ## 2.12.1
