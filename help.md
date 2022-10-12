@@ -2,7 +2,7 @@
 
 Usage:
 
-`degit <src>[#ref] [<dest>] [options]`
+`tiged <src>[#ref] [<dest>] [options]`
 
 Fetches the `src` repo, and extracts it to `dest` (or the current directory).
 
@@ -65,4 +65,4 @@ Options:
   `--mode=`,          `-m=` Force the mode by which degit clones the repo
                         Valid options are `tar` or `git` (uses SSH)
 
-See https://github.com/Rich-Harris/degit for more information
+See https://github.com/tiged/tiged for more information
