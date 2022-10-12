@@ -50,20 +50,14 @@ tiged git@bitbucket.org:user/repo
 tiged https://bitbucket.org/user/repo
 
 # download from Sourcehut
-<<<<<<< HEAD
 tiged git.sr.ht/user/repo
 tiged git@git.sr.ht:user/repo
 tiged https://git.sr.ht/user/repo
-=======
-degit git.sr.ht/user/repo
-degit git@git.sr.ht:user/repo
-degit https://git.sr.ht/user/repo
 
 # download from Hugging Face
-degit huggingface:user/repo
-degit git@huggingface.co:user/repo
-degit https://huggingface.co/user/repo
->>>>>>> c3fbce2 (feat: 🎸 add support for Hugging Face)
+tiged huggingface:user/repo
+tiged git@huggingface.co:user/repo
+tiged https://huggingface.co/user/repo
 ```
 
 ### Specify a tag, branch or commit
