@@ -154,15 +154,19 @@ describe('degit', function () {
 			'huggingface:severo/degit-test-repo',
 			'git@huggingface.co:severo/degit-test-repo',
 			'https://huggingface.co/severo/degit-test-repo.git',
-			'huggingface:gpt2',
-			'huggingface:datasets/glue',
-			'huggingface:datasets/severo/embellishments',
-			'huggingface:spaces/lnyan/stablediffusion-infinity',
+			'huggingface:datasets/severo/degit-test-repo',
+			'git@huggingface.co:datasets/severo/degit-test-repo',
+			'https://huggingface.co/datasets/severo/degit-test-repo.git',
+			'huggingface:spaces/severo/degit-test-repo',
+			'git@huggingface.co:spaces/severo/degit-test-repo',
+			'https://huggingface.co/spaces/severo/degit-test-repo.git',
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
 				compare(`.tmp/test-repo`, {
-					'file.txt': 'hello from Hugging Face'
+					'file.txt': 'hello from Hugging Face',
+					subdir: null,
+					'subdir/file.txt': 'hello from a subdirectory!'
 				});
 			});
 		});
@@ -174,8 +178,9 @@ describe('degit', function () {
 			'github:Rich-Harris/degit-test-repo/subdir',
 			'git@github.com:Rich-Harris/degit-test-repo/subdir',
 			'https://github.com/Rich-Harris/degit-test-repo.git/subdir',
-			'huggingface:severo/degit-test-repo/subdir',
-			'huggingface:datasets/severo/embellishments/data',
+			'huggingface:datasets/severo/degit-test-repo/subdir',
+			'git@huggingface.co:datasets/severo/degit-test-repo/subdir',
+			'https://huggingface.co/datasets/severo/degit-test-repo.git/subdir',
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
