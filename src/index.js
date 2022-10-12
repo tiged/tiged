@@ -344,7 +344,7 @@ class Degit extends EventEmitter {
 		let gitPath =  /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
-    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
+		gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
@@ -385,7 +385,7 @@ const supported = {
 	gitlab: '.com',
 	bitbucket: '.com',
 	'git.sr.ht': '.ht',
-  huggingface: '.co'
+	huggingface: '.co'
 };
 
 function parse(src) {
