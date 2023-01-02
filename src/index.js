@@ -12,7 +12,8 @@ const {
 	stashFiles,
 	unstashFiles,
 	degitConfigName,
-	base
+	base,
+	Spinner
 } = require('./utils.js');
 
 const validModes = new Set(['tar', 'git']);
@@ -42,6 +43,8 @@ class Degit extends EventEmitter {
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
 		this.subgroup = opts.subgroup;
 		this.subdir = opts['sub-directory'];
+		this.spinner = new Spinner('Downloading');
+		this.isBrowser = typeof window !== 'undefined';
 		this.repo = parse(src);
 		if (this.subgroup) {
 			this.repo.subgroup = true;
@@ -117,6 +120,8 @@ class Degit extends EventEmitter {
 		} else {
 			await this._cloneWithGit(dir, dest);
 		}
+
+		if (!this.isBrowser) this.spinner.succeed();
 
 		this._info({
 			code: 'SUCCESS',
@@ -315,10 +320,21 @@ class Degit extends EventEmitter {
 						message: `downloading ${url} to ${file}`
 					});
 
+					if (!this.isBrowser) {
+						this.spinner.start();
+					} else {
+						console.log('Download Starting');
+					}
+
 					await fetch(url, file, this.proxy);
 				}
 			}
 		} catch (err) {
+			if (!this.isBrowser) {
+				this.spinner.fail();
+			} else {
+				console.log('Download Failed');
+			}
 			throw new DegitError(`could not download ${url}`, {
 				code: 'COULD_NOT_DOWNLOAD',
 				url,
@@ -350,10 +366,22 @@ class Degit extends EventEmitter {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
+				if (!this.isBrowser) {
+					this.spinner.start();
+				} else {
+					console.log('Download Starting');
+				}
+
 				await exec(
 					`cd ${tempDir}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
+				if (!this.isBrowser) {
+					this.spinner.start();
+				} else {
+					console.log('Download Starting');
+				}
+
 				await exec(`git clone --depth 1 ${gitPath} ${tempDir}`);
 			}
 			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
@@ -368,11 +396,23 @@ class Degit extends EventEmitter {
 			await rimraf(tempDir);
 		} else {
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
+				if (!this.isBrowser) {
+					this.spinner.start();
+				} else {
+					console.log('Download Starting');
+				}
+
 				await fs.mkdir(dest, { recursive: true });
 				await exec(
 					`cd ${dest}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
+				if (!this.isBrowser) {
+					this.spinner.start();
+				} else {
+					console.log('Download Starting');
+				}
+
 				await exec(`git clone --depth 1 ${gitPath} ${dest}`);
 			}
 			await rimraf(path.resolve(dest, '.git'));
