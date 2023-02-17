@@ -34,16 +34,25 @@ function tryRequire(file, opts) {
 	}
 }
 
-function exec(command) {
+function exec(command, size = 500) {
 	return new Promise((fulfil, reject) => {
-		child_process.exec(command, (err, stdout, stderr) => {
-			if (err) {
-				reject(err);
-				return;
-			}
+		child_process.exec(
+			command,
+			{ maxBuffer: 1024 * size },
+			(err, stdout, stderr) => {
+				if (err) {
+					reject(err);
+					return;
+				}
 
-			fulfil({ stdout, stderr });
-		});
+				fulfil({ stdout, stderr });
+			}
+		);
+	}).catch(err => {
+		if (err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
+			return exec(command, size * 2);
+		}
+		return Promise.reject(err);
 	});
 }
 
