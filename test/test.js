@@ -38,10 +38,10 @@ describe('degit', function () {
 	}
 
 	beforeEach(async () => {
-		await rimraf('.tmp')
+		await rimraf('.tmp');
 	});
 	afterEach(async () => {
-		await rimraf('.tmp')
+		await rimraf('.tmp');
 	});
 
 	describe('github', () => {
@@ -158,7 +158,9 @@ describe('degit', function () {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
 				compare(`.tmp/test-repo`, {
-					'file.txt': 'hello from Hugging Face'
+					'file.txt': 'hello from Hugging Face',
+					subdir: null,
+					'subdir/file.txt': 'hello from a subdirectory!'
 				});
 			});
 		});
