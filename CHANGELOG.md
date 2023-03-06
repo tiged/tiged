@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.12.4
+- Fixed stdout maxBuffer length exceeded error ([#64](https://github.com/tiged/tiged/pull/69))
+
 ## 2.12.3
 
 - Added huggingface.co support ([#59](https://github.com/tiged/tiged/59))
