@@ -344,7 +344,7 @@ class Degit extends EventEmitter {
 		let gitPath =  /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
-    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
+		gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
@@ -385,11 +385,11 @@ const supported = {
 	gitlab: '.com',
 	bitbucket: '.com',
 	'git.sr.ht': '.ht',
-  huggingface: '.co'
+	huggingface: '.co'
 };
 
 function parse(src) {
-	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
+	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?((?:datasets|spaces)\/)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
 		src
 	);
 	if (!match) {
@@ -403,10 +403,11 @@ function parse(src) {
 	const tld = tldMatch ? tldMatch[0] : null;
 	const siteName = tld ? site.replace(tld, '') : site;
 
-	const user = match[4];
-	const name = match[5].replace(/\.git$/, '');
-	const subdir = match[6];
-	const ref = match[7] || 'HEAD';
+	const hfprefix = (siteName === 'huggingface' && match[4]) || '';
+	const user = `${hfprefix}${match[5]}`;
+	const name = match[6].replace(/\.git$/, '');
+	const subdir = match[7];
+	const ref = match[8] || 'HEAD';
 
 	const domain = `${siteName}${
 		tld || supported[siteName] || supported[site] || ''
