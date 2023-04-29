@@ -401,7 +401,7 @@ function parse(src) {
 	const site = match[1] || match[2] || match[3] || 'github.com';
 	const tldMatch = /\.([a-z]{2,})$/.exec(site);
 	const tld = tldMatch ? tldMatch[0] : null;
-	const siteName = tld ? site.replace(tld, '') : site;
+  const siteName = tld ? site.replace(new RegExp(tld + '$'), '') : site;
 
 	const user = match[4];
 	const name = match[5].replace(/\.git$/, '');
