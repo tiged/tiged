@@ -27,16 +27,12 @@ class Degit extends EventEmitter {
 	constructor(src, opts = {}) {
 		super();
 		this.src = src;
-    if (opts["offline-mode"])
-      this.offlineMode = opts["offline-mode"];
-    if (opts["offlineMode"])
-      this.offlineMode = opts["offlineMode"];
-    if (opts["disable-cache"])
-      this.noCache = opts["disable-cache"];
-    if (opts["disableCache"])
-      this.noCache = opts["disableCache"];
-    // Left cache for backward compatibility. Deprecated. Remove in next major version.
-    this.cache = opts.cache;
+		if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
+		if (opts['offlineMode']) this.offlineMode = opts['offlineMode'];
+		if (opts['disable-cache']) this.noCache = opts['disable-cache'];
+		if (opts['disableCache']) this.noCache = opts['disableCache'];
+		// Left cache for backward compatibility. Deprecated. Remove in next major version.
+		this.cache = opts.cache;
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = process.env.https_proxy; // TODO allow setting via --proxy
@@ -262,9 +258,10 @@ class Degit extends EventEmitter {
 		const { repo } = this;
 
 		const cached = tryRequire(path.join(dir, 'map.json')) || {};
-		const hash = this.offlineMode || this.cache
-			? this._getHashFromCache(repo, cached)
-			: await this._getHash(repo, cached);
+		const hash =
+			this.offlineMode || this.cache
+				? this._getHashFromCache(repo, cached)
+				: await this._getHash(repo, cached);
 
 		const subdir = repo.subdir ? `${repo.name}-${hash}${repo.subdir}` : null;
 
@@ -287,20 +284,20 @@ class Degit extends EventEmitter {
 		try {
 			if (!this.offlineMode || !this.cache) {
 				try {
-          if (this.noCache) {
-            this._verbose({
-              code: 'NO_CACHE',
-              message: `Not using cache. noCache set to true.`
-            });
-            throw "don't use cache";
-          }
+					if (this.noCache) {
+						this._verbose({
+							code: 'NO_CACHE',
+							message: `Not using cache. noCache set to true.`
+						});
+						throw "don't use cache";
+					}
 					await fs.stat(file);
 					this._verbose({
 						code: 'FILE_EXISTS',
 						message: `${file} already exists locally`
 					});
 				} catch (err) {
-          // Not getting file from cache. Either because there is no cached tar or because option no cache is set to true. 
+					// Not getting file from cache. Either because there is no cached tar or because option no cache is set to true.
 					await fs.mkdir(path.dirname(file), { recursive: true });
 
 					if (this.proxy) {
@@ -325,9 +322,8 @@ class Degit extends EventEmitter {
 				original: err
 			});
 		}
-    
-    if (!this.noCache)
-      await updateCache(dir, repo, hash, cached);
+
+		if (!this.noCache) await updateCache(dir, repo, hash, cached);
 
 		this._verbose({
 			code: 'EXTRACTING',
@@ -341,10 +337,10 @@ class Degit extends EventEmitter {
 	}
 
 	async _cloneWithGit(_dir, dest) {
-		let gitPath =  /https:\/\//.test(this.repo.src)
+		let gitPath = /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
-    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
+		gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
@@ -385,7 +381,7 @@ const supported = {
 	gitlab: '.com',
 	bitbucket: '.com',
 	'git.sr.ht': '.ht',
-  huggingface: '.co'
+	huggingface: '.co'
 };
 
 function parse(src) {
@@ -401,21 +397,33 @@ function parse(src) {
 	const site = match[1] || match[2] || match[3] || 'github.com';
 	const tldMatch = /\.([a-z]{2,})$/.exec(site);
 	const tld = tldMatch ? tldMatch[0] : null;
-	const siteName = tld ? site.replace(tld, '') : site;
+	const domain = tld ? site.replace(tld, '') : site;
+
+	let siteName;
+	for (const [name, tld] of Object.entries(supported)) {
+		if (domain.endsWith(tld)) {
+			siteName = domain.slice(0, -tld.length) + name;
+			break;
+		}
+	}
+	if (!siteName) {
+		siteName = domain;
+	}
 
 	const user = match[4];
 	const name = match[5].replace(/\.git$/, '');
 	const subdir = match[6];
 	const ref = match[7] || 'HEAD';
 
-	const domain = `${siteName}${
-		tld || supported[siteName] || supported[site] || ''
-	}`;
+	const url = `https://${site}/${user}/${name}`;
+	const ssh = `git@${site}:${user}/${name}`;
 
-	const url = `https://${domain}/${user}/${name}`;
-	const ssh = `git@${domain}:${user}/${name}`;
-
-	const mode = siteName === 'huggingface' ? 'git' : supported[siteName] || supported[site] ? 'tar' : 'git';
+	const mode =
+		siteName === 'huggingface'
+			? 'git'
+			: supported[siteName] || supported[site]
+			? 'tar'
+			: 'git';
 
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
