@@ -46,11 +46,11 @@ describe('degit', function () {
 
 	describe('github', () => {
 		[
-			'mhkeller/degit-test-repo-compose',
-			'Rich-Harris/degit-test-repo',
-			'github:Rich-Harris/degit-test-repo',
-			'git@github.com:Rich-Harris/degit-test-repo',
-			'https://github.com/Rich-Harris/degit-test-repo.git'
+			'tiged/tiged-test-repo-compose',
+			'tiged/tiged-test-repo',
+			'github:tiged/tiged-test-repo',
+			'git@github.com:tiged/tiged-test-repo',
+			'https://github.com/tiged/tiged-test-repo.git'
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
@@ -65,9 +65,9 @@ describe('degit', function () {
 
 	describe('gitlab', () => {
 		[
-			'gitlab:Rich-Harris/degit-test-repo',
-			'git@gitlab.com:Rich-Harris/degit-test-repo',
-			'https://gitlab.com/Rich-Harris/degit-test-repo.git'
+			'gitlab:nake89/tiged-test-repo',
+			'git@gitlab.com:nake89/tiged-test-repo',
+			'https://gitlab.com/nake89/tiged-test-repo.git'
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
@@ -121,9 +121,9 @@ describe('degit', function () {
 
 	describe('bitbucket', () => {
 		[
-			'bitbucket:Rich_Harris/degit-test-repo',
-			'git@bitbucket.org:Rich_Harris/degit-test-repo',
-			'https://bitbucket.org/Rich_Harris/degit-test-repo.git'
+			'bitbucket:nake89/tiged-test-repo',
+			'git@bitbucket.org:nake89/tiged-test-repo',
+			'https://bitbucket.org/nake89/tiged-test-repo.git'
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
@@ -168,10 +168,10 @@ describe('degit', function () {
 
 	describe('Subdirectories', () => {
 		[
-			'Rich-Harris/degit-test-repo/subdir',
-			'github:Rich-Harris/degit-test-repo/subdir',
-			'git@github.com:Rich-Harris/degit-test-repo/subdir',
-			'https://github.com/Rich-Harris/degit-test-repo.git/subdir'
+			'tiged/tiged-test-repo/subdir',
+			'github:tiged/tiged-test-repo/subdir',
+			'git@github.com:tiged/tiged-test-repo/subdir',
+			'https://github.com/tiged/tiged-test-repo.git/subdir'
 		].forEach(src => {
 			it(src, async () => {
 				await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
@@ -190,7 +190,7 @@ describe('degit', function () {
 				await exec(`mkdir -p .tmp/test-repo`);
 				await exec(`echo "not empty" > .tmp/test-repo/file.txt`);
 				await exec(
-					`node ${degitPath} Rich-Harris/degit-test-repo .tmp/test-repo -v`
+					`node ${degitPath} tiged/tiged-test-repo .tmp/test-repo -v`
 				);
 				succeeded = true;
 			} catch (err) {
@@ -202,7 +202,7 @@ describe('degit', function () {
 
 		it('succeeds with --force', async () => {
 			await exec(
-				`node ${degitPath} Rich-Harris/degit-test-repo .tmp/test-repo -fv`
+				`node ${degitPath} tiged/tiged-test-repo .tmp/test-repo -fv`
 			);
 		});
 	});
@@ -210,7 +210,7 @@ describe('degit', function () {
 	describe('command line arguments', () => {
 		it('allows flags wherever', async () => {
 			await exec(
-				`node ${degitPath} -v Rich-Harris/degit-test-repo .tmp/test-repo`
+				`node ${degitPath} -v tiged/tiged-test-repo .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from github!',
@@ -222,7 +222,7 @@ describe('degit', function () {
 
 	describe('api', () => {
 		it('is usable from node scripts', async () => {
-			await degit('Rich-Harris/degit-test-repo', { force: true }).clone(
+			await degit('tiged/tiged-test-repo', { force: true }).clone(
 				'.tmp/test-repo'
 			);
 
@@ -237,14 +237,14 @@ describe('degit', function () {
 	describe('actions', () => {
 		it('removes specified file', async () => {
 			await exec(
-				`node ${degitPath} -v mhkeller/degit-test-repo-remove-only .tmp/test-repo`
+				`node ${degitPath} -v tiged/tiged-test-repo-remove-only .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {});
 		});
 
 		it('clones repo and removes specified file', async () => {
 			await exec(
-				`node ${degitPath} -v mhkeller/degit-test-repo-remove .tmp/test-repo`
+				`node ${degitPath} -v tiged/tiged-test-repo-remove .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
 				'other.txt': 'hello from github!',
@@ -257,7 +257,7 @@ describe('degit', function () {
 			await rimraf('.tmp');
 
 			await exec(
-				`node ${degitPath} -v mhkeller/degit-test-repo-nested-actions .tmp/test-repo`
+				`node ${degitPath} -v tiged/tiged-test-repo-nested-actions .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
 				dir: null,
