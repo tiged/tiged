@@ -1,5 +1,9 @@
 # tiged changelog
 
+## 2.12.5
+- Fix "Url parsing mangles domain name" ([#70](https://github.com/tiged/tiged/issues/70)
+- Testing against tiged repos instead of degit ([#53](https://github.com/tiged/tiged/issues/53))
+
 ## 2.12.4
 - Fixed stdout maxBuffer length exceeded error ([#64](https://github.com/tiged/tiged/pull/69))
 
