@@ -373,7 +373,8 @@ class Degit extends EventEmitter {
 					`cd ${dest}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
 			} else {
-				await exec(`git clone --depth 1 ${gitPath} ${dest}`);
+				await exec(`git clone --depth 1 ${gitPath} ${dest} -b ${this.repo.ref}`);
+
 			}
 			await rimraf(path.resolve(dest, '.git'));
 		}
