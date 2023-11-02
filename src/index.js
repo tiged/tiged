@@ -374,7 +374,6 @@ class Degit extends EventEmitter {
 				);
 			} else {
 				await exec(`git clone --depth 1 ${gitPath} ${dest} -b ${this.repo.ref}`);
-
 			}
 			await rimraf(path.resolve(dest, '.git'));
 		}
