@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.12.6
+- Fix "Delayed exit after successful clone ([#84](https://github.com/tiged/tiged/pull/84))
+
 ## 2.12.5
 - Fix "Url parsing mangles domain name" ([#70](https://github.com/tiged/tiged/issues/70)
 - Testing against tiged repos instead of degit ([#53](https://github.com/tiged/tiged/issues/53))
