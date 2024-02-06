@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"strict": true,
+		"outDir": "./dist",
+    "esModuleInterop": true
+	},
+	"include": [
+		"src/**/*.ts"
+	]
+}

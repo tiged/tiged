@@ -8,7 +8,7 @@
 	"main": "src/index.js",
 	"bin": {
 		"degit": "bin.js",
-    "tiged": "bin.js"
+		"tiged": "bin.js"
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
@@ -18,7 +18,11 @@
 		"type": "git",
 		"url": "git+https://github.com/tiged/tiged.git"
 	},
-	"keywords": ["scaffolding", "template", "git"],
+	"keywords": [
+		"scaffolding",
+		"template",
+		"git"
+	],
 	"author": "tiged",
 	"license": "MIT",
 	"bugs": {
@@ -28,17 +32,20 @@
 	"dependencies": {
 		"colorette": "1.2.1",
 		"enquirer": "2.3.6",
-		"fs-extra": "10.1.0",
+		"fs-extra": "11.2.0",
 		"fuzzysearch": "1.0.3",
-		"https-proxy-agent": "5.0.0",
+		"https-proxy-agent": "7.0.2",
 		"mri": "1.1.6",
-		"rimraf": "3.0.2",
+		"rimraf": "5.0.5",
 		"tar": "^6.1.11",
 		"tiny-glob": "0.2.8"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "17.1.0",
 		"@rollup/plugin-node-resolve": "11.1.1",
+		"@types/fs-extra": "11.0.4",
+		"@types/node": "20.11.16",
+		"@types/tar": "6.1.11",
 		"del-cli": "3.0.1",
 		"eslint": "7.19.0",
 		"eslint-config-prettier": "7.2.0",
@@ -51,14 +58,23 @@
 		"rollup-plugin-commonjs": "10.1.0",
 		"source-map-support": "0.5.19"
 	},
-	"files": ["src", "help.md"],
+	"files": [
+		"src",
+		"help.md"
+	],
 	"husky": {
 		"hooks": {
 			"pre-commit": "lint-staged"
 		}
 	},
 	"lint-staged": {
-		"*.{js}": ["eslint --fix", "git add"],
-		"*.{js, json, yml, md}": ["prettier --write", "git add"]
+		"*.{js}": [
+			"eslint --fix",
+			"git add"
+		],
+		"*.{js, json, yml, md}": [
+			"prettier --write",
+			"git add"
+		]
 	}
 }
