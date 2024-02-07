@@ -22,7 +22,7 @@ const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
 
-interface DegitErrorOptions {
+export interface DegitErrorOptions {
 				code?: string,
         ref?:string
 				url?:string,
@@ -39,7 +39,7 @@ interface TryRequireOptions {
   clearCache?: boolean
 }
 
-function tryRequire(file:string, opts:TryRequireOptions) {
+function tryRequire(file:string, opts?:TryRequireOptions) {
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];

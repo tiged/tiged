@@ -5,8 +5,8 @@ import mri from 'mri';
 import glob from 'tiny-glob/sync.js';
 import fuzzysearch from 'fuzzysearch'
 import {prompt} from 'enquirer';
-const degit = require('./index.js');
-const { tryRequire, base } = require('./utils.js');
+import degit from './index';
+import { tryRequire, base } from './utils';
 
 const args = mri(process.argv.slice(2), {
 	alias: {
@@ -22,6 +22,11 @@ const args = mri(process.argv.slice(2), {
 	boolean: ['force', 'cache', 'offline-mode', 'disable-cache', 'verbose', 'subgroup']
 });
 const [src, dest = '.'] = args._;
+
+interface Access {
+  [key: string]: string;
+}
+
 async function main() {
 	if (args.help) {
 		const help = 
@@ -40,7 +45,7 @@ async function main() {
 			const [host, user, repo] = file.split(path.sep);
 
 			const json = readFileSync(`${base}/${file}`, 'utf-8');
-			const logs = JSON.parse(json);
+			const logs:Access = JSON.parse(json);
 
 			Object.entries(logs).forEach(([ref, timestamp]) => {
 				const id = `${host}:${user}/${repo}#${ref}`;
@@ -48,7 +53,7 @@ async function main() {
 			});
 		});
 
-		const getChoice = file => {
+		const getChoice = (file:string) => {
 			const [host, user, repo] = file.split(path.sep);
 
 			return Object.entries(tryRequire(`${base}/${file}`)).map(
