@@ -1,5 +1,8 @@
 # tiged changelog
 
+## 2.12.7
+- Support HTTPS_PROXY ([#86](https://github.com/tiged/tiged/issues/86))
+
 ## 2.12.6
 - Fix "Delayed exit after successful clone ([#84](https://github.com/tiged/tiged/pull/84))
 
