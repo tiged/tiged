@@ -1,4 +1,4 @@
-> This is a community driven fork of [degit](https://github.com/Rich-Harris/degit) because it isn't being maintained.
+> Awesome fork of [degit](https://github.com/Rich-Harris/degit). **Join our [discord](https://discord.com/channels/1209082619984224277/1209082619984224280)**
 <div align="center">
 
 # tiged — straightforward project scaffolding
