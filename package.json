@@ -8,7 +8,7 @@
 	"main": "src/index.js",
 	"bin": {
 		"degit": "bin.js",
-    "tiged": "bin.js"
+		"tiged": "bin.js"
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
@@ -18,7 +18,11 @@
 		"type": "git",
 		"url": "git+https://github.com/tiged/tiged.git"
 	},
-	"keywords": ["scaffolding", "template", "git"],
+	"keywords": [
+		"scaffolding",
+		"template",
+		"git"
+	],
 	"author": "tiged",
 	"license": "MIT",
 	"bugs": {
@@ -49,16 +53,26 @@
 		"prettier": "2.2.1",
 		"rollup": "2.38.5",
 		"rollup-plugin-commonjs": "10.1.0",
-		"source-map-support": "0.5.19"
+		"source-map-support": "0.5.19",
+		"typescript": "5.3.3"
 	},
-	"files": ["src", "help.md"],
+	"files": [
+		"src",
+		"help.md"
+	],
 	"husky": {
 		"hooks": {
 			"pre-commit": "lint-staged"
 		}
 	},
 	"lint-staged": {
-		"*.{js}": ["eslint --fix", "git add"],
-		"*.{js, json, yml, md}": ["prettier --write", "git add"]
+		"*.{js}": [
+			"eslint --fix",
+			"git add"
+		],
+		"*.{js, json, yml, md}": [
+			"prettier --write",
+			"git add"
+		]
 	}
 }
