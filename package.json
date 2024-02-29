@@ -12,11 +12,11 @@
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
-    "clean": "rimraf dist",
-    "build": "npm run clean && tsc -p tsconfig.build.json",
+		"clean": "rimraf dist",
+		"build": "npm run clean && tsc -p tsconfig.build.json",
 		"test": "vitest --typecheck",
-    "test-types": "tsc -p tsconfig.json --noEmit",
-    "prepack": "npm run build"
+		"test-types": "tsc -p tsconfig.json --noEmit",
+		"prepack": "npm run build"
 	},
 	"repository": {
 		"type": "git",
@@ -52,7 +52,7 @@
 		"@types/node": "20.11.22",
 		"@types/tar": "6.1.11",
 		"del-cli": "3.0.1",
-		"eslint": "7.19.0",
+		"eslint": "8.57.0",
 		"eslint-config-prettier": "7.2.0",
 		"eslint-plugin-import": "2.22.1",
 		"husky": "5.0.9",
