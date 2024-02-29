@@ -8,16 +8,19 @@
 		"importHelpers": true,
 		"isolatedModules": true,
 		"lib": ["DOM", "ESNext"],
-		"module": "ESnext",
+		"module": "ESNext",
 		"moduleResolution": "Node",
+		"noEmit": true,
 		"noErrorTruncation": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
+		"outDir": "dist",
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
+		"sourceMap": true,
 		"strict": true,
-		"target": "ESnext"
-		// "types": ["vitest/globals", "vitest/importMeta"]
+		"target": "ESnext",
+		"types": ["vitest/globals", "vitest/importMeta"]
 	}
 }
