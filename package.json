@@ -11,7 +11,7 @@
 		"tiged": "dist/bin.js"
 	},
 	"scripts": {
-		"lint": "eslint --color --ignore-path .gitignore .",
+		"lint": "eslint --color .",
 		"clean": "rimraf dist",
 		"build": "npm run clean && tsc -p tsconfig.build.json",
 		"test": "vitest --typecheck",
