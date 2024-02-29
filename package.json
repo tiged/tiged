@@ -5,10 +5,10 @@
 		"node": ">=8.0.0"
 	},
 	"description": "Straightforward project scaffolding",
-	"main": "src/index.js",
+	"main": "dist/index.js",
 	"bin": {
-		"degit": "bin.js",
-		"tiged": "bin.js"
+		"degit": "dist/bin.js",
+		"tiged": "dist/bin.js"
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
