@@ -144,7 +144,7 @@ async function unstashFiles(dir: string, dest: string) {
 
 const base = path.join(homeOrTmp, '.degit');
 
-module.exports = {
+export {
 	rimraf,
 	degitConfigName,
 	DegitError,
