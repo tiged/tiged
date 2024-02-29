@@ -52,6 +52,7 @@
 		"@types/node": "20.11.22",
 		"@types/tar": "6.1.11",
 		"@typescript-eslint/eslint-plugin": "7.1.0",
+		"@typescript-eslint/parser": "7.1.0",
 		"del-cli": "3.0.1",
 		"eslint": "8.57.0",
 		"eslint-config-prettier": "9.1.0",
