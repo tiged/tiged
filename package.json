@@ -12,7 +12,8 @@
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
-    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
 		"test": "vitest --typecheck",
     "test-types": "tsc -p tsconfig.json --noEmit"
 	},
