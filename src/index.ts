@@ -88,10 +88,8 @@ export type DegitErrorCode =
 
 interface Info {
 	readonly code?: string;
-	// readonly code?: InfoCode;
 	readonly message?: string;
 	readonly repo?: Repo;
-	// readonly repo: Degit;
 	readonly dest?: string;
 }
 
@@ -126,8 +124,7 @@ class Degit extends EventEmitter {
 	public declare proxy?: string;
 	public declare subgroup?: boolean;
 	public declare subdir?: string;
-	public declare repo: ReturnType<typeof parse>;
-	// public declare repo: this;
+	public declare repo: Repo;
 	public declare mode: ValidModes;
 	public declare _hasStashed: boolean;
 	public declare directiveActions: {
@@ -338,9 +335,9 @@ class Degit extends EventEmitter {
 	async _getHash(repo: Repo, cached: Record<string, string>) {
 		try {
 			const refs = await fetchRefs(repo);
-      if (refs == null) {
-        return
-      }
+			if (refs == null) {
+				return;
+			}
 			if (repo.ref === 'HEAD') {
 				return refs?.find(ref => ref.type === 'HEAD')?.hash ?? '';
 			}
@@ -349,11 +346,10 @@ class Degit extends EventEmitter {
 		} catch (err) {
 			if (err instanceof DegitError && 'code' in err && 'message' in err) {
 				this._warn(err);
-        if (err.original != null) {
-          this._verbose(err.original);
-        }
+				if (err.original != null) {
+					this._verbose(err.original);
+				}
 			}
-
 
 			return this._getHashFromCache(repo, cached);
 		}
@@ -370,7 +366,10 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_selectRef(refs: { type: string; name?: string; hash: string; }[], selector: string) {
+	_selectRef(
+		refs: { type: string; name?: string; hash: string }[],
+		selector: string
+	) {
 		for (const ref of refs) {
 			if (ref.name === selector) {
 				this._verbose({
@@ -391,7 +390,8 @@ class Degit extends EventEmitter {
 	async _cloneWithTar(dir: string, dest: string) {
 		const { repo } = this;
 
-		const cached = tryRequire(path.join(dir, 'map.json')) as Record<string, string> || {};
+		const cached =
+			(tryRequire(path.join(dir, 'map.json')) as Record<string, string>) || {};
 		const hash =
 			this.offlineMode || this.cache
 				? this._getHashFromCache(repo, cached)
@@ -450,13 +450,13 @@ class Degit extends EventEmitter {
 				}
 			}
 		} catch (err) {
-      if (err instanceof Error) {
-        throw new DegitError(`could not download ${url}`, {
-          code: 'COULD_NOT_DOWNLOAD',
-          url,
-          original: err
-        });
-      }
+			if (err instanceof Error) {
+				throw new DegitError(`could not download ${url}`, {
+					code: 'COULD_NOT_DOWNLOAD',
+					url,
+					original: err
+				});
+			}
 		}
 
 		if (!this.noCache) await updateCache(dir, repo, hash, cached);
@@ -520,7 +520,7 @@ const supported: Record<string, string> = {
 	huggingface: '.co'
 };
 
-type Repo = {
+export type Repo = {
 	site: string;
 	user: string;
 	name: string;
@@ -531,11 +531,9 @@ type Repo = {
 	mode: ValidModes;
 	src: string;
 	subgroup?: boolean;
-}
+};
 
-function parse(
-	src: string
-): Repo {
+function parse(src: string): Repo {
 	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
 		src
 	);
@@ -572,7 +570,11 @@ function parse(
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
 
-async function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+async function untar(
+	file: string,
+	dest: string,
+	subdir: Repo['subdir'] = null
+) {
 	return tar.extract(
 		{
 			file,
@@ -618,19 +620,25 @@ async function fetchRefs(repo: Repo) {
 				};
 			});
 	} catch (error) {
-    if (error instanceof Error) {
-      throw new DegitError(`could not fetch remote ${repo.url}`, {
-        code: 'COULD_NOT_FETCH',
-        url: repo.url,
-        original: error
-      });
-    }
+		if (error instanceof Error) {
+			throw new DegitError(`could not fetch remote ${repo.url}`, {
+				code: 'COULD_NOT_FETCH',
+				url: repo.url,
+				original: error
+			});
+		}
 	}
 }
 
-async function updateCache(dir: string, repo: Repo, hash: string, cached: Record<string, string>) {
+async function updateCache(
+	dir: string,
+	repo: Repo,
+	hash: string,
+	cached: Record<string, string>
+) {
 	// update access logs
-	const logs = tryRequire(path.join(dir, 'access.json')) as Record<string, string> || {};
+	const logs =
+		(tryRequire(path.join(dir, 'access.json')) as Record<string, string>) || {};
 	logs[repo.ref] = new Date().toISOString();
 	await fs.writeFile(
 		path.join(dir, 'access.json'),
