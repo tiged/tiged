@@ -1,7 +1,6 @@
 import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
 import EventEmitter from 'node:events';
-import type { constants } from 'node:os';
 import path from 'node:path';
 import tar from 'tar';
 import {
@@ -75,16 +74,6 @@ type InfoCode =
 	| 'PROXY'
 	| 'DOWNLOADING'
 	| 'EXTRACTING';
-
-export type DegitErrorCode =
-	| 'DEST_NOT_EMPTY'
-	| 'MISSING_REF'
-	| 'COULD_NOT_DOWNLOAD'
-	| 'BAD_SRC'
-	| 'UNSUPPORTED_HOST'
-	| 'BAD_REF'
-	| 'COULD_NOT_FETCH'
-	| keyof typeof constants.errno;
 
 interface Info {
 	readonly code?: string;

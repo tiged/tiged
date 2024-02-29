@@ -2,16 +2,26 @@ import fs from 'fs-extra';
 import createHttpsProxyAgent from 'https-proxy-agent';
 import child_process from 'node:child_process';
 import https from 'node:https';
+import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-import type { DegitErrorCode } from './index';
 
 const tmpDirName = 'tmp';
 
 const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
+
+export type DegitErrorCode =
+	| 'DEST_NOT_EMPTY'
+	| 'MISSING_REF'
+	| 'COULD_NOT_DOWNLOAD'
+	| 'BAD_SRC'
+	| 'UNSUPPORTED_HOST'
+	| 'BAD_REF'
+	| 'COULD_NOT_FETCH'
+	| keyof typeof constants.errno;
 
 interface DegitErrorOptions extends ErrorOptions {
 	code?: DegitErrorCode;
