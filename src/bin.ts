@@ -1,25 +1,32 @@
+import { bold, cyan, magenta, red, underline } from 'colorette';
+import enquirer from 'enquirer';
+import fuzzysearch from 'fuzzysearch';
+import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
-import { bold, underline, cyan, magenta, red } from 'colorette';
-import mri from 'mri';
 import glob from 'tiny-glob/sync.js';
-import fuzzysearch from 'fuzzysearch';
-import enquirer from 'enquirer';
 import degit, { Options } from './index';
-import { tryRequire, base } from './utils';
+import { base, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 	alias: {
 		f: 'force',
-    c: 'cache',
+		c: 'cache',
 		o: 'offline-mode',
-    D: 'disable-cache',
+		D: 'disable-cache',
 		v: 'verbose',
 		m: 'mode',
-    s: 'subgroup',
-    d: 'sub-directory'
+		s: 'subgroup',
+		d: 'sub-directory'
 	},
-	boolean: ['force', 'cache', 'offline-mode', 'disable-cache', 'verbose', 'subgroup']
+	boolean: [
+		'force',
+		'cache',
+		'offline-mode',
+		'disable-cache',
+		'verbose',
+		'subgroup'
+	]
 });
 const [src, dest = '.'] = args._;
 async function main() {
@@ -51,13 +58,13 @@ async function main() {
 		const getChoice = (file: string) => {
 			const [host, user, repo] = file.split(path.sep);
 
-			return Object.entries(tryRequire(`${base}/${file}`) as Record<string, string>).map(
-				([ref, hash]) => ({
-					name: hash,
-					message: `${host}:${user}/${repo}#${ref}`,
-					value: `${host}:${user}/${repo}#${ref}`
-				})
-			);
+			return Object.entries(
+				tryRequire(`${base}/${file}`) as Record<string, string>
+			).map(([ref, hash]) => ({
+				name: hash,
+				message: `${host}:${user}/${repo}#${ref}`,
+				value: `${host}:${user}/${repo}#${ref}`
+			}));
 		};
 
 		const choices = glob(`**/map.json`, { cwd: base })
@@ -73,8 +80,10 @@ async function main() {
 				return bTime - aTime;
 			});
 
-		const options = await enquirer.prompt<{dest: string; src: string} & Options>([
-      // FIXME: `suggest` is not in the type definition
+		const options = await enquirer.prompt<
+			{ dest: string; src: string } & Options
+		>([
+			// FIXME: `suggest` is not in the type definition
 			{
 				type: 'autocomplete',
 				name: 'src',
@@ -135,14 +144,12 @@ async function run(src: string, dest: string, args: Options) {
 	});
 
 	try {
-		await d.clone(dest)
-
-	}
-	catch(err){
-    if (err instanceof Error) {
-      console.error(red(`! ${err.message.replace('options.', '--')}`));
-      process.exit(1);
-    }
+		await d.clone(dest);
+	} catch (err) {
+		if (err instanceof Error) {
+			console.error(red(`! ${err.message.replace('options.', '--')}`));
+			process.exit(1);
+		}
 	}
 }
 
