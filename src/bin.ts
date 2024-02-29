@@ -5,7 +5,8 @@ import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
 import glob from 'tiny-glob/sync.js';
-import degit, { Options } from './index';
+import type { Options } from './index';
+import degit from './index';
 import { base, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
