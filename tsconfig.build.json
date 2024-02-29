@@ -1,8 +1,10 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"module": "CommonJS",
-		"noEmit": false
+		"allowJs": false,
+		"checkJs": false,
+		"noEmit": false,
+		"rootDir": "./src"
 	},
 	"include": ["src"]
 }
