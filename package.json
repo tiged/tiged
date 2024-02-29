@@ -12,6 +12,7 @@
 	},
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
+    "build": "tsc -p tsconfig.build.json",
 		"test": "vitest"
 	},
 	"repository": {
