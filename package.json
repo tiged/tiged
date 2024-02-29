@@ -59,7 +59,7 @@
 		"eslint-plugin-import": "2.29.1",
 		"husky": "5.0.9",
 		"lint-staged": "10.5.4",
-		"prettier": "2.2.1",
+		"prettier": "3.2.5",
 		"rollup": "2.38.5",
 		"rollup-plugin-commonjs": "10.1.0",
 		"typescript": "5.3.3",
