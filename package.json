@@ -13,7 +13,8 @@
 	"scripts": {
 		"lint": "eslint --color --ignore-path .gitignore .",
     "build": "tsc -p tsconfig.build.json",
-		"test": "vitest"
+		"test": "vitest --typecheck",
+    "test-types": "tsc -p tsconfig.json --noEmit"
 	},
 	"repository": {
 		"type": "git",

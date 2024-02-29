@@ -13,6 +13,7 @@
 		"noEmit": true,
 		"noErrorTruncation": true,
 		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"outDir": "dist",
@@ -21,6 +22,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"target": "ESnext",
-		"types": ["vitest/globals", "vitest/importMeta"]
+		"types": ["vitest/globals", "vitest/importMeta"],
+		"useDefineForClassFields": true
 	}
 }
