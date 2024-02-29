@@ -508,7 +508,7 @@ const supported: Record<string, string> = {
 	huggingface: '.co'
 };
 
-export type Repo = {
+export interface Repo {
 	site: string;
 	user: string;
 	name: string;
