@@ -1,11 +1,12 @@
 import fs from 'fs-extra';
 import path from 'node:path';
-import { homedir, tmpdir } from 'os';
+import { homedir, tmpdir } from 'node:os';
 import https from 'node:https';
 import child_process from 'node:child_process';
 import URL from 'node:url';
 import createHttpsProxyAgent from 'https-proxy-agent';
 import { rimraf } from 'rimraf';
+import type { DegitErrorCode } from "./index";
 
 const tmpDirName = 'tmp';
 
@@ -13,8 +14,19 @@ const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
 
+interface DegitErrorOptions extends ErrorOptions {
+  code: DegitErrorCode;
+  original?: Error;
+  ref?: string;
+  url?: string;
+}
+
 class DegitError extends Error {
-	constructor(message?: string, opts?: ErrorOptions) {
+    declare public code?: DegitErrorOptions['code'];
+    declare public original?: DegitErrorOptions['original'];
+    declare public ref?: DegitErrorOptions['ref'];
+    declare public url?: DegitErrorOptions['url'];
+	constructor(message?: string, opts?: DegitErrorOptions) {
 		super(message);
 		Object.assign(this, opts);
 	}
@@ -55,7 +67,7 @@ async function exec(command: string, size = 500): Promise<{ stdout: string; stde
 	});
 }
 
-async function fetch(url: string, dest: string, proxy: string) {
+async function fetch(url: string, dest: string, proxy?: string) {
 	return new Promise<void>((fulfil, reject) => {
 		const parsedUrl = URL.parse(url);
 		const options: https.RequestOptions = {

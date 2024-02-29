@@ -1,14 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const { bold, underline, cyan, magenta, red } = require('colorette');
-const mri = require('mri');
-const glob = require('tiny-glob/sync.js');
-const fuzzysearch = require('fuzzysearch');
-const enquirer = require('enquirer');
-const degit = require('./index.js');
-const { tryRequire, base } = require('./utils.js');
+import fs from 'node:fs';
+import path from 'node:path';
+import { bold, underline, cyan, magenta, red } from 'colorette';
+import mri from 'mri';
+import glob from 'tiny-glob/sync.js';
+import fuzzysearch from 'fuzzysearch';
+import enquirer from 'enquirer';
+import degit, { Options } from './index';
+import { tryRequire, base } from './utils';
 
-const args = mri(process.argv.slice(2), {
+const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 	alias: {
 		f: 'force',
     c: 'cache',
@@ -40,7 +40,7 @@ async function main() {
 			const [host, user, repo] = file.split(path.sep);
 
 			const json = fs.readFileSync(`${base}/${file}`, 'utf-8');
-			const logs = JSON.parse(json);
+			const logs: Record<string, string> = JSON.parse(json);
 
 			Object.entries(logs).forEach(([ref, timestamp]) => {
 				const id = `${host}:${user}/${repo}#${ref}`;
@@ -48,10 +48,10 @@ async function main() {
 			});
 		});
 
-		const getChoice = file => {
+		const getChoice = (file: string) => {
 			const [host, user, repo] = file.split(path.sep);
 
-			return Object.entries(tryRequire(`${base}/${file}`)).map(
+			return Object.entries(tryRequire(`${base}/${file}`) as Record<string, string>).map(
 				([ref, hash]) => ({
 					name: hash,
 					message: `${host}:${user}/${repo}#${ref}`,
@@ -73,15 +73,16 @@ async function main() {
 				return bTime - aTime;
 			});
 
-		const options = await enquirer.prompt([
+		const options = await enquirer.prompt<{dest: string; src: string} & Options>([
+      // FIXME: `suggest` is not in the type definition
 			{
 				type: 'autocomplete',
 				name: 'src',
 				message: 'Repo to clone?',
-				suggest: (input, choices) =>
+				suggest: (input: string, choices: { value: string }[]) =>
 					choices.filter(({ value }) => fuzzysearch(input, value)),
 				choices
-			},
+			} as any,
 			{
 				type: 'input',
 				name: 'dest',
@@ -99,7 +100,7 @@ async function main() {
 			!fs.existsSync(options.dest) || fs.readdirSync(options.dest).length === 0;
 
 		if (!empty) {
-			const { force } = await enquirer.prompt([
+			const { force } = await enquirer.prompt<Options>([
 				{
 					type: 'toggle',
 					name: 'force',
@@ -122,7 +123,7 @@ async function main() {
 	}
 }
 
-async function run(src, dest, args) {
+async function run(src: string, dest: string, args: Options) {
 	const d = degit(src, args);
 
 	d.on('info', event => {
@@ -138,8 +139,10 @@ async function run(src, dest, args) {
 
 	}
 	catch(err){
-		console.error(red(`! ${err.message.replace('options.', '--')}`));
-		process.exit(1);
+    if (err instanceof Error) {
+      console.error(red(`! ${err.message.replace('options.', '--')}`));
+      process.exit(1);
+    }
 	}
 }
 
