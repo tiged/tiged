@@ -2,6 +2,7 @@ import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
 import EventEmitter from 'node:events';
 import path from 'node:path';
+import { rimraf } from 'rimraf';
 import tar from 'tar';
 import {
 	DegitError,
@@ -9,7 +10,6 @@ import {
 	degitConfigName,
 	exec,
 	fetch,
-	rimraf,
 	stashFiles,
 	tryRequire,
 	unstashFiles
@@ -57,11 +57,12 @@ export interface Options {
 	 */
 	subgroup?: boolean;
 	/**
-	 * @default false
+	 * @default undefined
 	 */
 	'sub-directory'?: string;
 }
 
+// TODO: We might not need this one.
 type InfoCode =
 	| 'SUCCESS'
 	| 'FILE_DOES_NOT_EXIST'
@@ -101,8 +102,6 @@ interface RemoveAction extends Action {
 function degit(src: string, opts?: Options) {
 	return new Degit(src, opts);
 }
-
-export default degit;
 
 class Degit extends EventEmitter {
 	public declare offlineMode?: boolean;
@@ -662,3 +661,5 @@ async function updateCache(
 		JSON.stringify(cached, null, '  ')
 	);
 }
+
+export default degit;

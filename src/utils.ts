@@ -9,7 +9,7 @@ import { rimraf } from 'rimraf';
 
 const tmpDirName = 'tmp';
 
-const degitConfigName = 'degit.json';
+export const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
 
@@ -30,7 +30,7 @@ interface DegitErrorOptions extends ErrorOptions {
 	url?: string;
 }
 
-class DegitError extends Error {
+export class DegitError extends Error {
 	public declare code?: DegitErrorOptions['code'];
 	public declare original?: DegitErrorOptions['original'];
 	public declare ref?: DegitErrorOptions['ref'];
@@ -41,7 +41,7 @@ class DegitError extends Error {
 	}
 }
 
-function tryRequire(
+export function tryRequire(
 	file: string,
 	opts?: {
 		clearCache?: true | undefined;
@@ -57,7 +57,7 @@ function tryRequire(
 	}
 }
 
-async function exec(
+export async function exec(
 	command: string,
 	size = 500
 ): Promise<{ stdout: string; stderr: string }> {
@@ -82,7 +82,7 @@ async function exec(
 	});
 }
 
-async function fetch(url: string, dest: string, proxy?: string) {
+export async function fetch(url: string, dest: string, proxy?: string) {
 	return new Promise<void>((fulfil, reject) => {
 		const parsedUrl = new URL(url);
 		const options: https.RequestOptions = {
@@ -121,7 +121,7 @@ async function fetch(url: string, dest: string, proxy?: string) {
 	});
 }
 
-async function stashFiles(dir: string, dest: string) {
+export async function stashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	try {
 		await rimraf(tmpDir);
@@ -151,7 +151,7 @@ async function stashFiles(dir: string, dest: string) {
 	}
 }
 
-async function unstashFiles(dir: string, dest: string) {
+export async function unstashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	const files = await fs.readdir(tmpDir);
 	for (const filename of files) {
@@ -171,16 +171,4 @@ async function unstashFiles(dir: string, dest: string) {
 	await rimraf(tmpDir);
 }
 
-const base = path.join(homeOrTmp, '.degit');
-
-export {
-	DegitError,
-	base,
-	degitConfigName,
-	exec,
-	fetch,
-	rimraf,
-	stashFiles,
-	tryRequire,
-	unstashFiles
-};
+export const base = path.join(homeOrTmp, '.degit');
