@@ -1,29 +1,28 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { homedir, tmpdir } = require('os');
-
-// eslint-disable-next-line
-const https = require('https');
-const child_process = require('child_process');
-const URL = require('url');
-const Agent = require('https-proxy-agent');
-const rimrafCallback = require('rimraf');
+import fs from 'fs-extra';
+import path from 'node:path';
+import { homedir, tmpdir } from 'os';
+import https from 'node:https';
+import child_process from 'node:child_process';
+import URL from 'node:url';
+import createHttpsProxyAgent from 'https-proxy-agent';
+import { rimraf } from 'rimraf';
 
 const tmpDirName = 'tmp';
-const rimraf = dir => new Promise(res => rimrafCallback(dir, res));
 
 const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
 
 class DegitError extends Error {
-	constructor(message, opts) {
+	constructor(message?: string, opts?: ErrorOptions) {
 		super(message);
 		Object.assign(this, opts);
 	}
 }
 
-function tryRequire(file, opts) {
+function tryRequire(file: string, opts?: {
+  clearCache?: true | undefined;
+}): unknown {
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];
@@ -34,8 +33,8 @@ function tryRequire(file, opts) {
 	}
 }
 
-function exec(command, size = 500) {
-	return new Promise((fulfil, reject) => {
+async function exec(command: string, size = 500): Promise<{ stdout: string; stderr: string }> {
+	return new Promise<{ stdout: string; stderr: string }>((fulfil, reject) => {
 		child_process.exec(
 			command,
 			{ maxBuffer: 1024 * size },
@@ -56,10 +55,10 @@ function exec(command, size = 500) {
 	});
 }
 
-function fetch(url, dest, proxy) {
-	return new Promise((fulfil, reject) => {
+async function fetch(url: string, dest: string, proxy: string) {
+	return new Promise<void>((fulfil, reject) => {
 		const parsedUrl = URL.parse(url);
-		const options = {
+		const options: https.RequestOptions = {
 			hostname: parsedUrl.hostname,
 			port: parsedUrl.port,
 			path: parsedUrl.path,
@@ -68,15 +67,21 @@ function fetch(url, dest, proxy) {
 			}
 		};
 		if (proxy) {
-			options.agent = new Agent(proxy);
+			options.agent = createHttpsProxyAgent(proxy);
 		}
 
 		https
 			.get(options, response => {
 				const code = response.statusCode;
+        if (code == null) {
+          return reject(new Error('No status code'));
+        }
 				if (code >= 400) {
 					reject({ code, message: response.statusMessage });
 				} else if (code >= 300) {
+          if (response.headers.location == null) {
+            return reject(new Error('No location header'));
+          }
 					fetch(response.headers.location, dest, proxy).then(fulfil, reject);
 				} else {
 					response
@@ -89,11 +94,14 @@ function fetch(url, dest, proxy) {
 	});
 }
 
-async function stashFiles(dir, dest) {
+async function stashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	try {
 		await rimraf(tmpDir);
 	} catch (e) {
+    if (!(e instanceof Error && 'errno' in e && 'syscall' in e && 'code' in e)) {
+      return
+    }
 		if (e.errno !== -2 && e.syscall !== 'rmdir' && e.code !== 'ENOENT') {
 			throw e;
 		}
@@ -114,7 +122,7 @@ async function stashFiles(dir, dest) {
 	}
 }
 
-async function unstashFiles(dir, dest) {
+async function unstashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	const files = await fs.readdir(tmpDir);
 	for (const filename of files) {
