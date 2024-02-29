@@ -1,42 +1,148 @@
-const fs = require('fs-extra');
-const path = require('path');
-const tar = require('tar');
-const { cyan, magenta, red, bold } = require('colorette');
-const EventEmitter = require('events');
-const {
+import { bold, cyan, magenta, red } from 'colorette';
+import fs from 'fs-extra';
+import EventEmitter from 'node:events';
+import type { constants } from 'node:os';
+import path from 'node:path';
+import tar from 'tar';
+import {
 	DegitError,
+	base,
+	degitConfigName,
 	exec,
 	fetch,
 	rimraf,
-	tryRequire,
 	stashFiles,
-	unstashFiles,
-	degitConfigName,
-	base
-} = require('./utils.js');
+	tryRequire,
+	unstashFiles
+} from './utils';
 
-const validModes = new Set(['tar', 'git']);
+const validModes = new Set<ValidModes>(['tar', 'git']);
 
-function degit(src, opts) {
+type ValidModes = 'tar' | 'git';
+
+export interface Options {
+	/**
+	 * @default false
+	 */
+	cache?: boolean;
+	/**
+	 * @default false
+	 */
+	force?: boolean;
+	/**
+	 * @default undefined
+	 */
+	mode?: ValidModes;
+	/**
+	 * @default false
+	 */
+	verbose?: boolean;
+	/**
+	 * @default false
+	 */
+	'offline-mode'?: boolean;
+	/**
+	 * @default false
+	 */
+	offlineMode?: boolean;
+	/**
+	 * @default false
+	 */
+	'disable-cache'?: boolean;
+	/**
+	 * @default false
+	 */
+	disableCache?: boolean;
+	/**
+	 * @default false
+	 */
+	subgroup?: boolean;
+	/**
+	 * @default false
+	 */
+	'sub-directory'?: string;
+}
+
+type InfoCode =
+	| 'SUCCESS'
+	| 'FILE_DOES_NOT_EXIST'
+	| 'REMOVED'
+	| 'DEST_NOT_EMPTY'
+	| 'DEST_IS_EMPTY'
+	| 'USING_CACHE'
+	| 'FOUND_MATCH'
+	| 'FILE_EXISTS'
+	| 'PROXY'
+	| 'DOWNLOADING'
+	| 'EXTRACTING';
+
+export type DegitErrorCode =
+	| 'DEST_NOT_EMPTY'
+	| 'MISSING_REF'
+	| 'COULD_NOT_DOWNLOAD'
+	| 'BAD_SRC'
+	| 'UNSUPPORTED_HOST'
+	| 'BAD_REF'
+	| 'COULD_NOT_FETCH'
+	| keyof typeof constants.errno;
+
+interface Info {
+	readonly code?: string;
+	// readonly code?: InfoCode;
+	readonly message?: string;
+	readonly repo?: Repo;
+	// readonly repo: Degit;
+	readonly dest?: string;
+}
+
+interface Action {
+	action: string;
+	cache?: boolean | undefined;
+	verbose?: boolean | undefined;
+}
+
+interface DegitAction extends Action {
+	action: 'clone';
+	src: string;
+}
+
+interface RemoveAction extends Action {
+	action: 'remove';
+	files: string[];
+}
+
+function degit(src: string, opts?: Options) {
 	return new Degit(src, opts);
 }
 
-module.exports = degit;
+export default degit;
 
 class Degit extends EventEmitter {
-	constructor(src, opts = {}) {
+	public declare offlineMode?: boolean;
+	public declare noCache?: boolean;
+	public declare cache?: boolean;
+	public declare force?: boolean;
+	public declare verbose?: boolean;
+	public declare proxy?: string;
+	public declare subgroup?: boolean;
+	public declare subdir?: string;
+	public declare repo: ReturnType<typeof parse>;
+	// public declare repo: this;
+	public declare mode: ValidModes;
+	public declare _hasStashed: boolean;
+	public declare directiveActions: {
+		clone: (dir: string, dest: string, action: DegitAction) => Promise<void>;
+		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
+	};
+	constructor(public src: string, public opts: Options = {}) {
 		super();
 		this.src = src;
-    if (opts["offline-mode"])
-      this.offlineMode = opts["offline-mode"];
-    if (opts["offlineMode"])
-      this.offlineMode = opts["offlineMode"];
-    if (opts["disable-cache"])
-      this.noCache = opts["disable-cache"];
-    if (opts["disableCache"])
-      this.noCache = opts["disableCache"];
-    // Left cache for backward compatibility. Deprecated. Remove in next major version.
-    this.cache = opts.cache;
+		if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
+		if (opts['offlineMode']) this.offlineMode = opts['offlineMode'];
+		if (opts['disable-cache']) this.noCache = opts['disable-cache'];
+		if (opts.disableCache) this.noCache = opts.disableCache;
+		// Left cache for backward compatibility. Deprecated. Remove in next major version.
+		this.cache = opts.cache;
 		this.force = opts.force;
 		this.verbose = opts.verbose;
 		this.proxy = this._getHttpsProxy(); // TODO allow setting via --proxy
@@ -46,9 +152,9 @@ class Degit extends EventEmitter {
 		this.repo = parse(src);
 		if (this.subgroup) {
 			this.repo.subgroup = true;
-			this.repo.name = this.repo.subdir.slice(1);
-			this.repo.url = this.repo.url + this.repo.subdir;
-			this.repo.ssh = this.repo.ssh + this.repo.subdir + '.git';
+			this.repo.name = this.repo.subdir?.slice(1) ?? '';
+			this.repo.url += this.repo.subdir;
+			this.repo.ssh = `${this.repo.ssh + this.repo.subdir}.git`;
 			this.repo.subdir = null;
 			if (this.subdir) {
 				this.repo.subdir = this.subdir.startsWith('/')
@@ -89,8 +195,10 @@ class Degit extends EventEmitter {
 				try {
 					await d.clone(dest);
 				} catch (err) {
-					console.error(red(`! ${err.message}`));
-					process.exit(1);
+					if (err instanceof Error) {
+						console.error(red(`! ${err.message}`));
+						process.exit(1);
+					}
 				}
 			},
 			remove: this.remove.bind(this)
@@ -102,17 +210,18 @@ class Degit extends EventEmitter {
 	//
 	// TODO allow setting via --proxy
 	_getHttpsProxy() {
-		let result = process.env.https_proxy;
+		const result = process.env.https_proxy;
 		if (!result) {
-			result = process.env.HTTPS_PROXY;
+			return process.env.HTTPS_PROXY;
 		}
-		return result
+		return result;
 	}
 
-	async _getDirectives(dest) {
+	async _getDirectives(dest: string) {
 		const directivesPath = path.resolve(dest, degitConfigName);
 		const directives =
-			tryRequire(directivesPath, { clearCache: true }) || false;
+			(tryRequire(directivesPath, { clearCache: true }) as DegitAction[]) ||
+			false;
 		if (directives) {
 			await fs.unlink(directivesPath);
 		}
@@ -120,7 +229,7 @@ class Degit extends EventEmitter {
 		return directives;
 	}
 
-	async clone(dest) {
+	async clone(dest: string) {
 		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
 		const dir = path.join(base, repo.site, repo.user, repo.name);
@@ -133,7 +242,7 @@ class Degit extends EventEmitter {
 
 		this._info({
 			code: 'SUCCESS',
-			message: `cloned ${bold(repo.user + '/' + repo.name)}#${bold(repo.ref)}${
+			message: `cloned ${bold(`${repo.user}/${repo.name}`)}#${bold(repo.ref)}${
 				dest !== '.' ? ` to ${dest}` : ''
 			}`,
 			repo,
@@ -151,8 +260,8 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async remove(_dir, dest, action) {
-		let files = action.files;
+	async remove(_dir: string, dest: string, action: RemoveAction) {
+		let { files } = action;
 		if (!Array.isArray(files)) {
 			files = [files];
 		}
@@ -163,7 +272,7 @@ class Degit extends EventEmitter {
 				const isDir = (await fs.lstat(filePath)).isDirectory();
 				if (isDir) {
 					await rimraf(filePath);
-					removedFiles.push(file + '/');
+					removedFiles.push(`${file}/`);
 				} else {
 					await fs.unlink(filePath);
 					removedFiles.push(file);
@@ -184,7 +293,7 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async _checkDirIsEmpty(dir) {
+	async _checkDirIsEmpty(dir: string) {
 		try {
 			const files = await fs.readdir(dir);
 			if (files.length > 0) {
@@ -210,39 +319,47 @@ class Degit extends EventEmitter {
 				});
 			}
 		} catch (err) {
-			if (err.code !== 'ENOENT') throw err;
+			if (err instanceof DegitError && err.code !== 'ENOENT') throw err;
 		}
 	}
 
-	_info(info) {
+	_info(info: Info) {
 		this.emit('info', info);
 	}
 
-	_warn(info) {
+	_warn(info: Info) {
 		this.emit('warn', info);
 	}
 
-	_verbose(info) {
+	_verbose(info: Info) {
 		if (this.verbose) this._info(info);
 	}
 
-	async _getHash(repo, cached) {
+	async _getHash(repo: Repo, cached: Record<string, string>) {
 		try {
 			const refs = await fetchRefs(repo);
+      if (refs == null) {
+        return
+      }
 			if (repo.ref === 'HEAD') {
-				return refs.find(ref => ref.type === 'HEAD').hash;
+				return refs?.find(ref => ref.type === 'HEAD')?.hash ?? '';
 			}
 
 			return this._selectRef(refs, repo.ref);
 		} catch (err) {
-			this._warn(err);
-			this._verbose(err.original);
+			if (err instanceof DegitError && 'code' in err && 'message' in err) {
+				this._warn(err);
+        if (err.original != null) {
+          this._verbose(err.original);
+        }
+			}
+
 
 			return this._getHashFromCache(repo, cached);
 		}
 	}
 
-	_getHashFromCache(repo, cached) {
+	_getHashFromCache(repo: Repo, cached: Record<string, string>) {
 		if (repo.ref in cached) {
 			const hash = cached[repo.ref];
 			this._info({
@@ -253,7 +370,7 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_selectRef(refs, selector) {
+	_selectRef(refs: { type: string; name?: string; hash: string; }[], selector: string) {
 		for (const ref of refs) {
 			if (ref.name === selector) {
 				this._verbose({
@@ -271,13 +388,14 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async _cloneWithTar(dir, dest) {
+	async _cloneWithTar(dir: string, dest: string) {
 		const { repo } = this;
 
-		const cached = tryRequire(path.join(dir, 'map.json')) || {};
-		const hash = this.offlineMode || this.cache
-			? this._getHashFromCache(repo, cached)
-			: await this._getHash(repo, cached);
+		const cached = tryRequire(path.join(dir, 'map.json')) as Record<string, string> || {};
+		const hash =
+			this.offlineMode || this.cache
+				? this._getHashFromCache(repo, cached)
+				: await this._getHash(repo, cached);
 
 		const subdir = repo.subdir ? `${repo.name}-${hash}${repo.subdir}` : null;
 
@@ -300,20 +418,20 @@ class Degit extends EventEmitter {
 		try {
 			if (!this.offlineMode || !this.cache) {
 				try {
-          if (this.noCache) {
-            this._verbose({
-              code: 'NO_CACHE',
-              message: `Not using cache. noCache set to true.`
-            });
-            throw "don't use cache";
-          }
+					if (this.noCache) {
+						this._verbose({
+							code: 'NO_CACHE',
+							message: `Not using cache. noCache set to true.`
+						});
+						throw "don't use cache";
+					}
 					await fs.stat(file);
 					this._verbose({
 						code: 'FILE_EXISTS',
 						message: `${file} already exists locally`
 					});
 				} catch (err) {
-          // Not getting file from cache. Either because there is no cached tar or because option no cache is set to true. 
+					// Not getting file from cache. Either because there is no cached tar or because option no cache is set to true.
 					await fs.mkdir(path.dirname(file), { recursive: true });
 
 					if (this.proxy) {
@@ -332,20 +450,21 @@ class Degit extends EventEmitter {
 				}
 			}
 		} catch (err) {
-			throw new DegitError(`could not download ${url}`, {
-				code: 'COULD_NOT_DOWNLOAD',
-				url,
-				original: err
-			});
+      if (err instanceof Error) {
+        throw new DegitError(`could not download ${url}`, {
+          code: 'COULD_NOT_DOWNLOAD',
+          url,
+          original: err
+        });
+      }
 		}
-    
-    if (!this.noCache)
-      await updateCache(dir, repo, hash, cached);
+
+		if (!this.noCache) await updateCache(dir, repo, hash, cached);
 
 		this._verbose({
 			code: 'EXTRACTING',
 			message: `extracting ${
-				subdir ? repo.subdir + ' from ' : ''
+				subdir ? `${repo.subdir} from ` : ''
 			}${file} to ${dest}`
 		});
 
@@ -353,11 +472,11 @@ class Degit extends EventEmitter {
 		await untar(file, dest, subdir);
 	}
 
-	async _cloneWithGit(_dir, dest) {
-		let gitPath =  /https:\/\//.test(this.repo.src)
+	async _cloneWithGit(_dir: string, dest: string) {
+		let gitPath = /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
-    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
+		gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
 		const isWin = process.platform === 'win32';
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
@@ -393,15 +512,30 @@ class Degit extends EventEmitter {
 	}
 }
 
-const supported = {
+const supported: Record<string, string> = {
 	github: '.com',
 	gitlab: '.com',
 	bitbucket: '.com',
 	'git.sr.ht': '.ht',
-  huggingface: '.co'
+	huggingface: '.co'
 };
 
-function parse(src) {
+type Repo = {
+	site: string;
+	user: string;
+	name: string;
+	ref: string;
+	url: string;
+	ssh: string;
+	subdir?: string | null;
+	mode: ValidModes;
+	src: string;
+	subgroup?: boolean;
+}
+
+function parse(
+	src: string
+): Repo {
 	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
 		src
 	);
@@ -414,7 +548,7 @@ function parse(src) {
 	const site = match[1] || match[2] || match[3] || 'github.com';
 	const tldMatch = /\.([a-z]{2,})$/.exec(site);
 	const tld = tldMatch ? tldMatch[0] : null;
-  const siteName = tld ? site.replace(new RegExp(tld + '$'), '') : site;
+	const siteName = tld ? site.replace(new RegExp(`${tld}$`), '') : site;
 
 	const user = match[4];
 	const name = match[5].replace(/\.git$/, '');
@@ -428,12 +562,17 @@ function parse(src) {
 	const url = `https://${domain}/${user}/${name}`;
 	const ssh = `git@${domain}:${user}/${name}`;
 
-	const mode = siteName === 'huggingface' ? 'git' : supported[siteName] || supported[site] ? 'tar' : 'git';
+	const mode =
+		siteName === 'huggingface'
+			? 'git'
+			: supported[siteName] || supported[site]
+			? 'tar'
+			: 'git';
 
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
 
-async function untar(file, dest, subdir = null) {
+async function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
 	return tar.extract(
 		{
 			file,
@@ -444,7 +583,7 @@ async function untar(file, dest, subdir = null) {
 	);
 }
 
-async function fetchRefs(repo) {
+async function fetchRefs(repo: Repo) {
 	try {
 		const { stdout } = await exec(`git ls-remote ${repo.url}`);
 
@@ -479,17 +618,19 @@ async function fetchRefs(repo) {
 				};
 			});
 	} catch (error) {
-		throw new DegitError(`could not fetch remote ${repo.url}`, {
-			code: 'COULD_NOT_FETCH',
-			url: repo.url,
-			original: error
-		});
+    if (error instanceof Error) {
+      throw new DegitError(`could not fetch remote ${repo.url}`, {
+        code: 'COULD_NOT_FETCH',
+        url: repo.url,
+        original: error
+      });
+    }
 	}
 }
 
-async function updateCache(dir, repo, hash, cached) {
+async function updateCache(dir: string, repo: Repo, hash: string, cached: Record<string, string>) {
 	// update access logs
-	const logs = tryRequire(path.join(dir, 'access.json')) || {};
+	const logs = tryRequire(path.join(dir, 'access.json')) as Record<string, string> || {};
 	logs[repo.ref] = new Date().toISOString();
 	await fs.writeFile(
 		path.join(dir, 'access.json'),
