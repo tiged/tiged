@@ -15,7 +15,8 @@
     "clean": "rimraf dist",
     "build": "npm run clean && tsc -p tsconfig.build.json",
 		"test": "vitest --typecheck",
-    "test-types": "tsc -p tsconfig.json --noEmit"
+    "test-types": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run build"
 	},
 	"repository": {
 		"type": "git",
