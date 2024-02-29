@@ -1,12 +1,11 @@
 import fs from 'fs-extra';
-import path from 'node:path';
-import { homedir, tmpdir } from 'node:os';
-import https from 'node:https';
-import child_process from 'node:child_process';
-import URL from 'node:url';
 import createHttpsProxyAgent from 'https-proxy-agent';
+import child_process from 'node:child_process';
+import https from 'node:https';
+import { homedir, tmpdir } from 'node:os';
+import path from 'node:path';
 import { rimraf } from 'rimraf';
-import type { DegitErrorCode } from "./index";
+import type { DegitErrorCode } from './index';
 
 const tmpDirName = 'tmp';
 
@@ -15,26 +14,29 @@ const degitConfigName = 'degit.json';
 const homeOrTmp = homedir() || tmpdir();
 
 interface DegitErrorOptions extends ErrorOptions {
-  code: DegitErrorCode;
-  original?: Error;
-  ref?: string;
-  url?: string;
+	code?: DegitErrorCode;
+	original?: Error;
+	ref?: string;
+	url?: string;
 }
 
 class DegitError extends Error {
-    declare public code?: DegitErrorOptions['code'];
-    declare public original?: DegitErrorOptions['original'];
-    declare public ref?: DegitErrorOptions['ref'];
-    declare public url?: DegitErrorOptions['url'];
+	public declare code?: DegitErrorOptions['code'];
+	public declare original?: DegitErrorOptions['original'];
+	public declare ref?: DegitErrorOptions['ref'];
+	public declare url?: DegitErrorOptions['url'];
 	constructor(message?: string, opts?: DegitErrorOptions) {
 		super(message);
 		Object.assign(this, opts);
 	}
 }
 
-function tryRequire(file: string, opts?: {
-  clearCache?: true | undefined;
-}): unknown {
+function tryRequire(
+	file: string,
+	opts?: {
+		clearCache?: true | undefined;
+	}
+): unknown {
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];
@@ -45,7 +47,10 @@ function tryRequire(file: string, opts?: {
 	}
 }
 
-async function exec(command: string, size = 500): Promise<{ stdout: string; stderr: string }> {
+async function exec(
+	command: string,
+	size = 500
+): Promise<{ stdout: string; stderr: string }> {
 	return new Promise<{ stdout: string; stderr: string }>((fulfil, reject) => {
 		child_process.exec(
 			command,
@@ -69,11 +74,11 @@ async function exec(command: string, size = 500): Promise<{ stdout: string; stde
 
 async function fetch(url: string, dest: string, proxy?: string) {
 	return new Promise<void>((fulfil, reject) => {
-		const parsedUrl = URL.parse(url);
+		const parsedUrl = new URL(url);
 		const options: https.RequestOptions = {
 			hostname: parsedUrl.hostname,
 			port: parsedUrl.port,
-			path: parsedUrl.path,
+			path: parsedUrl.pathname,
 			headers: {
 				Connection: 'close'
 			}
@@ -85,15 +90,15 @@ async function fetch(url: string, dest: string, proxy?: string) {
 		https
 			.get(options, response => {
 				const code = response.statusCode;
-        if (code == null) {
-          return reject(new Error('No status code'));
-        }
+				if (code == null) {
+					return reject(new Error('No status code'));
+				}
 				if (code >= 400) {
 					reject({ code, message: response.statusMessage });
 				} else if (code >= 300) {
-          if (response.headers.location == null) {
-            return reject(new Error('No location header'));
-          }
+					if (response.headers.location == null) {
+						return reject(new Error('No location header'));
+					}
 					fetch(response.headers.location, dest, proxy).then(fulfil, reject);
 				} else {
 					response
@@ -111,9 +116,11 @@ async function stashFiles(dir: string, dest: string) {
 	try {
 		await rimraf(tmpDir);
 	} catch (e) {
-    if (!(e instanceof Error && 'errno' in e && 'syscall' in e && 'code' in e)) {
-      return
-    }
+		if (
+			!(e instanceof Error && 'errno' in e && 'syscall' in e && 'code' in e)
+		) {
+			return;
+		}
 		if (e.errno !== -2 && e.syscall !== 'rmdir' && e.code !== 'ENOENT') {
 			throw e;
 		}
@@ -157,13 +164,13 @@ async function unstashFiles(dir: string, dest: string) {
 const base = path.join(homeOrTmp, '.degit');
 
 export {
-	rimraf,
-	degitConfigName,
 	DegitError,
-	tryRequire,
-	fetch,
+	base,
+	degitConfigName,
 	exec,
+	fetch,
+	rimraf,
 	stashFiles,
-	unstashFiles,
-	base
+	tryRequire,
+	unstashFiles
 };
