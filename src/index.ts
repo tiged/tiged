@@ -119,7 +119,10 @@ class Degit extends EventEmitter {
 		clone: (dir: string, dest: string, action: DegitAction) => Promise<void>;
 		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
 	};
-	constructor(public src: string, public opts: Options = {}) {
+	constructor(
+		public src: string,
+		public opts: Options = {}
+	) {
 		super();
 		this.src = src;
 		if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
@@ -400,8 +403,8 @@ class Degit extends EventEmitter {
 			repo.site === 'gitlab'
 				? `${repo.url}/-/archive/${hash}/${repo.name}-${hash}.tar.gz`
 				: repo.site === 'bitbucket'
-				? `${repo.url}/get/${hash}.tar.gz`
-				: `${repo.url}/archive/${hash}.tar.gz`;
+					? `${repo.url}/get/${hash}.tar.gz`
+					: `${repo.url}/archive/${hash}.tar.gz`;
 
 		try {
 			if (!this.offlineMode || !this.cache) {
@@ -519,12 +522,13 @@ export interface Repo {
 	mode: ValidModes;
 	src: string;
 	subgroup?: boolean;
-};
+}
 
 function parse(src: string): Repo {
-	const match = /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
-		src
-	);
+	const match =
+		/^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
+			src
+		);
 	if (!match) {
 		throw new DegitError(`could not parse ${src}`, {
 			code: 'BAD_SRC'
@@ -552,8 +556,8 @@ function parse(src: string): Repo {
 		siteName === 'huggingface'
 			? 'git'
 			: supported[siteName] || supported[site]
-			? 'tar'
-			: 'git';
+				? 'tar'
+				: 'git';
 
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
@@ -601,8 +605,8 @@ async function fetchRefs(repo: Repo) {
 						match[1] === 'heads'
 							? 'branch'
 							: match[1] === 'refs'
-							? 'ref'
-							: match[1],
+								? 'ref'
+								: match[1],
 					name: match[2],
 					hash
 				};
