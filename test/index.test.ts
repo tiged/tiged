@@ -7,7 +7,7 @@ import glob from 'tiny-glob/sync';
 import degit from '../src/index';
 
 const exec = promisify(child_process.exec);
-const degitPath = path.resolve('dist/bin.js');
+const degitPath = path.resolve('dist/bin.mjs');
 
 const timeout = 30_000;
 

@@ -27,7 +27,7 @@
 	},
 	"bin": {
 		"degit": "dist/bin.js",
-		"tiged": "dist/bin.js"
+		"tiged": "dist/bin.mjs"
 	},
 	"scripts": {
 		"lint": "eslint --color .",
