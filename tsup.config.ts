@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { Options } from 'tsup';
 import { defineConfig } from 'tsup';
 
@@ -5,7 +6,7 @@ export default defineConfig(options => {
 	const commonOptions: Options = {
 		clean: true,
 		format: ['cjs', 'esm'],
-		tsconfig: 'tsconfig.build.json',
+		tsconfig: path.resolve('tsconfig.build.json'),
 		...options
 	};
 
