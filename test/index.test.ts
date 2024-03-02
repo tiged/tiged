@@ -1,13 +1,13 @@
-import fs from 'fs/promises';
 import assert from 'node:assert';
 import child_process from 'node:child_process';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
 import glob from 'tiny-glob/sync';
-const exec = promisify(child_process.exec);
-
 import degit from '../src/index';
+
+const exec = promisify(child_process.exec);
 const degitPath = path.join('dist', 'bin.js');
 
 const timeout = 30_000;
@@ -16,7 +16,7 @@ beforeAll(async () => {
 	await exec('npm run build');
 });
 
-describe.sequential('degit', { timeout }, () => {
+describe.sequential(degit, { timeout }, () => {
 	beforeEach(async () => {
 		await rimraf('.tmp');
 	});

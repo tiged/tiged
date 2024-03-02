@@ -17,52 +17,91 @@ import {
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 
+/**
+ * Represents the valid modes for a file.
+ * The modes can be either `'tar'` or `'git'`.
+ */
 type ValidModes = 'tar' | 'git';
 
+/**
+ * Represents the options for a specific operation.
+ */
 export interface Options {
 	/**
+	 * Specifies whether to use caching.
+	 *
 	 * @default false
 	 */
 	cache?: boolean;
+
 	/**
+	 * Specifies whether to force the operation.
+	 *
 	 * @default false
 	 */
 	force?: boolean;
+
 	/**
+	 * Specifies the mode for the operation.
+	 *
 	 * @default undefined
 	 */
 	mode?: ValidModes;
+
 	/**
+	 * Specifies whether to enable verbose logging.
+	 *
 	 * @default false
 	 */
 	verbose?: boolean;
+
 	/**
+	 * Specifies whether to enable offline mode.
+	 *
 	 * @default false
 	 */
 	'offline-mode'?: boolean;
+
 	/**
+	 * Specifies whether to enable offline mode.
+	 *
 	 * @default false
 	 */
 	offlineMode?: boolean;
+
 	/**
+	 * Specifies whether to disable caching.
+	 *
 	 * @default false
 	 */
 	'disable-cache'?: boolean;
+
 	/**
+	 * Specifies whether to disable caching.
+	 *
 	 * @default false
 	 */
 	disableCache?: boolean;
+
 	/**
+	 * Specifies whether to use subgrouping.
+	 *
 	 * @default false
 	 */
 	subgroup?: boolean;
+
 	/**
+	 * Specifies the sub-directory for the operation.
+	 *
 	 * @default undefined
 	 */
 	'sub-directory'?: string;
 }
 
 // TODO: We might not need this one.
+/**
+ * Represents the possible information codes.
+ */
 type InfoCode =
 	| 'SUCCESS'
 	| 'FILE_DOES_NOT_EXIST'
@@ -76,29 +115,89 @@ type InfoCode =
 	| 'DOWNLOADING'
 	| 'EXTRACTING';
 
+/**
+ * Represents information about a specific entity.
+ */
 interface Info {
+	/**
+	 * The code associated with the entity.
+	 */
 	readonly code?: string;
+
+	/**
+	 * The message associated with the entity.
+	 */
 	readonly message?: string;
+
+	/**
+	 * The repository associated with the entity.
+	 */
 	readonly repo?: Repo;
+
+	/**
+	 * The destination of the entity.
+	 */
 	readonly dest?: string;
 }
 
+/**
+ * Represents an action.
+ */
 interface Action {
+	/**
+	 * The type of action.
+	 */
 	action: string;
+
+	/**
+	 * The cache option.
+	 */
 	cache?: boolean | undefined;
+
+	/**
+	 * The verbose option.
+	 */
 	verbose?: boolean | undefined;
 }
 
+/**
+ * Represents a Degit action for cloning.
+ */
 interface DegitAction extends Action {
+	/**
+	 * The type of action, which is always `'clone'`.
+	 */
 	action: 'clone';
+
+	/**
+	 * The source path to clone from.
+	 */
 	src: string;
 }
 
+/**
+ * Represents a remove action.
+ */
 interface RemoveAction extends Action {
+	/**
+	 * The type of action, which is always `'remove'`.
+	 */
 	action: 'remove';
+
+	/**
+	 * An array of file paths to be removed.
+	 */
 	files: string[];
 }
 
+/**
+ * Creates a new instance of the Degit class with
+ * the specified source and options.
+ *
+ * @param src - The source path to clone from.
+ * @param opts - The optional configuration options.
+ * @returns A new instance of the {@linkcode Degit} class.
+ */
 function degit(src: string, opts?: Options) {
 	return new Degit(src, opts);
 }
@@ -180,7 +279,10 @@ class Degit extends EventEmitter {
 		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
 	};
 
-  // public declare on: (event: "info" | "warn", callback: (info: Info) => void) => this;
+	public declare on: (
+		event: 'info' | 'warn',
+		callback: (info: Info) => void
+	) => this;
 
 	/**
 	 * Constructs a new `Degit` instance with the specified source and options.
@@ -239,12 +341,12 @@ class Degit extends EventEmitter {
 				const d = degit(action.src, opts);
 
 				d.on('info', event => {
-					console.error(cyan(`> ${event.message.replace('options.', '--')}`));
+					console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
 				});
 
 				d.on('warn', event => {
 					console.error(
-						magenta(`! ${event.message.replace('options.', '--')}`)
+						magenta(`! ${event.message?.replace('options.', '--')}`)
 					);
 				});
 
@@ -265,7 +367,12 @@ class Degit extends EventEmitter {
 	// variable `https_proxy` or `HTTPS_PROXY`.
 	//
 	// TODO allow setting via --proxy
-	_getHttpsProxy() {
+	/**
+	 * Retrieves the HTTPS proxy from the environment variables.
+	 *
+	 * @returns The HTTPS proxy value, or `undefined` if not found.
+	 */
+	public _getHttpsProxy() {
 		const result = process.env.https_proxy;
 		if (!result) {
 			return process.env.HTTPS_PROXY;
@@ -273,7 +380,13 @@ class Degit extends EventEmitter {
 		return result;
 	}
 
-	async _getDirectives(dest: string) {
+	/**
+	 * Retrieves the directives from the specified destination.
+	 *
+	 * @param dest - The destination path.
+	 * @returns An array of {@linkcode DegitAction} directives, or `false` if no directives are found.
+	 */
+	public async _getDirectives(dest: string) {
 		const directivesPath = path.resolve(dest, degitConfigName);
 		const directives =
 			(tryRequire(directivesPath, { clearCache: true }) as DegitAction[]) ||
@@ -285,6 +398,11 @@ class Degit extends EventEmitter {
 		return directives;
 	}
 
+	/**
+	 * Clones the repository to the specified destination.
+	 *
+	 * @param dest - The destination directory where the repository will be cloned.
+	 */
 	public async clone(dest: string) {
 		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
@@ -316,6 +434,14 @@ class Degit extends EventEmitter {
 		}
 	}
 
+	/**
+	 * Removes files or directories from a specified destination
+	 * based on the provided action.
+	 *
+	 * @param _dir - The directory path.
+	 * @param dest - The destination path.
+	 * @param action - The action object containing the files to be removed.
+	 */
 	public async remove(_dir: string, dest: string, action: RemoveAction) {
 		let { files } = action;
 		if (!Array.isArray(files)) {
@@ -349,7 +475,12 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async _checkDirIsEmpty(dir: string) {
+	/**
+	 * Checks if a directory is empty.
+	 *
+	 * @param dir - The directory path to check.
+	 */
+	public async _checkDirIsEmpty(dir: string) {
 		try {
 			const files = await fs.readdir(dir);
 			if (files.length > 0) {
@@ -379,19 +510,42 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_info(info: Info) {
+	/**
+	 * Emits an `'info'` event with the provided information.
+	 *
+	 * @param info - The information to be emitted.
+	 */
+	public _info(info: Info) {
 		this.emit('info', info);
 	}
 
-	_warn(info: Info) {
+	/**
+	 * Emits a `'warn'` event with the provided info.
+	 *
+	 * @param info - The information to be emitted.
+	 */
+	public _warn(info: Info) {
 		this.emit('warn', info);
 	}
 
-	_verbose(info: Info) {
+	/**
+	 * Logs the provided {@linkcode info} object
+	 * if the {@linkcode verbose} flag is set to `true`.
+	 *
+	 * @param info - The information to be logged.
+	 */
+	public _verbose(info: Info) {
 		if (this.verbose) this._info(info);
 	}
 
-	async _getHash(repo: Repo, cached: Record<string, string>) {
+	/**
+	 * Retrieves the hash for a given repository.
+	 *
+	 * @param repo - The repository object.
+	 * @param cached - The cached records.
+	 * @returns The hash value.
+	 */
+	public async _getHash(repo: Repo, cached: Record<string, string>) {
 		try {
 			const refs = await fetchRefs(repo);
 			if (refs == null) {
@@ -414,7 +568,14 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_getHashFromCache(repo: Repo, cached: Record<string, string>) {
+	/**
+	 * Retrieves the commit hash from the cache for the given repository.
+	 *
+	 * @param repo - The repository object.
+	 * @param cached - The cached commit hashes.
+	 * @returns The commit hash if found in the cache; otherwise, `undefined`.
+	 */
+	public _getHashFromCache(repo: Repo, cached: Record<string, string>) {
 		if (repo.ref in cached) {
 			const hash = cached[repo.ref];
 			this._info({
@@ -425,7 +586,15 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	_selectRef(
+	/**
+	 * Selects a commit hash from an array of references
+	 * based on a given selector.
+	 *
+	 * @param refs - An array of references containing type, name, and hash.
+	 * @param selector - The selector used to match the desired reference.
+	 * @returns The commit hash that matches the selector, or `null` if no match is found.
+	 */
+	public _selectRef(
 		refs: { type: string; name?: string; hash: string }[],
 		selector: string
 	) {
@@ -446,7 +615,17 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async _cloneWithTar(dir: string, dest: string) {
+	/**
+	 * Clones the repository specified by {@linkcode repo}
+	 * into the {@linkcode dest} directory using a tarball.
+	 *
+	 * @param dir - The directory where the repository is cloned.
+	 * @param dest - The destination directory where the repository will be extracted.
+	 * @throws A {@linkcode DegitError} If the commit hash for the repository reference cannot be found.
+	 * @throws A {@linkcode DegitError} If the tarball cannot be downloaded.
+	 * @returns A promise that resolves when the cloning and extraction process is complete.
+	 */
+	public async _cloneWithTar(dir: string, dest: string) {
 		const { repo } = this;
 
 		const cached =
@@ -531,7 +710,13 @@ class Degit extends EventEmitter {
 		await untar(file, dest, subdir);
 	}
 
-	async _cloneWithGit(_dir: string, dest: string) {
+	/**
+	 * Clones the repository using Git.
+	 *
+	 * @param _dir - The source directory.
+	 * @param dest - The destination directory.
+	 */
+	public async _cloneWithGit(_dir: string, dest: string) {
 		let gitPath = /https:\/\//.test(this.repo.src)
 			? this.repo.url
 			: this.repo.ssh;
@@ -579,6 +764,9 @@ const supported: Record<string, string> = {
 	huggingface: '.co'
 };
 
+/**
+ * Represents a repository.
+ */
 export interface Repo {
 	site: string;
 	user: string;
@@ -592,6 +780,14 @@ export interface Repo {
 	subgroup?: boolean;
 }
 
+/**
+ * Parses the source URL and returns a {@linkcode Repo} object
+ * containing the parsed information.
+ *
+ * @param src - The source URL to parse.
+ * @returns A {@linkcode Repo} object containing the parsed information.
+ * @throws A {@linkcode DegitError} If the source URL cannot be parsed.
+ */
 function parse(src: string): Repo {
 	const match =
 		/^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
@@ -630,6 +826,14 @@ function parse(src: string): Repo {
 	return { site: siteName, user, name, ref, url, ssh, subdir, mode, src };
 }
 
+/**
+ * Extracts the contents of a tar file to a specified destination.
+ *
+ * @param file - The path to the tar file.
+ * @param dest - The destination directory where the contents will be extracted.
+ * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
+ * @returns A Promise that resolves when the extraction is complete.
+ */
 async function untar(
 	file: string,
 	dest: string,
@@ -645,6 +849,13 @@ async function untar(
 	);
 }
 
+/**
+ * Fetches the references (branches, tags, etc.) from a remote Git repository.
+ *
+ * @param repo - The repository object containing the URL of the remote repository.
+ * @returns An array of objects representing the fetched references, each containing the type, name, and hash.
+ * @throws A {@linkcode DegitError} If there is an error fetching the remote repository.
+ */
 async function fetchRefs(repo: Repo) {
 	try {
 		const { stdout } = await exec(`git ls-remote ${repo.url}`);
@@ -690,6 +901,15 @@ async function fetchRefs(repo: Repo) {
 	}
 }
 
+/**
+ * Updates the cache with the given repository information.
+ *
+ * @param dir - The directory path where the cache is located.
+ * @param repo - The repository object containing the reference and other details.
+ * @param hash - The hash value of the repository.
+ * @param cached - The cached records.
+ * @returns A Promise that resolves when the cache is updated.
+ */
 async function updateCache(
 	dir: string,
 	repo: Repo,
