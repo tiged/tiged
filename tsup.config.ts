@@ -7,6 +7,7 @@ export default defineConfig(options => {
 		clean: true,
 		format: ['cjs', 'esm'],
 		tsconfig: path.resolve('tsconfig.build.json'),
+		sourcemap: true,
 		...options
 	};
 
