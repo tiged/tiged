@@ -1,4 +1,3 @@
-import assert from 'node:assert';
 import child_process from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -8,31 +7,37 @@ import glob from 'tiny-glob/sync';
 import degit from '../src/index';
 
 const exec = promisify(child_process.exec);
-const degitPath = path.join('dist', 'bin.js');
+const degitPath = path.resolve('dist/bin.js');
 
 const timeout = 30_000;
 
-beforeAll(async () => {
-	await exec('npm run build');
-});
-
 describe.sequential(degit, { timeout }, () => {
+	beforeAll(async () => {
+		await exec('npm run build');
+	});
+
 	beforeEach(async () => {
 		await rimraf('.tmp');
 	});
+
 	afterEach(async () => {
 		await rimraf('.tmp');
 	});
 
 	function compare<T extends Record<string, any>>(dir: string, files: T) {
-		const expected = glob('**', { cwd: dir });
-		assert.deepStrictEqual(Object.keys(files).sort(), expected.sort());
+		const expected = glob('**', { cwd: path.join(dir) });
+		const normalizedPaths = Object.fromEntries(
+			Object.entries(files).map(
+				([fileName, value]) => [path.join(fileName), value] as const
+			)
+		);
+		expect(Object.keys(normalizedPaths).sort()).toStrictEqual(expected.sort());
 
 		expected.forEach(async file => {
-			if (!(await fs.stat(path.join(`${dir}/${file}`))).isDirectory()) {
-				assert.strictEqual(
-					path.join(files[file]).trim(),
-					(await read(path.join(`${dir}/${file}`))).trim()
+			const filePath = path.join(`${dir}/${file}`);
+			if (!(await fs.lstat(filePath)).isDirectory()) {
+				expect(path.join(normalizedPaths[file]).trim()).toBe(
+					(await read(filePath)).trim()
 				);
 			}
 		});
@@ -50,7 +55,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from github!',
 				subdir: null,
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 	});
@@ -62,7 +67,7 @@ describe.sequential(degit, { timeout }, () => {
 			'https://gitlab.com/nake89/tiged-test-repo.git'
 		])('%s', async src => {
 			await exec(`node ${degitPath} ${src} .tmp/test-repo -v`);
-			compare(path.join(`.tmp/test-repo`), {
+			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from gitlab!'
 			});
 		});
@@ -76,8 +81,8 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'main.tf': 'Subgroup test',
 				subdir1: null,
-				[path.join('subdir1/subdir2')]: null,
-				[path.join('subdir1/subdir2/file.txt')]: "I'm a file."
+				'subdir1/subdir2': null,
+				'subdir1/subdir2/file.txt': "I'm a file."
 			});
 		});
 	});
@@ -91,7 +96,7 @@ describe.sequential(degit, { timeout }, () => {
 			);
 			compare(`.tmp/test-repo`, {
 				subdir2: null,
-				[path.join('subdir2/file.txt')]: "I'm a file."
+				'subdir2/file.txt': "I'm a file."
 			});
 		});
 
@@ -143,7 +148,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from Hugging Face',
 				subdir: null,
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 	});
@@ -164,20 +169,11 @@ describe.sequential(degit, { timeout }, () => {
 
 	describe('non-empty directories', () => {
 		it('fails without --force', async () => {
-			let succeeded;
-
-			try {
-				await fs.mkdir(path.join('.tmp/test-repo'), { recursive: true });
-				await exec(`echo "not empty" > .tmp/test-repo/file.txt`);
-				await exec(`node ${degitPath} tiged/tiged-test-repo .tmp/test-repo -v`);
-				succeeded = true;
-			} catch (err) {
-				assert.ok(
-					/destination directory is not empty/.test((err as Error).message)
-				);
-			}
-
-			assert.ok(!succeeded);
+			await fs.mkdir(path.join('.tmp/test-repo'), { recursive: true });
+			await exec(`echo "not empty" > .tmp/test-repo/file.txt`);
+			await expect(() =>
+				exec(`node ${degitPath} tiged/tiged-test-repo .tmp/test-repo -v`)
+			).rejects.toThrowError(/destination directory is not empty/);
 		});
 
 		it('succeeds with --force', async () => {
@@ -191,7 +187,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from github!',
 				subdir: null,
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 	});
@@ -205,7 +201,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'file.txt': 'hello from github!',
 				subdir: null,
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 	});
@@ -225,7 +221,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				'other.txt': 'hello from github!',
 				subdir: null,
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 
@@ -237,9 +233,9 @@ describe.sequential(degit, { timeout }, () => {
 				dir: null,
 				folder: null,
 				subdir: null,
-				[path.join('folder/file.txt')]: 'hello from clobber file!',
-				[path.join('folder/other.txt')]: 'hello from other file!',
-				[path.join('subdir/file.txt')]: 'hello from a subdirectory!'
+				'folder/file.txt': 'hello from clobber file!',
+				'folder/other.txt': 'hello from other file!',
+				'subdir/file.txt': 'hello from a subdirectory!'
 			});
 		});
 	});
@@ -252,7 +248,7 @@ describe.sequential(degit, { timeout }, () => {
 			compare(`.tmp/test-repo`, {
 				subdir: false,
 				'README.md': 'tiged is awesome',
-				[path.join('subdir/file')]: 'Hello, buddy!'
+				'subdir/file': 'Hello, buddy!'
 			});
 		});
 		it('is able to clone subdir correctly using git mode with old hash', async () => {
