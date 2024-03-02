@@ -103,30 +103,98 @@ function degit(src: string, opts?: Options) {
 	return new Degit(src, opts);
 }
 
+/**
+ * The `Degit` class is an event emitter that represents the Degit tool.
+ * It is designed for cloning repositories with specific options,
+ * handling caching, proxy settings, and more.
+ *
+ * @extends EventEmitter
+ */
 class Degit extends EventEmitter {
+	/**
+	 * Enables offline mode, where operations rely on cached data.
+	 */
 	public declare offlineMode?: boolean;
+
+	/**
+	 * Disables the use of cache for operations,
+	 * ensuring data is always fetched anew.
+	 */
 	public declare noCache?: boolean;
+
+	/**
+	 * Enables caching of data for future operations.
+	 * @deprecated Will be removed in v3.X
+	 */
 	public declare cache?: boolean;
+
+	/**
+	 * Forces the operation to proceed, despite non-empty destination directory
+	 * potentially overwriting existing files.
+	 */
 	public declare force?: boolean;
+
+	/**
+	 * Enables verbose output for more detailed logging information.
+	 */
 	public declare verbose?: boolean;
+
+	/**
+	 * Specifies the proxy server to be used for network requests.
+	 */
 	public declare proxy?: string;
+
+	/**
+	 * Indicates if the repository is a subgroup, affecting repository parsing.
+	 */
 	public declare subgroup?: boolean;
+
+	/**
+	 * Specifies a subdirectory within the repository to focus on.
+	 */
 	public declare subdir?: string;
+
+	/**
+	 * Holds the parsed repository information.
+	 */
 	public declare repo: Repo;
+
+	/**
+	 * Indicates the mode of operation,
+	 * which determines how the repository is cloned.
+	 * Valid modes are `'tar'` and `'git'`.
+	 */
 	public declare mode: ValidModes;
+
+	/**
+	 * Flags whether stash operations have been performed to avoid duplication.
+	 */
 	public declare _hasStashed: boolean;
+
+	/**
+	 * Defines actions for directives such as
+	 * cloning and removing files or directories.
+	 */
 	public declare directiveActions: {
 		clone: (dir: string, dest: string, action: DegitAction) => Promise<void>;
 		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
 	};
+
+  // public declare on: (event: "info" | "warn", callback: (info: Info) => void) => this;
+
+	/**
+	 * Constructs a new `Degit` instance with the specified source and options.
+	 *
+	 * @param src - The source repository string.
+	 * @param opts - Optional parameters to customize the behavior.
+	 */
 	constructor(
 		public src: string,
 		public opts: Options = {}
 	) {
 		super();
-		this.src = src;
 		if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
-		if (opts['offlineMode']) this.offlineMode = opts['offlineMode'];
+		if (opts.offlineMode) this.offlineMode = opts.offlineMode;
 		if (opts['disable-cache']) this.noCache = opts['disable-cache'];
 		if (opts.disableCache) this.noCache = opts.disableCache;
 		// Left cache for backward compatibility. Deprecated. Remove in next major version.
@@ -217,7 +285,7 @@ class Degit extends EventEmitter {
 		return directives;
 	}
 
-	async clone(dest: string) {
+	public async clone(dest: string) {
 		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
 		const dir = path.join(base, repo.site, repo.user, repo.name);
@@ -248,7 +316,7 @@ class Degit extends EventEmitter {
 		}
 	}
 
-	async remove(_dir: string, dest: string, action: RemoveAction) {
+	public async remove(_dir: string, dest: string, action: RemoveAction) {
 		let { files } = action;
 		if (!Array.isArray(files)) {
 			files = [files];
