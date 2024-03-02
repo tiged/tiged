@@ -12,7 +12,20 @@ export default defineConfig(options => {
 	};
 
 	return [
-		{ ...commonOptions, dts: true, entry: ['src/index.ts'] },
+		{
+			...commonOptions,
+			dts: true,
+			entry: ['src/index.ts'],
+			// https://github.com/egoist/tsup/issues/572
+			esbuildOptions(options, context) {
+				options.footer =
+					context.format === 'cjs'
+						? {
+								js: 'module.exports = module.exports.default;'
+							}
+						: {};
+			}
+		},
 		{ ...commonOptions, entry: ['src/bin.ts'] }
 	];
 });
