@@ -30,6 +30,14 @@ const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 	]
 });
 const [src, dest = '.'] = args._;
+
+/**
+ * The main function of the application.
+ * It handles the logic for displaying help,
+ * interactive mode, and running the application.
+ *
+ * @returns A promise that resolves when the main function completes.
+ */
 async function main() {
 	if (args.help) {
 		const help = fs
@@ -133,15 +141,23 @@ async function main() {
 	}
 }
 
+/**
+ * Runs the cloning process from the specified source
+ * to the destination directory.
+ *
+ * @param src - The source repository to clone from.
+ * @param dest - The destination directory where the repository will be cloned to.
+ * @param args - Additional options for the cloning process.
+ */
 async function run(src: string, dest: string, args: Options) {
 	const d = degit(src, args);
 
 	d.on('info', event => {
-		console.error(cyan(`> ${event.message.replace('options.', '--')}`));
+		console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
 	});
 
 	d.on('warn', event => {
-		console.error(magenta(`! ${event.message.replace('options.', '--')}`));
+		console.error(magenta(`! ${event.message?.replace('options.', '--')}`));
 	});
 
 	try {

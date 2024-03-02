@@ -13,6 +13,9 @@ export const degitConfigName = 'degit.json';
 
 const homeOrTmp = homedir() || tmpdir();
 
+/**
+ * Represents the possible error codes for the Degit utility.
+ */
 export type DegitErrorCode =
 	| 'DEST_NOT_EMPTY'
 	| 'MISSING_REF'
@@ -23,30 +26,87 @@ export type DegitErrorCode =
 	| 'COULD_NOT_FETCH'
 	| keyof typeof constants.errno;
 
+/**
+ * Represents the options for a Degit error.
+ */
 interface DegitErrorOptions extends ErrorOptions {
+	/**
+	 * The error code associated with the error.
+	 */
 	code?: DegitErrorCode;
+
+	/**
+	 * The original error that caused this error.
+	 */
 	original?: Error;
+
+	/**
+	 * The reference (e.g., branch, tag, commit) that was being degitted.
+	 */
 	ref?: string;
+
+	/**
+	 * The URL associated with the error.
+	 */
 	url?: string;
 }
 
+/**
+ * Represents an error that occurs during the degit process.
+ *
+ * @extends Error
+ */
 export class DegitError extends Error {
+	/**
+	 * The error code associated with the error.
+	 */
 	public declare code?: DegitErrorOptions['code'];
+
+	/**
+	 * The original error that caused this error.
+	 */
 	public declare original?: DegitErrorOptions['original'];
+
+	/**
+	 * The reference (e.g., branch, tag, commit) that was being degitted.
+	 */
 	public declare ref?: DegitErrorOptions['ref'];
+
+	/**
+	 * The URL associated with the error.
+	 */
 	public declare url?: DegitErrorOptions['url'];
+
+	/**
+	 * Creates a new instance of DegitError.
+	 *
+	 * @param message - The error message.
+	 * @param opts - Additional options for the error.
+	 */
 	constructor(message?: string, opts?: DegitErrorOptions) {
 		super(message);
 		Object.assign(this, opts);
 	}
 }
 
+/**
+ * Tries to require a module and returns the result.
+ * If the module cannot be required, it returns `null`.
+ *
+ * @param file - The path to the module file.
+ * @param opts - Optional options for requiring the module.
+ * @param opts.clearCache - If `true`, clears the module cache before requiring the module.
+ * @returns The required module or `null` if it cannot be required.
+ */
 export function tryRequire(
 	file: string,
 	opts?: {
+		/**
+		 * If `true`, clears the module cache before requiring the module.
+		 */
 		clearCache?: true | undefined;
 	}
-): unknown {
+) {
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];
@@ -57,6 +117,13 @@ export function tryRequire(
 	}
 }
 
+/**
+ * Executes a command and returns the `stdout` and `stderr` as strings.
+ *
+ * @param command - The command to execute.
+ * @param size - The maximum buffer size in kilobytes (default: 500KB).
+ * @returns A promise that resolves to an object containing the `stdout` and `stderr` strings.
+ */
 export async function exec(
 	command: string,
 	size = 500
@@ -82,6 +149,17 @@ export async function exec(
 	});
 }
 
+/**
+ * Fetches a resource from the specified URL
+ * and saves it to the destination path.
+ * Optionally, a proxy URL can be provided to make the
+ * request through a proxy server.
+ *
+ * @param url - The URL of the resource to fetch.
+ * @param dest - The destination path to save the fetched resource.
+ * @param proxy - Optional. The URL of the proxy server to use for the request.
+ * @returns A promise that resolves when the resource is successfully fetched and saved, or rejects with an error.
+ */
 export async function fetch(url: string, dest: string, proxy?: string) {
 	return new Promise<void>((fulfil, reject) => {
 		const parsedUrl = new URL(url);
@@ -121,6 +199,13 @@ export async function fetch(url: string, dest: string, proxy?: string) {
 	});
 }
 
+/**
+ * Stashes files from a directory to a temporary directory.
+ *
+ * @param dir - The source directory containing the files to be stashed.
+ * @param dest - The destination directory where the stashed files will be stored.
+ * @returns A promise that resolves when the stashing process is complete.
+ */
 export async function stashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	try {
@@ -151,6 +236,12 @@ export async function stashFiles(dir: string, dest: string) {
 	}
 }
 
+/**
+ * Unstashes files from a temporary directory to a destination directory.
+ *
+ * @param dir - The directory where the temporary directory is located.
+ * @param dest - The destination directory where the files will be unstashed.
+ */
 export async function unstashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
 	const files = await fs.readdir(tmpDir);
