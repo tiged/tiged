@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Options } from 'tsup';
 import { defineConfig } from 'tsup';
@@ -32,4 +33,19 @@ export default defineConfig(options => {
 		},
 		{ ...commonOptions, entry: ['src/bin.ts'] }
 	];
+});
+
+// https://github.com/egoist/tsup/issues/700
+process.on('beforeExit', async code => {
+	if (code === 0) {
+		const filePath = path.resolve('dist/index.d.ts');
+		try {
+			await fs.access(filePath);
+			await fs.appendFile(filePath, `export = degit`, 'utf-8');
+			process.exit(0);
+		} catch (err) {
+			console.error(err);
+			process.exit(1);
+		}
+	}
 });
