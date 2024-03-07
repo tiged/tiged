@@ -23,10 +23,10 @@ export default defineConfig(options => {
 					context.format === 'cjs'
 						? {
 								js: `if (module.exports.default) {
-                  Object.assign(module.exports.default, module.exports);
-                  module.exports = module.exports.default;
-                  delete module.exports.default;
-                }`
+  Object.assign(module.exports.default, module.exports);
+  module.exports = module.exports.default;
+  delete module.exports.default;
+}`
 							}
 						: {};
 			}
