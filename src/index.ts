@@ -725,7 +725,11 @@ class Degit extends EventEmitter {
 		if (this.repo.subdir) {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
-			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
+			if (isWin) {
+				await exec(
+					`cd ${tempDir} && git init && git remote add origin ${gitPath} && git fetch --depth 1 origin ${this.repo.ref} && git checkout FETCH_HEAD`
+				);
+			} else if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await exec(
 					`cd ${tempDir}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
 				);
@@ -743,7 +747,12 @@ class Degit extends EventEmitter {
 			);
 			await rimraf(tempDir);
 		} else {
-			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
+			if (isWin) {
+				await fs.mkdir(dest, { recursive: true });
+				await exec(
+					`cd ${dest} && git init && git remote add origin ${gitPath} && git fetch --depth 1 origin ${this.repo.ref} && git checkout FETCH_HEAD`
+				);
+			} else if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await fs.mkdir(dest, { recursive: true });
 				await exec(
 					`cd ${dest}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
