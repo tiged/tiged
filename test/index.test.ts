@@ -37,7 +37,7 @@ describe.sequential(degit, { timeout }, () => {
 			const filePath = path.join(`${dir}/${file}`);
 			if (!(await fs.lstat(filePath)).isDirectory()) {
 				expect(path.join(normalizedPaths[file]).trim()).toBe(
-					(await read(filePath)).trim()
+					(await read(filePath)).trim().replace('\r\n', '\n')
 				);
 			}
 		});
@@ -247,8 +247,8 @@ describe.sequential(degit, { timeout }, () => {
 			);
 			compare(`.tmp/test-repo`, {
 				subdir: false,
-				'README.md': 'tiged is awesome',
-				'subdir/file': 'Hello, buddy!'
+				'README.md': `# tiged-test\nFor testing`,
+				'subdir/file': 'Hello, champ!'
 			});
 		});
 		it('is able to clone subdir correctly using git mode with old hash', async () => {
@@ -256,7 +256,7 @@ describe.sequential(degit, { timeout }, () => {
 				`node ${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo`
 			);
 			compare(`.tmp/test-repo`, {
-				file: 'Hello, buddy!'
+				file: 'Hello, champ!'
 			});
 		});
 	});
