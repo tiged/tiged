@@ -18,6 +18,9 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"outDir": "dist",
+		"paths": {
+			"tiged": ["./src/index.ts"]
+		},
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
