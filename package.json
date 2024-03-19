@@ -31,6 +31,9 @@
 	},
 	"scripts": {
 		"lint": "eslint --color .",
+		"lint:fix": "eslint --color . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"clean": "rimraf dist",
 		"build": "npm run clean && tsup",
 		"test": "vitest --typecheck",
