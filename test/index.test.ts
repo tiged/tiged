@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
+import degit from 'tiged';
 import glob from 'tiny-glob/sync';
-import degit from '../src/index';
 
 const exec = promisify(child_process.exec);
 const degitPath = path.resolve('dist/bin.mjs');
