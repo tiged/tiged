@@ -1,24 +1,114 @@
 name: Node.js CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
+  lint:
+    name: Check lint and formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint files
+        run: npm run lint
+
+      - name: Are files formatted
+        run: npm run format:check
+
+      - name: Did we fail?
+        if: failure()
+        run: ls -R
+
   build:
     runs-on: ${{ matrix.os }}
+    name: Build artifact for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
+    outputs:
+      artifact: ${{ steps.pack.outputs.tarball }}
+
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18.x, 20.x]
         os: [windows-latest, ubuntu-latest, macos-latest]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - run: npm install
-      - run: npm test
-      - run: npm run lint
-        env:
-          CI: true
+      - name: Install dependencies
+        run: npm install
+
+      - name: Pack
+        id: pack
+        run: |
+          echo "tarball=$(npm pack)" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        id: artifact-upload-step
+        with:
+          name: ${{ matrix.os }}-${{ matrix.node-version }}
+          path: ./*.tgz
+
+      - name: Did we fail?
+        if: failure()
+        run: ls -R
+
+  test:
+    name: Test final build artifact with Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+    needs: [build]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 20.x]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Download artifact
+        id: download-artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+          name: ${{ matrix.os }}-${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install build artifact
+        run: npm install ${{ needs.build.outputs.artifact }}
+
+      - name: Erase TSConfig path aliases
+        run: npx tsx scripts/eraseTSConfigPaths.mts
+
+      - name: Run tests
+        run: npm test
+
+      - name: Did we fail?
+        if: failure()
+        run: ls -R
