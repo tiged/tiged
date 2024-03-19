@@ -777,15 +777,57 @@ const supported: Record<string, string> = {
  * Represents a repository.
  */
 export interface Repo {
+	/**
+	 * The hosting service or site for the repository.
+	 */
 	site: string;
+
+	/**
+	 * The username or organization under which the repository is located.
+	 */
 	user: string;
+
+	/**
+	 * The name of the repository.
+	 */
 	name: string;
+
+	/**
+	 * The reference to a specific branch, commit, or tag in the repository.
+	 */
 	ref: string;
+
+	/**
+	 * The URL to access the repository via HTTP or HTTPS.
+	 */
 	url: string;
+
+	/**
+	 * The SSH URL to access the repository for Git operations.
+	 */
 	ssh: string;
+
+	/**
+	 * Optional. A specific subdirectory within the repository to work with,
+	 * if applicable. Can be `null` if not used.
+	 */
 	subdir?: string | null;
+
+	/**
+	 * The mode of operation or interaction with the repository.
+	 * Valid modes are `'tar'` and `'git'`.
+	 */
 	mode: ValidModes;
+
+	/**
+	 * The source URL or path for cloning the repository.
+	 */
 	src: string;
+
+	/**
+	 * Optional. Indicates whether the repository belongs to a subgroup,
+	 * if supported by the hosting service.
+	 */
 	subgroup?: boolean;
 }
 
