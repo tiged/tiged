@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { bold, cyan, magenta, red, underline } from 'colorette';
 import enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
