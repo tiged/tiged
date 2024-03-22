@@ -52,7 +52,7 @@ async function main() {
 	} else if (!src) {
 		// interactive mode
 
-		const accessLookup = new Map();
+		const accessLookup = new Map<string, number>();
 
 		glob(`**/access.json`, { cwd: base }).forEach(file => {
 			const [host, user, repo] = file.split(path.sep);
