@@ -25,6 +25,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Test types
+        run: npm run test-types
+
       - name: Did we fail?
         if: failure()
         run: ls -R
