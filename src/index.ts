@@ -35,7 +35,8 @@ export interface Options {
 	cache?: boolean;
 
 	/**
-	 * Specifies whether to force the operation.
+	 * Forces the operation to proceed, despite non-empty destination directory
+	 * potentially overwriting existing files.
 	 *
 	 * @default false
 	 */
