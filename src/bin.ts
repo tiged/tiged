@@ -6,7 +6,7 @@ import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
-import glob from 'tiny-glob/sync.js';
+import glob from 'tiny-glob/sync';
 import type { Options } from './index';
 import degit from './index';
 import { base, tryRequire } from './utils';
