@@ -3,3 +3,4 @@ node_modules
 .tmp
 dist
 *.tgz
+tsconfig.vitest-temp.json
