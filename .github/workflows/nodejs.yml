@@ -118,3 +118,36 @@ jobs:
       - name: Did we fail?
         if: failure()
         run: ls -R
+
+  are-the-types-wrong:
+    name: Run are-the-types-wrong
+    needs: [build]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [20.x]
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          check-latest: true
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download artifact
+        id: download-artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+          name: artifact
+
+      - name: Run are-the-types-wrong
+        run: npx @arethetypeswrong/cli ${{ needs.build.outputs.artifact }}
