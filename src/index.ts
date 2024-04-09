@@ -1,6 +1,6 @@
 import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
-import EventEmitter from 'node:events';
+import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
 import tar from 'tar';
