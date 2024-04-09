@@ -565,7 +565,7 @@ class Degit extends EventEmitter {
 				}
 			}
 
-			return this._getHashFromCache(repo, cached);
+			// return this._getHashFromCache(repo, cached);
 		}
 	}
 
