@@ -1,7 +1,7 @@
 import type { Assertion, AsymmetricMatchersContaining } from 'vitest';
 
 interface CustomMatchers<R = unknown> {
-	toMatchFiles: (files: Record<string, any>) => R;
+	toMatchFiles: (files: Record<string, string | null>) => Promise<R>;
 }
 
 declare module 'vitest' {

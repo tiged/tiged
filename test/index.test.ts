@@ -24,7 +24,7 @@ describe(degit, { timeout }, () => {
 		await rimraf('.tmp');
 	});
 
-	describe('github', () => {
+	describe('github', { sequential: true }, () => {
 		it.each([
 			'tiged/tiged-test-repo-compose',
 			'tiged/tiged-test-repo',
@@ -34,7 +34,7 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from github!',
 				subdir: null,
 				'subdir/file.txt': 'hello from a subdirectory!'
@@ -42,7 +42,7 @@ describe(degit, { timeout }, () => {
 		});
 	});
 
-	describe('gitlab', () => {
+	describe.sequential('gitlab', () => {
 		it.each([
 			'gitlab:nake89/tiged-test-repo',
 			'git@gitlab.com:nake89/tiged-test-repo',
@@ -50,7 +50,7 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from gitlab!'
 			});
 		});
@@ -64,7 +64,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --subgroup ${src} .tmp/test-repo-${sanitizedPath} -v`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'main.tf': 'Subgroup test',
 				subdir1: null,
 				'subdir1/subdir2': null,
@@ -81,7 +81,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --subgroup ${src} --sub-directory subdir1 .tmp/test-repo-${sanitizedPath} -v`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				subdir2: null,
 				'subdir2/file.txt': "I'm a file."
 			});
@@ -94,7 +94,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --subgroup ${src} --sub-directory subdir1/subdir2 .tmp/test-repo-${sanitizedPath} -v`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': "I'm a file."
 			});
 		});
@@ -108,13 +108,13 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from bitbucket'
 			});
 		});
 	});
 
-	describe('Sourcehut', () => {
+	describe.sequential('Sourcehut', () => {
 		it.each([
 			'git.sr.ht/~satotake/degit-test-repo',
 			'https://git.sr.ht/~satotake/degit-test-repo',
@@ -122,7 +122,7 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from sourcehut!'
 			});
 		});
@@ -136,7 +136,7 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from Hugging Face',
 				subdir: null,
 				'subdir/file.txt': 'hello from a subdirectory!'
@@ -153,13 +153,13 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': `hello from a subdirectory!`
 			});
 		});
 	});
 
-	describe('non-empty directories', () => {
+	describe.sequential('non-empty directories', () => {
 		let sanitizedPath: string;
 		it('fails without --force', async ({ task, expect }) => {
 			sanitizedPath = convertSpecialCharsToHyphens(task.name);
@@ -187,7 +187,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} -v tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from github!',
 				subdir: null,
 				'subdir/file.txt': 'hello from a subdirectory!'
@@ -204,7 +204,7 @@ describe(degit, { timeout }, () => {
 				verbose: true
 			}).clone(`.tmp/test-repo-${sanitizedPath}`);
 
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from github!',
 				subdir: null,
 				'subdir/file.txt': 'hello from a subdirectory!'
@@ -218,7 +218,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} -v tiged/tiged-test-repo-remove-only .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({});
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({});
 		});
 
 		it('clones repo and removes specified file', async ({ task, expect }) => {
@@ -226,7 +226,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} -v tiged/tiged-test-repo-remove .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'other.txt': 'hello from github!',
 				subdir: null,
 				'subdir/file.txt': 'hello from a subdirectory!'
@@ -238,7 +238,7 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} -v tiged/tiged-test-repo-nested-actions .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				dir: null,
 				folder: null,
 				subdir: null,
@@ -258,8 +258,8 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --mode=git https://github.com/tiged/tiged-test#525e8fef2c6b5e261511adc55f410d83ca5d8256 .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
-				subdir: false,
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+				subdir: null,
 				'README.md': `# tiged-test\nFor testing`,
 				'subdir/file': 'Hello, champ!'
 			});
@@ -272,20 +272,30 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo-${sanitizedPath}`
 			);
-			expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				file: 'Hello, champ!'
 			});
 		});
 	});
 
-	describe.skip('git mode', () => {
-		it('is able to clone correctly using git mode', async () => {
-			await rimraf('.tmp');
+	describe('git mode', () => {
+		it('is able to clone correctly using git mode', async ({
+			task,
+			expect
+		}) => {
+			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --mode=git https://github.com/Rich-Harris/degit-test-repo-private.git .tmp/test-repo`
+				`${degitPath} --mode=git https://github.com/tiged/tiged-test.git .tmp/test-repo-${sanitizedPath}`
 			);
-			expect('.tmp/test-repo').toMatchFiles({
-				'file.txt': 'hello from a private repo!'
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+				subdir: null,
+				'README.md': `tiged is awesome`,
+				'subdir/file': 'Hello, buddy!'
+			});
+			await expect(`.tmp/test-repo-${sanitizedPath}`).not.toMatchFiles({
+				subdir: null,
+				'README.md': `# tiged-test\nFor testing`,
+				'subdir/file': 'Hello, champ!'
 			});
 		});
 	});
