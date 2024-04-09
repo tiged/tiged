@@ -16,19 +16,21 @@ export default defineConfig(options => {
 		{
 			...commonOptions,
 			dts: true,
+			format: ['esm'],
+			entry: ['src/index.ts']
+		},
+		{
+			...commonOptions,
+			format: ['cjs'],
+			dts: { footer: 'export = degit' },
 			entry: ['src/index.ts'],
 			// https://github.com/egoist/tsup/issues/572
-			esbuildOptions(options, context) {
-				options.footer =
-					context.format === 'cjs'
-						? {
-								js: `if (module.exports.default) {
-  Object.assign(module.exports.default, module.exports);
-  module.exports = module.exports.default;
-  delete module.exports.default;
+			footer: {
+				js: `if (module.exports.default) {
+Object.assign(module.exports.default, module.exports);
+module.exports = module.exports.default;
+delete module.exports.default;
 }`
-							}
-						: {};
 			}
 		},
 		{ ...commonOptions, entry: ['src/bin.ts'], external: ['tiged'] }
@@ -41,7 +43,12 @@ process.on('beforeExit', async code => {
 		const filePath = path.resolve('dist/index.d.ts');
 		try {
 			await fs.access(filePath);
-			await fs.appendFile(filePath, `export = degit`, 'utf-8');
+			const file = await fs.readFile(filePath, 'utf-8');
+			const lines = file.split('\n');
+			const newContent = lines
+				.filter(line => !line.startsWith('export {'))
+				.join('\n');
+			await fs.writeFile(filePath, newContent);
 			process.exit(0);
 		} catch (err) {
 			console.error(err);
