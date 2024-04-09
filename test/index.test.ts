@@ -4,7 +4,6 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
 import degit from 'tiged';
-import glob from 'tiny-glob/sync';
 
 const exec = promisify(child_process.exec);
 const degitPath = process.env.CI
@@ -24,25 +23,6 @@ describe(degit, { timeout }, () => {
 	afterAll(async () => {
 		await rimraf('.tmp');
 	});
-
-	function compare<T extends Record<string, any>>(dir: string, files: T) {
-		const expected = glob('**', { cwd: path.join(dir) });
-		const normalizedPaths = Object.fromEntries(
-			Object.entries(files).map(
-				([fileName, value]) => [path.join(fileName), value] as const
-			)
-		);
-		expect(Object.keys(normalizedPaths).sort()).toStrictEqual(expected.sort());
-
-		expected.forEach(async file => {
-			const filePath = path.join(`${dir}/${file}`);
-			if (!(await fs.lstat(filePath)).isDirectory()) {
-				expect(path.join(normalizedPaths[file]).trim()).toBe(
-					(await read(filePath)).trim().replace('\r\n', '\n')
-				);
-			}
-		});
-	}
 
 	describe('github', () => {
 		it.each([
@@ -304,13 +284,9 @@ describe(degit, { timeout }, () => {
 			await exec(
 				`${degitPath} --mode=git https://github.com/Rich-Harris/degit-test-repo-private.git .tmp/test-repo`
 			);
-			compare('.tmp/test-repo', {
+			expect('.tmp/test-repo').toMatchFiles({
 				'file.txt': 'hello from a private repo!'
 			});
 		});
 	});
 });
-
-async function read(file: string) {
-	return await fs.readFile(file, 'utf-8');
-}
