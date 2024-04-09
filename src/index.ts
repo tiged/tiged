@@ -709,6 +709,9 @@ class Degit extends EventEmitter {
 
 		await fs.mkdir(dest, { recursive: true });
 		await untar(file, dest, subdir);
+		if (this.noCache) {
+			await rimraf(file);
+		}
 	}
 
 	/**
