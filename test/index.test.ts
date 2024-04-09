@@ -24,7 +24,7 @@ describe(degit, { timeout }, () => {
 		await rimraf('.tmp');
 	});
 
-	describe('github', { sequential: true }, () => {
+	describe.sequential('github', () => {
 		it.each([
 			'tiged/tiged-test-repo-compose',
 			'tiged/tiged-test-repo',
@@ -57,12 +57,13 @@ describe(degit, { timeout }, () => {
 	});
 
 	describe('gitlab subgroup', () => {
-		it.each([
-			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
-		])('%s', async src => {
-			const sanitizedPath = convertSpecialCharsToHyphens(src);
+		it('https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo', async ({
+			task,
+			expect
+		}) => {
+			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --subgroup ${src} .tmp/test-repo-${sanitizedPath} -v`
+				`${degitPath} --subgroup ${task.name} .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'main.tf': 'Subgroup test',
@@ -74,12 +75,13 @@ describe(degit, { timeout }, () => {
 	});
 
 	describe('gitlab subgroup with subdir', () => {
-		it.each([
-			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
-		])('%s', async src => {
-			const sanitizedPath = `${convertSpecialCharsToHyphens(src)}-0`;
+		it('https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo', async ({
+			task,
+			expect
+		}) => {
+			const sanitizedPath = `${convertSpecialCharsToHyphens(task.name)}-0`;
 			await exec(
-				`${degitPath} --subgroup ${src} --sub-directory subdir1 .tmp/test-repo-${sanitizedPath} -v`
+				`${degitPath} --subgroup ${task.name} --sub-directory subdir1 .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				subdir2: null,
@@ -87,12 +89,13 @@ describe(degit, { timeout }, () => {
 			});
 		});
 
-		it.each([
-			'https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo'
-		])('%s', async src => {
-			const sanitizedPath = `${convertSpecialCharsToHyphens(src)}-1`;
+		it('https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo', async ({
+			task,
+			expect
+		}) => {
+			const sanitizedPath = `${convertSpecialCharsToHyphens(task.name)}-1`;
 			await exec(
-				`${degitPath} --subgroup ${src} --sub-directory subdir1/subdir2 .tmp/test-repo-${sanitizedPath} -v`
+				`${degitPath} --subgroup ${task.name} --sub-directory subdir1/subdir2 .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': "I'm a file."
@@ -174,10 +177,12 @@ describe(degit, { timeout }, () => {
 			).rejects.toThrowError(/destination directory is not empty/);
 		});
 
-		it('succeeds with --force', async () => {
-			await exec(
-				`${degitPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -fv`
-			);
+		it('succeeds with --force', async ({ expect }) => {
+			await expect(
+				exec(
+					`${degitPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -fv`
+				)
+			).resolves.not.toThrow();
 		});
 	});
 
