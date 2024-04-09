@@ -60,7 +60,7 @@
 		"mri": "1.2.0",
 		"rimraf": "5.0.5",
 		"tar": "^6.1.11",
-		"tiny-glob": "0.2.8"
+		"tiny-glob": "0.2.9"
 	},
 	"devDependencies": {
 		"@eslint/js": "8.57.0",
