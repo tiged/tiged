@@ -8,8 +8,8 @@ import glob from 'tiny-glob/sync';
 
 const exec = promisify(child_process.exec);
 const degitPath = process.env.CI
-	? 'tiged'
-	: `node --import=tsx ${path.resolve('src/bin.ts')}`;
+	? 'tiged -D'
+	: `node --import=tsx ${path.resolve('src/bin.ts')} -D`;
 
 const timeout = 30_000;
 
@@ -210,9 +210,11 @@ describe(degit, { timeout }, () => {
 	describe('api', () => {
 		it('is usable from node scripts', async ({ task }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
-			await degit('tiged/tiged-test-repo', { force: true }).clone(
-				`.tmp/test-repo-${sanitizedPath}`
-			);
+			await degit('tiged/tiged-test-repo', {
+				force: true,
+				disableCache: true,
+				verbose: true
+			}).clone(`.tmp/test-repo-${sanitizedPath}`);
 
 			compare(`.tmp/test-repo-${sanitizedPath}`, {
 				'file.txt': 'hello from github!',
