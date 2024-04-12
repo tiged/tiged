@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-import tar from 'tar';
+import { extract } from 'tar';
 import {
 	DegitError,
 	base,
@@ -894,7 +894,7 @@ async function untar(
 	dest: string,
 	subdir: Repo['subdir'] = null
 ) {
-	return tar.extract(
+	return extract(
 		{
 			file,
 			strip: subdir ? subdir.split('/').length : 1,

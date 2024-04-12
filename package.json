@@ -59,7 +59,7 @@
 		"https-proxy-agent": "5.0.0",
 		"mri": "1.2.0",
 		"rimraf": "5.0.5",
-		"tar": "^6.1.11",
+		"tar": "7.0.0",
 		"tiny-glob": "0.2.9"
 	},
 	"devDependencies": {
@@ -69,7 +69,6 @@
 		"@types/fs-extra": "11.0.4",
 		"@types/fuzzysearch": "1.0.2",
 		"@types/node": "20.12.7",
-		"@types/tar": "6.1.11",
 		"@typescript-eslint/eslint-plugin": "7.6.0",
 		"@typescript-eslint/parser": "7.6.0",
 		"del-cli": "3.0.1",
