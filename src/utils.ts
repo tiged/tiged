@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import createHttpsProxyAgent from 'https-proxy-agent';
+import * as httpsProxyAgent from 'https-proxy-agent';
 import child_process from 'node:child_process';
 import https from 'node:https';
 import { createRequire } from 'node:module';
@@ -8,6 +8,8 @@ import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { rimraf } from 'rimraf';
+
+const { HttpsProxyAgent } = httpsProxyAgent;
 
 const tmpDirName = 'tmp';
 
@@ -180,7 +182,7 @@ export async function fetch(url: string, dest: string, proxy?: string) {
 			}
 		};
 		if (proxy) {
-			options.agent = createHttpsProxyAgent(proxy);
+			options.agent = new HttpsProxyAgent(proxy);
 		}
 
 		https

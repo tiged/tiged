@@ -56,7 +56,7 @@
 		"enquirer": "2.3.6",
 		"fs-extra": "10.1.0",
 		"fuzzysearch": "1.0.3",
-		"https-proxy-agent": "5.0.0",
+		"https-proxy-agent": "7.0.4",
 		"mri": "1.2.0",
 		"rimraf": "5.0.5",
 		"tar": "7.0.0",
