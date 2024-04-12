@@ -6,7 +6,6 @@ import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { rimraf } from 'rimraf';
 
 const { HttpsProxyAgent } = httpsProxyAgent;
@@ -111,12 +110,7 @@ export function tryRequire(
 		clearCache?: true | undefined;
 	}
 ) {
-	const filePath = path.resolve(file);
-	const fileURL = pathToFileURL(filePath);
-	const require =
-		typeof globalThis.require === 'undefined'
-			? createRequire(fileURL)
-			: globalThis.require;
+	const require = createRequire(import.meta.url);
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];

@@ -9,6 +9,7 @@ export default defineConfig(options => {
 		format: ['cjs', 'esm'],
 		tsconfig: path.resolve('tsconfig.build.json'),
 		sourcemap: true,
+		shims: true,
 		...options
 	};
 
