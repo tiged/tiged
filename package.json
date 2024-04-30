@@ -81,7 +81,7 @@
 		"typescript": "5.4.5",
 		"typescript-eslint": "7.8.0",
 		"vite-tsconfig-paths": "4.3.2",
-		"vitest": "1.5.2"
+		"vitest": "1.5.3"
 	},
 	"files": [
 		"src",
