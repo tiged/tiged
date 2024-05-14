@@ -83,6 +83,7 @@
 		"vite-tsconfig-paths": "4.3.2",
 		"vitest": "1.6.0"
 	},
+	"sideEffects": false,
 	"files": [
 		"src",
 		"dist",
