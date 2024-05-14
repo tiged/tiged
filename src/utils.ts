@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import * as httpsProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import child_process from 'node:child_process';
 import https from 'node:https';
 import { createRequire } from 'node:module';
@@ -7,8 +7,6 @@ import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-
-const { HttpsProxyAgent } = httpsProxyAgent;
 
 const tmpDirName = 'tmp';
 
