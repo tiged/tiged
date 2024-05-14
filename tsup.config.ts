@@ -34,7 +34,13 @@ export default defineConfig(options => {
 }`
 			}
 		},
-		{ ...commonOptions, entry: ['src/bin.ts'], external: ['tiged'] }
+		{
+			...commonOptions,
+			entry: ['src/bin.ts'],
+			external: ['tiged'],
+			treeshake: 'smallest',
+			minify: true
+		}
 	];
 });
 
