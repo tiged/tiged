@@ -461,7 +461,7 @@ async function fetchRefs(repo) {
 					};
 				}
 
-				const match = /refs\/(\w+)\/(.+)/.exec(ref);
+				const match = /refs\/([^/]+)\/(.+)/.exec(ref);
 				if (!match)
 					throw new DegitError(`could not parse ${ref}`, {
 						code: 'BAD_REF'
