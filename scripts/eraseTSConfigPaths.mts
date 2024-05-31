@@ -1,4 +1,4 @@
-#!/usr/bin/env -vS node --import=tsx
+#!/usr/bin/env -vS node --import=tsx/esm
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
