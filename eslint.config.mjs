@@ -24,7 +24,9 @@ export const vitestGlobals = {
 	beforeAll: false,
 	afterAll: false,
 	beforeEach: false,
-	afterEach: false
+	afterEach: false,
+	onTestFailed: false,
+	onTestFinished: false
 };
 
 export default tsEslint.config(
