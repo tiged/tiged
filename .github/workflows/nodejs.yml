@@ -150,4 +150,4 @@ jobs:
           name: artifact
 
       - name: Run are-the-types-wrong
-        run: npx @arethetypeswrong/cli ${{ needs.build.outputs.artifact }}
+        run: npx @arethetypeswrong/cli@latest ${{ needs.build.outputs.artifact }}
