@@ -12,7 +12,9 @@ const tmpDirName = 'tmp';
 
 export const degitConfigName = 'degit.json';
 
-const homeOrTmp = homedir() || tmpdir();
+const getHomeOrTmp = () => homedir() || tmpdir();
+
+const homeOrTmp = /* @__PURE__ */ getHomeOrTmp();
 
 /**
  * Represents the possible error codes for the Degit utility.
@@ -264,4 +266,4 @@ export async function unstashFiles(dir: string, dest: string) {
 	await rimraf(tmpDir);
 }
 
-export const base = path.join(homeOrTmp, '.degit');
+export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
