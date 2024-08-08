@@ -1,5 +1,9 @@
 # tiged changelog
 
+## 2.12.8
+
+- Added Codeberg support ([#94](https://github.com/tiged/tiged/issues/94))
+
 ## 2.12.7
 
 - Support HTTPS_PROXY ([#86](https://github.com/tiged/tiged/issues/86))
