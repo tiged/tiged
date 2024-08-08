@@ -131,6 +131,17 @@ describe(degit, { timeout }, () => {
 		});
 	});
 
+	describe.sequential('Codeberg', () => {
+		it.each([
+			'codeberg:joaopalmeiro/template-figma-plugin-script',
+			'https://codeberg.org/joaopalmeiro/template-figma-plugin-script',
+			'git@codeberg.org:joaopalmeiro/template-figma-plugin-script'
+		])('%s', async src => {
+			const sanitizedPath = convertSpecialCharsToHyphens(src);
+			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+		});
+	});
+
 	describe('Hugging Face', () => {
 		it.each([
 			'huggingface:severo/degit-test-repo',
