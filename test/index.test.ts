@@ -139,6 +139,9 @@ describe(degit, { timeout }, () => {
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+				'file.txt': 'hello from codeberg!'
+			});
 		});
 	});
 
