@@ -22,6 +22,7 @@ const homeOrTmp = /* @__PURE__ */ getHomeOrTmp();
 export type DegitErrorCode =
 	| 'DEST_NOT_EMPTY'
 	| 'MISSING_REF'
+	| 'MISSING_GIT'
 	| 'COULD_NOT_DOWNLOAD'
 	| 'BAD_SRC'
 	| 'UNSUPPORTED_HOST'
