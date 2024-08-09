@@ -407,13 +407,13 @@ class Degit extends EventEmitter {
 	 */
 	public async clone(dest: string) {
 		try {
-			execSync("git --version", {stdio: "ignore"})
-		} catch(e) {
+			execSync('git --version', { stdio: 'ignore' });
+		} catch (e) {
 			throw new DegitError(`could not find git. Make sure it is installed.`, {
 				code: 'MISSING_GIT'
 			});
 		}
-		
+
 		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
 		const dir = path.join(base, repo.site, repo.user, repo.name);
