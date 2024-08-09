@@ -131,6 +131,20 @@ describe(degit, { timeout }, () => {
 		});
 	});
 
+	describe.sequential('Codeberg', () => {
+		it.each([
+			'codeberg:joaopalmeiro/tiged-test-repo',
+			'https://codeberg.org/joaopalmeiro/tiged-test-repo',
+			'git@codeberg.org:joaopalmeiro/tiged-test-repo'
+		])('%s', async src => {
+			const sanitizedPath = convertSpecialCharsToHyphens(src);
+			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+				'file.txt': 'hello from codeberg!'
+			});
+		});
+	});
+
 	describe('Hugging Face', () => {
 		it.each([
 			'huggingface:severo/degit-test-repo',
