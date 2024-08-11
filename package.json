@@ -5,20 +5,46 @@
 		"node": ">=8.0.0"
 	},
 	"description": "Straightforward project scaffolding",
-	"main": "src/index.js",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/index.mjs",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"default": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			}
+		}
+	},
 	"bin": {
-		"degit": "bin.js",
-    "tiged": "bin.js"
+		"degit": "dist/bin.js",
+		"tiged": "dist/bin.mjs"
 	},
 	"scripts": {
-		"lint": "eslint --color --ignore-path .gitignore .",
-		"test": "mocha"
+		"lint": "eslint --color .",
+		"lint:fix": "eslint --color . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"clean": "rimraf dist",
+		"build": "npm run clean && tsup",
+		"test": "vitest --typecheck",
+		"test-types": "tsc -p tsconfig.json --noEmit",
+		"prepack": "npm run build"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/tiged/tiged.git"
 	},
-	"keywords": ["scaffolding", "template", "git"],
+	"keywords": [
+		"scaffolding",
+		"template",
+		"git"
+	],
 	"author": "tiged",
 	"license": "MIT",
 	"bugs": {
@@ -26,39 +52,56 @@
 	},
 	"homepage": "https://github.com/tiged/tiged#readme",
 	"dependencies": {
-		"colorette": "1.2.1",
-		"enquirer": "2.3.6",
-		"fs-extra": "10.1.0",
+		"colorette": "2.0.20",
+		"enquirer": "2.4.1",
+		"fs-extra": "11.2.0",
 		"fuzzysearch": "1.0.3",
-		"https-proxy-agent": "5.0.0",
-		"mri": "1.1.6",
-		"rimraf": "3.0.2",
-		"tar": "^6.1.11",
-		"tiny-glob": "0.2.8"
+		"https-proxy-agent": "7.0.4",
+		"mri": "1.2.0",
+		"rimraf": "5.0.7",
+		"tar": "7.4.0",
+		"tiny-glob": "0.2.9"
 	},
 	"devDependencies": {
-		"@rollup/plugin-commonjs": "17.1.0",
-		"@rollup/plugin-node-resolve": "11.1.1",
+		"@eslint/js": "9.5.0",
+		"@types/eslint__js": "8.42.3",
+		"@types/eslint-config-prettier": "6.11.3",
+		"@types/fs-extra": "11.0.4",
+		"@types/fuzzysearch": "1.0.2",
+		"@types/node": "20.14.6",
 		"del-cli": "3.0.1",
-		"eslint": "7.19.0",
-		"eslint-config-prettier": "7.2.0",
-		"eslint-plugin-import": "2.22.1",
+		"eslint": "8.57.0",
+		"eslint-config-prettier": "9.1.0",
+		"eslint-plugin-import": "2.29.1",
 		"husky": "5.0.9",
 		"lint-staged": "10.5.4",
-		"mocha": "^10.0.0",
-		"prettier": "2.2.1",
-		"rollup": "2.38.5",
-		"rollup-plugin-commonjs": "10.1.0",
-		"source-map-support": "0.5.19"
+		"prettier": "3.3.2",
+		"tsup": "8.1.0",
+		"tsx": "4.15.6",
+		"typescript": "5.4.5",
+		"typescript-eslint": "7.13.1",
+		"vite-tsconfig-paths": "4.3.2",
+		"vitest": "1.6.0"
 	},
-	"files": ["src", "help.md"],
+	"sideEffects": false,
+	"files": [
+		"src",
+		"dist",
+		"help.md"
+	],
 	"husky": {
 		"hooks": {
 			"pre-commit": "lint-staged"
 		}
 	},
 	"lint-staged": {
-		"*.{js}": ["eslint --fix", "git add"],
-		"*.{js, json, yml, md}": ["prettier --write", "git add"]
+		"*.{js}": [
+			"eslint --fix",
+			"git add"
+		],
+		"*.{js, json, yml, md}": [
+			"prettier --write",
+			"git add"
+		]
 	}
 }
