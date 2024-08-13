@@ -1,5 +1,9 @@
 # tiged changelog
 
+## 3.0.0
+
+- Migrate codebase to TypeScript ([#89](https://github.com/tiged/tiged/pull/89))
+
 ## 2.12.7
 
 - Support HTTPS_PROXY ([#86](https://github.com/tiged/tiged/issues/86))
