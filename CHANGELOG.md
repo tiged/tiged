@@ -1,5 +1,14 @@
 # tiged changelog
 
+## 3.0.0
+
+- Migrate codebase to TypeScript ([#89](https://github.com/tiged/tiged/pull/89)):
+  - Replace mocha with Vitest as it has better ESM and TypeScript support.
+  - Use `tsup` to output both CJS and ESM entry points.
+  - Replace rollup and other rollup related dev dependencies with tsup.
+  - Migrate ESLint to use the new flat config.
+  - Add JSDocs to everything to make sure the entirety of both the runtime code and types are well documented.
+
 ## 2.12.7
 
 - Support HTTPS_PROXY ([#86](https://github.com/tiged/tiged/issues/86))
