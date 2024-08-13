@@ -23,7 +23,7 @@ export default defineConfig(options => {
 		{
 			...commonOptions,
 			format: ['cjs'],
-			dts: { footer: 'export = degit' },
+			dts: { footer: 'export = tiged' },
 			entry: ['src/index.ts'],
 			// https://github.com/egoist/tsup/issues/572
 			footer: {

@@ -6,9 +6,9 @@ import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
-import glob from 'tiny-glob/sync.js';
 import type { Options } from 'tiged';
-import degit from 'tiged';
+import tiged from 'tiged';
+import glob from 'tiny-glob/sync.js';
 import { base, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
@@ -152,18 +152,18 @@ async function main() {
  * @param args - Additional options for the cloning process.
  */
 async function run(src: string, dest: string, args: Options) {
-	const d = degit(src, args);
+	const t = tiged(src, args);
 
-	d.on('info', event => {
+	t.on('info', event => {
 		console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
 	});
 
-	d.on('warn', event => {
+	t.on('warn', event => {
 		console.error(magenta(`! ${event.message?.replace('options.', '--')}`));
 	});
 
 	try {
-		await d.clone(dest);
+		await t.clone(dest);
 	} catch (err) {
 		if (err instanceof Error) {
 			console.error(red(`! ${err.message.replace('options.', '--')}`));
