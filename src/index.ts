@@ -908,7 +908,7 @@ function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
 	extract(
 		{
 			file,
-			strip: subdir ? subdir.split('/').length : 1,
+			strip: subdir ? subdir.split("/").length : 1,
 			C: dest,
 			sync: true,
 			onReadEntry: entry => {
