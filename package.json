@@ -99,7 +99,7 @@
 			"eslint --fix",
 			"git add"
 		],
-		"*.{js, json, yml, md}": [
+		"*.{ts, js, json, yml, md}": [
 			"prettier --write",
 			"git add"
 		]
