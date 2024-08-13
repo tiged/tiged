@@ -710,17 +710,19 @@ class Degit extends EventEmitter {
 		await fs.mkdir(dest, { recursive: true });
 		const extractedFiles = untar(file, dest, subdir);
 		if (extractedFiles.length === 0) {
-				let noFilesErrorMessage: string
-				if (subdir) {
-					noFilesErrorMessage = "No files to extract. Make sure you typed in the subdirectory name correctly."
-				} else {
-					noFilesErrorMessage = "No files to extract. The tar file seems to be empty"
-				}
-				throw new DegitError(noFilesErrorMessage, {
-					code: 'NO_FILES',
-				});
+			let noFilesErrorMessage: string;
+			if (subdir) {
+				noFilesErrorMessage =
+					'No files to extract. Make sure you typed in the subdirectory name correctly.';
+			} else {
+				noFilesErrorMessage =
+					'No files to extract. The tar file seems to be empty';
+			}
+			throw new DegitError(noFilesErrorMessage, {
+				code: 'NO_FILES'
+			});
 		}
-		console.log(extractedFiles)
+		console.log(extractedFiles);
 		if (this.noCache) {
 			await rimraf(file);
 		}
@@ -901,23 +903,21 @@ function parse(src: string): Repo {
  * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
  * @returns A list of extracted files.
  */
-function untar(
-	file: string,
-	dest: string,
-	subdir: Repo['subdir'] = null
-) {
-	const extractedFiles: string[] = []
+function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+	const extractedFiles: string[] = [];
 	extract(
 		{
 			file,
 			strip: subdir ? subdir.split('/').length : 1,
 			C: dest,
 			sync: true,
-			onReadEntry: entry => { extractedFiles.push(entry.path)}
+			onReadEntry: entry => {
+				extractedFiles.push(entry.path);
+			}
 		},
 		subdir ? [subdir] : []
 	);
-	return extractedFiles
+	return extractedFiles;
 }
 
 /**
