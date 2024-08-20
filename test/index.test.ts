@@ -165,11 +165,11 @@ describe(degit, { timeout }, () => {
 	describe('Non-existant subdirectory', () => {
 		it('throws error', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
-			await expect( () =>
+			await expect(() =>
 				exec(
 					`${degitPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
 				)
-			).rejects.toThrowError(/No files to extract/)
+			).rejects.toThrowError(/No files to extract/);
 		});
 	});
 
