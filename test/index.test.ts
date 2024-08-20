@@ -167,7 +167,7 @@ describe(tiged, { timeout }, () => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await expect(() =>
 				exec(
-					`${degitPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
+					`${tigedPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
 				)
 			).rejects.toThrowError(/No files to extract/);
 		});
