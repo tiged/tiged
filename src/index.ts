@@ -410,7 +410,7 @@ class Degit extends EventEmitter {
 			execSync('git --version', { stdio: 'ignore' });
 		} catch (e) {
 			throw new DegitError(
-				'could not find git. Make git is found in your PATH environment variable.',
+				'could not find git. Make the directory of your git executable is found in your PATH environment variable.',
 				{
 					code: 'MISSING_GIT'
 				}
