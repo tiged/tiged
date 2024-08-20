@@ -1,4 +1,4 @@
-> Awesome fork of [degit](https://github.com/Rich-Harris/degit). **Join our [discord](https://discord.com/channels/1209082619984224277/1209082619984224280)**
+> Awesome fork of [degit](https://github.com/Rich-Harris/degit). **Join our [discord](https://discord.gg/bNHqU797ee)**
 
 <div align="center">
 

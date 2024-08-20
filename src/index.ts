@@ -14,6 +14,7 @@ import {
 	tryRequire,
 	unstashFiles
 } from './utils';
+import { execSync } from 'node:child_process';
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 
@@ -405,6 +406,17 @@ class Degit extends EventEmitter {
 	 * @param dest - The destination directory where the repository will be cloned.
 	 */
 	public async clone(dest: string) {
+		try {
+			execSync('git --version', { stdio: 'ignore' });
+		} catch (e) {
+			throw new DegitError(
+				'could not find git. Make the directory of your git executable is found in your PATH environment variable.',
+				{
+					code: 'MISSING_GIT'
+				}
+			);
+		}
+
 		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
 		const dir = path.join(base, repo.site, repo.user, repo.name);
