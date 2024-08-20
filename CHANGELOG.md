@@ -10,6 +10,7 @@
   - Replace rollup and other rollup related dev dependencies with tsup.
   - Migrate ESLint to use the new flat config.
   - Add JSDocs to everything to make sure the entirety of both the runtime code and types are well documented.
+- Added Codeberg support ([#94](https://github.com/tiged/tiged/issues/94))
 
 ## 2.12.7
 
