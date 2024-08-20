@@ -409,9 +409,12 @@ class Degit extends EventEmitter {
 		try {
 			execSync('git --version', { stdio: 'ignore' });
 		} catch (e) {
-			throw new DegitError(`could not find git. Make sure it is installed.`, {
-				code: 'MISSING_GIT'
-			});
+			throw new DegitError(
+				'could not find git. Make git is found in your PATH environment variable.',
+				{
+					code: 'MISSING_GIT'
+				}
+			);
 		}
 
 		await this._checkDirIsEmpty(dest);
