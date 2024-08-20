@@ -36,6 +36,12 @@ huggingface:user/repo
 git@huggingface.co:user/repo
 https://huggingface.co/user/repo
 
+## Codeberg repos
+
+codeberg:user/repo
+git@codeberg.org:user/repo
+https://codeberg.org/user/repo
+
 You can append a #ref to any of the above:
 
 ## Branches

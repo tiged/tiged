@@ -800,7 +800,8 @@ const supported: Record<string, string> = {
 	gitlab: '.com',
 	bitbucket: '.com',
 	'git.sr.ht': '.ht',
-	huggingface: '.co'
+	huggingface: '.co',
+	codeberg: '.org'
 };
 
 /**
