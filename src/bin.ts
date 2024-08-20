@@ -6,9 +6,9 @@ import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
-import glob from 'tiny-glob/sync.js';
 import type { Options } from 'tiged';
-import degit from 'tiged';
+import { degit } from 'tiged';
+import glob from 'tiny-glob/sync.js';
 import { base, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {

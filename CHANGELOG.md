@@ -2,6 +2,10 @@
 
 ## 3.0.0
 
+- Breaking changes:
+
+  - Change default export to a named export ([#101](https://github.com/tiged/tiged/pull/101))
+
 - Migrate codebase to TypeScript ([#89](https://github.com/tiged/tiged/pull/89)):
   - Replace mocha with Vitest as it has better ESM and TypeScript support.
   - Use `tsup` to output both CJS and ESM entry points.

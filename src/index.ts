@@ -200,7 +200,7 @@ interface RemoveAction extends Action {
  * @param opts - The optional configuration options.
  * @returns A new instance of the {@linkcode Degit} class.
  */
-function degit(src: string, opts?: Options) {
+export function degit(src: string, opts?: Options) {
 	return new Degit(src, opts);
 }
 
@@ -1037,9 +1037,3 @@ async function updateCache(
 		JSON.stringify(cached, null, '  ')
 	);
 }
-
-declare namespace degit {
-	export type { Options, Repo };
-}
-
-export default degit;
