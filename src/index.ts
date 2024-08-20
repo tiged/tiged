@@ -722,7 +722,21 @@ class Tiged extends EventEmitter {
 		});
 
 		await fs.mkdir(dest, { recursive: true });
-		await untar(file, dest, subdir);
+		const extractedFiles = untar(file, dest, subdir);
+		if (extractedFiles.length === 0) {
+			let noFilesErrorMessage: string;
+			if (subdir) {
+				noFilesErrorMessage =
+					'No files to extract. Make sure you typed in the subdirectory name correctly.';
+			} else {
+				noFilesErrorMessage =
+					'No files to extract. The tar file seems to be empty';
+			}
+			throw new TigedError(noFilesErrorMessage, {
+				code: 'NO_FILES'
+			});
+		}
+		console.log(extractedFiles);
 		if (this.noCache) {
 			await rimraf(file);
 		}
@@ -901,21 +915,23 @@ function parse(src: string): Repo {
  * @param file - The path to the tar file.
  * @param dest - The destination directory where the contents will be extracted.
  * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
- * @returns A Promise that resolves when the extraction is complete.
+ * @returns A list of extracted files.
  */
-async function untar(
-	file: string,
-	dest: string,
-	subdir: Repo['subdir'] = null
-) {
-	return extract(
+function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+	const extractedFiles: string[] = [];
+	extract(
 		{
 			file,
 			strip: subdir ? subdir.split('/').length : 1,
-			C: dest
+			C: dest,
+			sync: true,
+			onReadEntry: entry => {
+				extractedFiles.push(entry.path);
+			}
 		},
 		subdir ? [subdir] : []
 	);
+	return extractedFiles;
 }
 
 /**

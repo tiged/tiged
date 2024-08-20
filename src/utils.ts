@@ -28,6 +28,7 @@ export type TigedErrorCode =
 	| 'UNSUPPORTED_HOST'
 	| 'BAD_REF'
 	| 'COULD_NOT_FETCH'
+	| 'NO_FILES'
 	| keyof typeof constants.errno;
 
 /**
