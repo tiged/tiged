@@ -713,7 +713,7 @@ class Degit extends EventEmitter {
 			let noFilesErrorMessage: string;
 			if (subdir) {
 				noFilesErrorMessage =
-					"No files to extract. Make sure you typed in the subdirectory name correctly."
+					'No files to extract. Make sure you typed in the subdirectory name correctly.';
 			} else {
 				noFilesErrorMessage =
 					'No files to extract. The tar file seems to be empty';
