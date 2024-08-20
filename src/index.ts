@@ -1,5 +1,6 @@
 import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
+import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
@@ -14,7 +15,6 @@ import {
 	tryRequire,
 	unstashFiles
 } from './utils';
-import { execSync } from 'node:child_process';
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 
@@ -411,7 +411,7 @@ class Tiged extends EventEmitter {
 		try {
 			execSync('git --version', { stdio: 'ignore' });
 		} catch (e) {
-			throw new DegitError(
+			throw new TigedError(
 				'could not find git. Make the directory of your git executable is found in your PATH environment variable.',
 				{
 					code: 'MISSING_GIT'
