@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
-import { degit } from 'tiged';
+import { tiged } from 'tiged';
 
 const exec = promisify(child_process.exec);
 const tigedPath = process.env.CI

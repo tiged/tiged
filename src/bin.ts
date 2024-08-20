@@ -7,7 +7,7 @@ import mri from 'mri';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Options } from 'tiged';
-import { degit } from 'tiged';
+import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';
 import { base, tryRequire } from './utils';
 

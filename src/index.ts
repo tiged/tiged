@@ -200,8 +200,8 @@ interface RemoveAction extends Action {
  * @param opts - The optional configuration options.
  * @returns A new instance of the {@linkcode Tiged} class.
  */
-export function degit(src: string, opts?: Options) {
-	return new Degit(src, opts);
+export function tiged(src: string, opts?: Options) {
+	return new Tiged(src, opts);
 }
 
 /**
