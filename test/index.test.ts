@@ -3,10 +3,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
-import { degit } from 'tiged';
+import { tiged } from 'tiged';
 
 const exec = promisify(child_process.exec);
-const degitPath = process.env.CI
+const tigedPath = process.env.CI
 	? 'tiged -D'
 	: `node --import=tsx ${path.resolve('src/bin.ts')} -D`;
 
@@ -15,7 +15,7 @@ const timeout = 30_000;
 const convertSpecialCharsToHyphens = (str: string) =>
 	str.replace(/[^a-zA-Z0-9]+/g, '-');
 
-describe(degit, { timeout }, () => {
+describe(tiged, { timeout }, () => {
 	beforeAll(async () => {
 		await rimraf('.tmp');
 	});
@@ -33,7 +33,7 @@ describe(degit, { timeout }, () => {
 			'https://github.com/tiged/tiged-test-repo.git'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from github!',
 				subdir: null,
@@ -49,7 +49,7 @@ describe(degit, { timeout }, () => {
 			'https://gitlab.com/nake89/tiged-test-repo.git'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from gitlab!'
 			});
@@ -63,7 +63,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --subgroup ${task.name} .tmp/test-repo-${sanitizedPath} -v`
+				`${tigedPath} --subgroup ${task.name} .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'main.tf': 'Subgroup test',
@@ -81,7 +81,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = `${convertSpecialCharsToHyphens(task.name)}-0`;
 			await exec(
-				`${degitPath} --subgroup ${task.name} --sub-directory subdir1 .tmp/test-repo-${sanitizedPath} -v`
+				`${tigedPath} --subgroup ${task.name} --sub-directory subdir1 .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				subdir2: null,
@@ -95,7 +95,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = `${convertSpecialCharsToHyphens(task.name)}-1`;
 			await exec(
-				`${degitPath} --subgroup ${task.name} --sub-directory subdir1/subdir2 .tmp/test-repo-${sanitizedPath} -v`
+				`${tigedPath} --subgroup ${task.name} --sub-directory subdir1/subdir2 .tmp/test-repo-${sanitizedPath} -v`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': "I'm a file."
@@ -110,7 +110,7 @@ describe(degit, { timeout }, () => {
 			'https://bitbucket.org/nake89/tiged-test-repo.git'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from bitbucket'
 			});
@@ -124,7 +124,7 @@ describe(degit, { timeout }, () => {
 			'git@git.sr.ht:~satotake/degit-test-repo'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from sourcehut!'
 			});
@@ -138,7 +138,7 @@ describe(degit, { timeout }, () => {
 			'git@codeberg.org:joaopalmeiro/tiged-test-repo'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from codeberg!'
 			});
@@ -152,7 +152,7 @@ describe(degit, { timeout }, () => {
 			'https://huggingface.co/severo/degit-test-repo.git'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from Hugging Face',
 				subdir: null,
@@ -169,7 +169,7 @@ describe(degit, { timeout }, () => {
 			'https://github.com/tiged/tiged-test-repo.git/subdir'
 		])('%s', async src => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
-			await exec(`${degitPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
+			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': `hello from a subdirectory!`
 			});
@@ -181,7 +181,7 @@ describe(degit, { timeout }, () => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await expect(() =>
 				exec(
-					`${degitPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
+					`${tigedPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
 				)
 			).rejects.toThrowError(/No files to extract/);
 		});
@@ -197,7 +197,7 @@ describe(degit, { timeout }, () => {
 			await exec(`echo "not empty" > .tmp/test-repo-${sanitizedPath}/file.txt`);
 			await expect(() =>
 				exec(
-					`${degitPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -v`
+					`${tigedPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -v`
 				)
 			).rejects.toThrowError(/destination directory is not empty/);
 		});
@@ -205,7 +205,7 @@ describe(degit, { timeout }, () => {
 		it('succeeds with --force', async ({ expect }) => {
 			await expect(
 				exec(
-					`${degitPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -fv`
+					`${tigedPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -fv`
 				)
 			).resolves.not.toThrow();
 		});
@@ -215,7 +215,7 @@ describe(degit, { timeout }, () => {
 		it('allows flags wherever', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} -v tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} -v tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'file.txt': 'hello from github!',
@@ -228,7 +228,7 @@ describe(degit, { timeout }, () => {
 	describe('api', () => {
 		it('is usable from node scripts', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
-			await degit('tiged/tiged-test-repo', {
+			await tiged('tiged/tiged-test-repo', {
 				force: true,
 				disableCache: true,
 				verbose: true
@@ -246,7 +246,7 @@ describe(degit, { timeout }, () => {
 		it('removes specified file', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} -v tiged/tiged-test-repo-remove-only .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} -v tiged/tiged-test-repo-remove-only .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({});
 		});
@@ -254,7 +254,7 @@ describe(degit, { timeout }, () => {
 		it('clones repo and removes specified file', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} -v tiged/tiged-test-repo-remove .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} -v tiged/tiged-test-repo-remove .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				'other.txt': 'hello from github!',
@@ -266,7 +266,7 @@ describe(degit, { timeout }, () => {
 		it('removes and adds nested files', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} -v tiged/tiged-test-repo-nested-actions .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} -v tiged/tiged-test-repo-nested-actions .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				dir: null,
@@ -286,7 +286,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --mode=git https://github.com/tiged/tiged-test#525e8fef2c6b5e261511adc55f410d83ca5d8256 .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} --mode=git https://github.com/tiged/tiged-test#525e8fef2c6b5e261511adc55f410d83ca5d8256 .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				subdir: null,
@@ -300,7 +300,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} --mode=git https://github.com/tiged/tiged-test.git/subdir#b09755bc4cca3d3b398fbe5e411daeae79869581 .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				file: 'Hello, champ!'
@@ -315,7 +315,7 @@ describe(degit, { timeout }, () => {
 		}) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await exec(
-				`${degitPath} --mode=git https://github.com/tiged/tiged-test.git .tmp/test-repo-${sanitizedPath}`
+				`${tigedPath} --mode=git https://github.com/tiged/tiged-test.git .tmp/test-repo-${sanitizedPath}`
 			);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
 				subdir: null,

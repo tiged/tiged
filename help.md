@@ -68,7 +68,7 @@ Options:
 `--force`, `-f` Allow non-empty destination directory
 `--verbose`, `-v` Extra logging
 `--subgroup`, `-s` Use if repo is in a subroup (GitLab)
-`--mode=`, `-m=` Force the mode by which degit clones the repo
+`--mode=`, `-m=` Force the mode by which tiged clones the repo
 Valid options are `tar` or `git` (uses SSH)
 
 See https://github.com/tiged/tiged for more information

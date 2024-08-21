@@ -1,20 +1,20 @@
 import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
+import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
 import { extract } from 'tar';
 import {
-	DegitError,
+	TigedError,
 	base,
-	degitConfigName,
 	exec,
 	fetch,
 	stashFiles,
+	tigedConfigName,
 	tryRequire,
 	unstashFiles
 } from './utils';
-import { execSync } from 'node:child_process';
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 
@@ -163,9 +163,9 @@ interface Action {
 }
 
 /**
- * Represents a Degit action for cloning.
+ * Represents a Tiged action for cloning.
  */
-interface DegitAction extends Action {
+interface TigedAction extends Action {
 	/**
 	 * The type of action, which is always `'clone'`.
 	 */
@@ -193,25 +193,26 @@ interface RemoveAction extends Action {
 }
 
 /**
- * Creates a new instance of the Degit class with
+ * Creates a new instance of the {@linkcode Tiged} class with
  * the specified source and options.
  *
  * @param src - The source path to clone from.
  * @param opts - The optional configuration options.
- * @returns A new instance of the {@linkcode Degit} class.
+ * @returns A new instance of the {@linkcode Tiged} class.
  */
-export function degit(src: string, opts?: Options) {
-	return new Degit(src, opts);
+export function tiged(src: string, opts?: Options) {
+	return new Tiged(src, opts);
 }
 
 /**
- * The `Degit` class is an event emitter that represents the Degit tool.
+ * The {@linkcode Tiged} class is an event emitter
+ * that represents the Tiged tool.
  * It is designed for cloning repositories with specific options,
  * handling caching, proxy settings, and more.
  *
  * @extends EventEmitter
  */
-class Degit extends EventEmitter {
+class Tiged extends EventEmitter {
 	/**
 	 * Enables offline mode, where operations rely on cached data.
 	 */
@@ -277,7 +278,7 @@ class Degit extends EventEmitter {
 	 * cloning and removing files or directories.
 	 */
 	public declare directiveActions: {
-		clone: (dir: string, dest: string, action: DegitAction) => Promise<void>;
+		clone: (dir: string, dest: string, action: TigedAction) => Promise<void>;
 		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
 	};
 
@@ -287,7 +288,8 @@ class Degit extends EventEmitter {
 	) => this;
 
 	/**
-	 * Constructs a new `Degit` instance with the specified source and options.
+	 * Constructs a new {@linkcode Tiged} instance
+	 * with the specified source and options.
 	 *
 	 * @param src - The source repository string.
 	 * @param opts - Optional parameters to customize the behavior.
@@ -340,20 +342,20 @@ class Degit extends EventEmitter {
 					{ force: true },
 					{ cache: action.cache, verbose: action.verbose }
 				);
-				const d = degit(action.src, opts);
+				const t = tiged(action.src, opts);
 
-				d.on('info', event => {
+				t.on('info', event => {
 					console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
 				});
 
-				d.on('warn', event => {
+				t.on('warn', event => {
 					console.error(
 						magenta(`! ${event.message?.replace('options.', '--')}`)
 					);
 				});
 
 				try {
-					await d.clone(dest);
+					await t.clone(dest);
 				} catch (err) {
 					if (err instanceof Error) {
 						console.error(red(`! ${err.message}`));
@@ -386,12 +388,12 @@ class Degit extends EventEmitter {
 	 * Retrieves the directives from the specified destination.
 	 *
 	 * @param dest - The destination path.
-	 * @returns An array of {@linkcode DegitAction} directives, or `false` if no directives are found.
+	 * @returns An array of {@linkcode TigedAction} directives, or `false` if no directives are found.
 	 */
 	public async _getDirectives(dest: string) {
-		const directivesPath = path.resolve(dest, degitConfigName);
+		const directivesPath = path.resolve(dest, tigedConfigName);
 		const directives =
-			(tryRequire(directivesPath, { clearCache: true }) as DegitAction[]) ||
+			(tryRequire(directivesPath, { clearCache: true }) as TigedAction[]) ||
 			false;
 		if (directives) {
 			await fs.unlink(directivesPath);
@@ -409,7 +411,7 @@ class Degit extends EventEmitter {
 		try {
 			execSync('git --version', { stdio: 'ignore' });
 		} catch (e) {
-			throw new DegitError(
+			throw new TigedError(
 				'could not find git. Make the directory of your git executable is found in your PATH environment variable.',
 				{
 					code: 'MISSING_GIT'
@@ -505,7 +507,7 @@ class Degit extends EventEmitter {
 
 					await rimraf(dir);
 				} else {
-					throw new DegitError(
+					throw new TigedError(
 						`destination directory is not empty, aborting. Use options.force to override`,
 						{
 							code: 'DEST_NOT_EMPTY'
@@ -519,7 +521,7 @@ class Degit extends EventEmitter {
 				});
 			}
 		} catch (err) {
-			if (err instanceof DegitError && err.code !== 'ENOENT') throw err;
+			if (err instanceof TigedError && err.code !== 'ENOENT') throw err;
 		}
 	}
 
@@ -570,7 +572,7 @@ class Degit extends EventEmitter {
 
 			return this._selectRef(refs, repo.ref);
 		} catch (err) {
-			if (err instanceof DegitError && 'code' in err && 'message' in err) {
+			if (err instanceof TigedError && 'code' in err && 'message' in err) {
 				this._warn(err);
 				if (err.original != null) {
 					this._verbose(err.original);
@@ -634,8 +636,8 @@ class Degit extends EventEmitter {
 	 *
 	 * @param dir - The directory where the repository is cloned.
 	 * @param dest - The destination directory where the repository will be extracted.
-	 * @throws A {@linkcode DegitError} If the commit hash for the repository reference cannot be found.
-	 * @throws A {@linkcode DegitError} If the tarball cannot be downloaded.
+	 * @throws A {@linkcode TigedError} If the commit hash for the repository reference cannot be found.
+	 * @throws A {@linkcode TigedError} If the tarball cannot be downloaded.
 	 * @returns A promise that resolves when the cloning and extraction process is complete.
 	 */
 	public async _cloneWithTar(dir: string, dest: string) {
@@ -652,7 +654,7 @@ class Degit extends EventEmitter {
 
 		if (!hash) {
 			// TODO 'did you mean...?'
-			throw new DegitError(`could not find commit hash for ${repo.ref}`, {
+			throw new TigedError(`could not find commit hash for ${repo.ref}`, {
 				code: 'MISSING_REF',
 				ref: repo.ref
 			});
@@ -702,7 +704,7 @@ class Degit extends EventEmitter {
 			}
 		} catch (err) {
 			if (err instanceof Error) {
-				throw new DegitError(`could not download ${url}`, {
+				throw new TigedError(`could not download ${url}`, {
 					code: 'COULD_NOT_DOWNLOAD',
 					url,
 					original: err
@@ -730,7 +732,7 @@ class Degit extends EventEmitter {
 				noFilesErrorMessage =
 					'No files to extract. The tar file seems to be empty';
 			}
-			throw new DegitError(noFilesErrorMessage, {
+			throw new TigedError(noFilesErrorMessage, {
 				code: 'NO_FILES'
 			});
 		}
@@ -868,7 +870,7 @@ export interface Repo {
  *
  * @param src - The source URL to parse.
  * @returns A {@linkcode Repo} object containing the parsed information.
- * @throws A {@linkcode DegitError} If the source URL cannot be parsed.
+ * @throws A {@linkcode TigedError} If the source URL cannot be parsed.
  */
 function parse(src: string): Repo {
 	const match =
@@ -876,7 +878,7 @@ function parse(src: string): Repo {
 			src
 		);
 	if (!match) {
-		throw new DegitError(`could not parse ${src}`, {
+		throw new TigedError(`could not parse ${src}`, {
 			code: 'BAD_SRC'
 		});
 	}
@@ -938,7 +940,7 @@ function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
  *
  * @param repo - The repository object containing the URL of the remote repository.
  * @returns An array of objects representing the fetched references, each containing the type, name, and hash.
- * @throws A {@linkcode DegitError} If there is an error fetching the remote repository.
+ * @throws A {@linkcode TigedError} If there is an error fetching the remote repository.
  */
 async function fetchRefs(repo: Repo) {
 	try {
@@ -959,7 +961,7 @@ async function fetchRefs(repo: Repo) {
 
 				const match = /refs\/(\w+)\/(.+)/.exec(ref);
 				if (!match)
-					throw new DegitError(`could not parse ${ref}`, {
+					throw new TigedError(`could not parse ${ref}`, {
 						code: 'BAD_REF'
 					});
 
@@ -976,7 +978,7 @@ async function fetchRefs(repo: Repo) {
 			});
 	} catch (error) {
 		if (error instanceof Error) {
-			throw new DegitError(`could not fetch remote ${repo.url}`, {
+			throw new TigedError(`could not fetch remote ${repo.url}`, {
 				code: 'COULD_NOT_FETCH',
 				url: repo.url,
 				original: error
