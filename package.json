@@ -70,7 +70,7 @@
 		"@types/fuzzysearch": "1.0.2",
 		"@types/node": "20.14.6",
 		"del-cli": "3.0.1",
-		"eslint": "8.57.0",
+		"eslint": "9.9.0",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-import": "2.29.1",
 		"husky": "5.0.9",
