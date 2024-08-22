@@ -228,7 +228,6 @@ Remove a file at the specified path.
 
 ## Special Thanks
 
-
 ## See also
 
 - [zel](https://github.com/vutran/zel) by [Vu Tran](https://twitter.com/tranvu)
