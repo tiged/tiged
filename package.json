@@ -76,7 +76,7 @@
 		"husky": "5.0.9",
 		"lint-staged": "10.5.4",
 		"prettier": "3.3.2",
-		"tsup": "8.1.0",
+		"tsup": "8.2.4",
 		"tsx": "4.15.6",
 		"typescript": "5.4.5",
 		"typescript-eslint": "7.13.1",
