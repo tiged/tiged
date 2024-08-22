@@ -9,6 +9,7 @@ export default defineConfig(options => {
 		tsconfig: path.resolve('tsconfig.build.json'),
 		sourcemap: true,
 		shims: true,
+		removeNodeProtocol: false,
 		...options
 	};
 
