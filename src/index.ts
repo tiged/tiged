@@ -723,14 +723,9 @@ class Tiged extends EventEmitter {
 		await fs.mkdir(dest, { recursive: true });
 		const extractedFiles = untar(file, dest, subdir);
 		if (extractedFiles.length === 0) {
-			let noFilesErrorMessage: string;
-			if (subdir) {
-				noFilesErrorMessage =
-					'No files to extract. Make sure you typed in the subdirectory name correctly.';
-			} else {
-				noFilesErrorMessage =
-					'No files to extract. The tar file seems to be empty';
-			}
+			const noFilesErrorMessage: string = subdir
+				? 'No files to extract. Make sure you typed in the subdirectory name correctly.'
+				: 'No files to extract. The tar file seems to be empty';
 			throw new TigedError(noFilesErrorMessage, {
 				code: 'NO_FILES'
 			});
