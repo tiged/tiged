@@ -1,4 +1,4 @@
-> Awesome fork of [degit](https://github.com/Rich-Harris/degit). **Join our [discord](https://discord.gg/bNHqU797ee)**
+> Awesome fork of [degit](https://github.com/Rich-Harris/degit). **Please join our [discord](https://discord.gg/bNHqU797ee) <- new fixed link.**
 
 <div align="center">
 
@@ -225,6 +225,9 @@ Remove a file at the specified path.
 - Option to not use cache [#36](https://github.com/tiged/tiged/issue/36)
 
 #### It might be time to move on.
+
+## Special Thanks
+
 
 ## See also
 
