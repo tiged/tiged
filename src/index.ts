@@ -392,9 +392,8 @@ class Tiged extends EventEmitter {
 	 */
 	public async _getDirectives(dest: string) {
 		const directivesPath = path.resolve(dest, tigedConfigName);
-		const directives =
-			(tryRequire(directivesPath, { clearCache: true }) as TigedAction[]) ||
-			false;
+		const directives: TigedAction[] | false =
+			tryRequire(directivesPath, { clearCache: true }) || false;
 		if (directives) {
 			await fs.unlink(directivesPath);
 		}
@@ -643,8 +642,8 @@ class Tiged extends EventEmitter {
 	public async _cloneWithTar(dir: string, dest: string) {
 		const { repo } = this;
 
-		const cached =
-			(tryRequire(path.join(dir, 'map.json')) as Record<string, string>) || {};
+		const cached: Record<string, string> =
+			tryRequire(path.join(dir, 'map.json')) || {};
 		const hash =
 			this.offlineMode || this.cache
 				? this._getHashFromCache(repo, cached)
@@ -1003,8 +1002,8 @@ async function updateCache(
 	cached: Record<string, string>
 ) {
 	// update access logs
-	const logs =
-		(tryRequire(path.join(dir, 'access.json')) as Record<string, string>) || {};
+	const logs: Record<string, string> =
+		tryRequire(path.join(dir, 'access.json')) || {};
 	logs[repo.ref] = new Date().toISOString();
 	await fs.writeFile(
 		path.join(dir, 'access.json'),

@@ -69,9 +69,9 @@ async function main() {
 		const getChoice = (file: string) => {
 			const [host, user, repo] = file.split(path.sep);
 
-			return Object.entries(
-				tryRequire(`${base}/${file}`) as Record<string, string>
-			).map(([ref, hash]) => ({
+			const cacheLogs: Record<string, string> = tryRequire(`${base}/${file}`);
+
+			return Object.entries(cacheLogs).map(([ref, hash]) => ({
 				name: hash,
 				message: `${host}:${user}/${repo}#${ref}`,
 				value: `${host}:${user}/${repo}#${ref}`
