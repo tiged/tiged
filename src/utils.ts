@@ -1,7 +1,7 @@
-import fs from 'fs-extra';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as child_process from 'node:child_process';
 import { createWriteStream } from 'node:fs';
+import * as fs from 'node:fs/promises';
 import * as https from 'node:https';
 import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
@@ -228,16 +228,15 @@ export async function stashFiles(dir: string, dest: string) {
 		}
 	}
 	await fs.mkdir(tmpDir);
-	const files = await fs.readdir(dest);
+	const files = await fs.readdir(dest, { recursive: true });
 	for (const file of files) {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
 		const isDir = await isDirectory(filePath);
 		if (isDir) {
-			await fs.copy(filePath, targetPath);
-			await rimraf(filePath);
+			await fs.cp(filePath, targetPath, { recursive: true });
 		} else {
-			await fs.copy(filePath, targetPath);
+			await fs.cp(filePath, targetPath);
 			await fs.unlink(filePath);
 		}
 	}
@@ -251,17 +250,16 @@ export async function stashFiles(dir: string, dest: string) {
  */
 export async function unstashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
-	const files = await fs.readdir(tmpDir);
+	const files = await fs.readdir(tmpDir, { recursive: true });
 	for (const filename of files) {
 		const tmpFile = path.join(tmpDir, filename);
 		const targetPath = path.join(dest, filename);
 		const isDir = await isDirectory(tmpFile);
 		if (isDir) {
-			await fs.copy(tmpFile, targetPath);
-			await rimraf(tmpFile);
+			await fs.cp(tmpFile, targetPath, { recursive: true });
 		} else {
 			if (filename !== tigedConfigName) {
-				await fs.copy(tmpFile, targetPath);
+				await fs.cp(tmpFile, targetPath);
 			}
 			await fs.unlink(tmpFile);
 		}
