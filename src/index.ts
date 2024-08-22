@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-import { extract } from 'tar';
+import { extract, ReadEntry } from 'tar';
 import {
 	TigedError,
 	base,
@@ -98,6 +98,13 @@ export interface Options {
 	 * @default undefined
 	 */
 	'sub-directory'?: string;
+
+	/**
+	 * Specifies which files to extract.
+	 *
+	 * @default undefined
+	 */
+	extract?: boolean;
 }
 
 // TODO: We might not need this one.
@@ -257,6 +264,11 @@ class Tiged extends EventEmitter {
 	public declare subdir?: string;
 
 	/**
+	 * Specifies which files to extract.
+	 */
+	public declare extract?: boolean;
+
+	/**
 	 * Holds the parsed repository information.
 	 */
 	public declare repo: Repo;
@@ -310,8 +322,15 @@ class Tiged extends EventEmitter {
 		this.proxy = this._getHttpsProxy(); // TODO allow setting via --proxy
 		this.subgroup = opts.subgroup;
 		this.subdir = opts['sub-directory'];
+		this.extract = opts['extract'];
 
 		this.repo = parse(src);
+		if (this.extract) {
+			// TODO this is a dirty hack. Should probably be done in the parse function.
+			this.repo.fileToExtract = this.repo.subdir;
+			this.repo.subdir = null;
+		}
+
 		if (this.subgroup) {
 			this.repo.subgroup = true;
 			this.repo.name = this.repo.subdir?.slice(1) ?? '';
@@ -722,7 +741,8 @@ class Tiged extends EventEmitter {
 		});
 
 		await fs.mkdir(dest, { recursive: true });
-		const extractedFiles = untar(file, dest, subdir);
+		const fileToExtract = repo.fileToExtract ? `${repo.name}-${hash}${repo.fileToExtract}` : undefined;
+		const extractedFiles = untar(file, dest, subdir, fileToExtract);
 		if (extractedFiles.length === 0) {
 			let noFilesErrorMessage: string;
 			if (subdir) {
@@ -736,7 +756,6 @@ class Tiged extends EventEmitter {
 				code: 'NO_FILES'
 			});
 		}
-		console.log(extractedFiles);
 		if (this.noCache) {
 			await rimraf(file);
 		}
@@ -862,6 +881,11 @@ export interface Repo {
 	 * if supported by the hosting service.
 	 */
 	subgroup?: boolean;
+
+	/**
+	 * Optional. Extract a single file from the repo.
+	 */
+	fileToExtract?: string | null;
 }
 
 /**
@@ -918,13 +942,25 @@ function parse(src: string): Repo {
  * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
  * @returns A list of extracted files.
  */
-function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+function untar(
+	file: string,
+	dest: string,
+	subdir: Repo['subdir'] = null,
+	fileToExtract: string | null = null
+) {
 	const extractedFiles: string[] = [];
+
 	extract(
 		{
 			file,
-			strip: subdir ? subdir.split('/').length : 1,
+			strip: subdir ? subdir.split('/').length : fileToExtract ? fileToExtract.split('/').length-1 : 1,
 			C: dest,
+			filter: fileToExtract
+				? (path: string, _entry: fs.Stats | ReadEntry) => {
+					console.log(path)
+						return path === fileToExtract;
+					}
+				: undefined,
 			sync: true,
 			onReadEntry: entry => {
 				extractedFiles.push(entry.path);
