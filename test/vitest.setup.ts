@@ -1,15 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import glob from 'tiny-glob';
-
-const isDir = async (filePath: string) => {
-	try {
-		const stat = await fs.lstat(filePath);
-		return stat.isDirectory();
-	} catch (err) {
-		return false;
-	}
-};
+import { isDirectory } from '../src/utils';
 
 expect.extend({
 	async toMatchFiles(
@@ -18,7 +10,7 @@ expect.extend({
 	) {
 		const { isNot, equals } = this;
 
-		if (!(await isDir(received))) {
+		if (!(await isDirectory(received))) {
 			return {
 				pass: false,
 				actual: received,
@@ -51,7 +43,7 @@ expect.extend({
 			await Promise.all(
 				receivedFileNames.map(async file => {
 					const filePath = path.resolve(received, file);
-					if (await isDir(filePath)) {
+					if (await isDirectory(filePath)) {
 						return [file, null] as const;
 					}
 					return [
