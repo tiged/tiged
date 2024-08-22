@@ -4,7 +4,8 @@ import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import { rimraf } from 'rimraf';
-import { extract, ReadEntry } from 'tar';
+import type { ReadEntry } from 'tar';
+import { extract } from 'tar';
 import {
 	TigedError,
 	base,
@@ -741,7 +742,9 @@ class Tiged extends EventEmitter {
 		});
 
 		await fs.mkdir(dest, { recursive: true });
-		const fileToExtract = repo.fileToExtract ? `${repo.name}-${hash}${repo.fileToExtract}` : undefined;
+		const fileToExtract = repo.fileToExtract
+			? `${repo.name}-${hash}${repo.fileToExtract}`
+			: undefined;
 		const extractedFiles = untar(file, dest, subdir, fileToExtract);
 		if (extractedFiles.length === 0) {
 			let noFilesErrorMessage: string;
@@ -953,11 +956,15 @@ function untar(
 	extract(
 		{
 			file,
-			strip: subdir ? subdir.split('/').length : fileToExtract ? fileToExtract.split('/').length-1 : 1,
+			strip: subdir
+				? subdir.split('/').length
+				: fileToExtract
+					? fileToExtract.split('/').length - 1
+					: 1,
 			C: dest,
 			filter: fileToExtract
 				? (path: string, _entry: fs.Stats | ReadEntry) => {
-					console.log(path)
+						console.log(path);
 						return path === fileToExtract;
 					}
 				: undefined,
