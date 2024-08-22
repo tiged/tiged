@@ -275,7 +275,9 @@ export async function unstashFiles(dir: string, dest: string) {
  * @param filePath - The path to the file or directory to check.
  * @returns A promise that resolves to `true` if the path exists, otherwise `false`.
  *
- * @example <caption>#### Check if a file exists</caption>
+ * @example
+ * <caption>#### Check if a file exists</caption>
+ *
  * ```ts
  * const exists = await pathExists('/path/to/file');
  * console.log(exists); // true or false

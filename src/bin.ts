@@ -9,7 +9,7 @@ import * as path from 'node:path';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';
-import { base, tryRequire } from './utils';
+import { base, pathExists, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 	alias: {
@@ -117,7 +117,7 @@ async function main() {
 		]);
 
 		const empty =
-			!fs.existsSync(options.dest) || fs.readdirSync(options.dest).length === 0;
+			!(await pathExists(options.dest)) || fs.readdirSync(options.dest).length === 0;
 
 		if (!empty) {
 			const { force } = await enquirer.prompt<Options>([
