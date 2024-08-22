@@ -59,7 +59,7 @@
 		"https-proxy-agent": "7.0.5",
 		"mri": "1.2.0",
 		"rimraf": "6.0.1",
-		"tar": "7.4.0",
+		"tar": "7.4.3",
 		"tiny-glob": "0.2.9"
 	},
 	"devDependencies": {
