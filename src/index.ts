@@ -735,7 +735,6 @@ class Tiged extends EventEmitter {
 				code: 'NO_FILES'
 			});
 		}
-		console.log(extractedFiles);
 		if (this.noCache) {
 			await rimraf(file);
 		}
