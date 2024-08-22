@@ -9,10 +9,13 @@ const __dirname = path.dirname(__filename);
 
 const tsConfigPath = path.join(__dirname, '..', 'tsconfig.json');
 
-const tsConfig = await fs.readFile(tsConfigPath, 'utf-8');
+const eraseTSConfigPaths = async () => {
+	const tsConfig = await fs.readFile(tsConfigPath, 'utf-8');
 
-const tsConfigJson = JSON.parse(tsConfig);
+	const tsConfigJson = JSON.parse(tsConfig);
 
-delete tsConfigJson.compilerOptions.paths;
+	delete tsConfigJson.compilerOptions.paths;
+	await fs.writeFile(tsConfigPath, JSON.stringify(tsConfigJson, null, 2));
+};
 
-await fs.writeFile(tsConfigPath, JSON.stringify(tsConfigJson, null, 2));
+eraseTSConfigPaths();
