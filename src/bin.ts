@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { bold, cyan, magenta, red, underline } from 'colorette';
-import enquirer from 'enquirer';
+import * as enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import fs from 'node:fs';
-import path from 'node:path';
+import * as path from 'node:path';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';

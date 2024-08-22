@@ -1,6 +1,6 @@
-import child_process from 'node:child_process';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import * as child_process from 'node:child_process';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
 import { tiged } from 'tiged';
