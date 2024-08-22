@@ -268,4 +268,25 @@ export async function unstashFiles(dir: string, dest: string) {
 	await rimraf(tmpDir);
 }
 
+/**
+ * Asynchronously checks if a given file path exists.
+ *
+ * @param filePath - The path to the file or directory to check.
+ * @returns A promise that resolves to `true` if the path exists, otherwise `false`.
+ *
+ * @example <caption>#### Check if a file exists</caption>
+ * ```ts
+ * const exists = await pathExists('/path/to/file');
+ * console.log(exists); // true or false
+ * ```
+ */
+export const pathExists = async (filePath: string): Promise<boolean> => {
+	try {
+		await fs.access(filePath);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
+
 export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
