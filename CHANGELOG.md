@@ -15,6 +15,8 @@
   - Migrate ESLint to use the new flat config.
   - Add JSDocs to everything to make sure the entirety of both the runtime code and types are well documented.
 - Added Codeberg support ([#94](https://github.com/tiged/tiged/issues/94))
+- Fixed misleading error message when git is missing. ([#91](https://github.com/tiged/tiged/issues/91))
+- Fix: Throw error if subdirectory doesn't exist ([#35](https://github.com/tiged/tiged/issues/35))
 
 ## 2.12.7
 
