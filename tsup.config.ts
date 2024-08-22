@@ -18,7 +18,6 @@ export default defineConfig(options => {
 		{
 			...commonOptions,
 			name: 'Modern ESM',
-			dts: true,
 			format: ['esm'],
 			entry: ['src/index.ts']
 		},
@@ -26,7 +25,6 @@ export default defineConfig(options => {
 			...commonOptions,
 			name: 'CJS Development',
 			format: ['cjs'],
-			dts: true,
 			entry: ['src/index.ts']
 		},
 		{
@@ -36,6 +34,20 @@ export default defineConfig(options => {
 			external: ['tiged'],
 			treeshake: 'smallest',
 			minify: true
+		},
+		{
+			...commonOptions,
+			name: 'ESM Type Definitions',
+			dts: { only: true },
+			format: ['esm'],
+			entry: ['src/index.ts']
+		},
+		{
+			...commonOptions,
+			name: 'CJS Type Definitions',
+			format: ['cjs'],
+			dts: { only: true },
+			entry: ['src/index.ts']
 		}
 	];
 });
