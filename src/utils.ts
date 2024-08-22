@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as child_process from 'node:child_process';
+import { createWriteStream } from 'node:fs';
 import * as https from 'node:https';
 import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
@@ -196,7 +197,7 @@ export async function fetch(url: string, dest: string, proxy?: string) {
 					fetch(response.headers.location, dest, proxy).then(fulfil, reject);
 				} else {
 					response
-						.pipe(fs.createWriteStream(dest))
+						.pipe(createWriteStream(dest))
 						.on('finish', () => fulfil())
 						.on('error', reject);
 				}
