@@ -17,18 +17,21 @@ export default defineConfig(options => {
 	return [
 		{
 			...commonOptions,
+			name: 'Modern ESM',
 			dts: true,
 			format: ['esm'],
 			entry: ['src/index.ts']
 		},
 		{
 			...commonOptions,
+			name: 'CJS Development',
 			format: ['cjs'],
 			dts: true,
 			entry: ['src/index.ts']
 		},
 		{
 			...commonOptions,
+			name: 'CLI Development',
 			entry: ['src/bin.ts'],
 			external: ['tiged'],
 			treeshake: 'smallest',
