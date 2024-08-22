@@ -112,8 +112,10 @@ jobs:
       - name: Erase TSConfig path aliases
         run: npx tsx scripts/eraseTSConfigPaths.mts
 
-      - name: Run tests
+      - name: Run tests on the final build artifact
         run: npm test
+        env:
+          TEST_DIST: true
 
       - name: Did we fail?
         if: failure()
