@@ -289,4 +289,25 @@ export const pathExists = async (filePath: string): Promise<boolean> => {
 	}
 };
 
+/**
+ * Asynchronously checks if a given file path is a directory.
+ *
+ * @param filePath - The path to the file or directory to check.
+ * @returns A promise that resolves to `true` if the path is a directory, otherwise `false`.
+ *
+ * @example <caption>#### Check if a path is a directory</caption>
+ * ```ts
+ * const isDir = await isDirectory('/path/to/directory');
+ * console.log(isDir); // true or false
+ * ```
+ */
+export const isDirectory = async (filePath: string): Promise<boolean> => {
+	try {
+		const stats = await fs.lstat(filePath);
+		return stats.isDirectory();
+	} catch (err) {
+		return false;
+	}
+};
+
 export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
