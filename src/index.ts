@@ -10,6 +10,7 @@ import {
 	base,
 	exec,
 	fetch,
+	isDirectory,
 	stashFiles,
 	tigedConfigName,
 	tryRequire,
@@ -467,7 +468,7 @@ class Tiged extends EventEmitter {
 		for (const file of files) {
 			const filePath = path.resolve(dest, file);
 			if (await fs.pathExists(filePath)) {
-				const isDir = (await fs.lstat(filePath)).isDirectory();
+				const isDir = await isDirectory(filePath);
 				if (isDir) {
 					await rimraf(filePath);
 					removedFiles.push(`${file}/`);

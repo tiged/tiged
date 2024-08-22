@@ -232,7 +232,7 @@ export async function stashFiles(dir: string, dest: string) {
 	for (const file of files) {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
-		const isDir = (await fs.lstat(filePath)).isDirectory();
+		const isDir = await isDirectory(filePath);
 		if (isDir) {
 			await fs.copy(filePath, targetPath);
 			await rimraf(filePath);
@@ -255,7 +255,7 @@ export async function unstashFiles(dir: string, dest: string) {
 	for (const filename of files) {
 		const tmpFile = path.join(tmpDir, filename);
 		const targetPath = path.join(dest, filename);
-		const isDir = (await fs.lstat(tmpFile)).isDirectory();
+		const isDir = await isDirectory(tmpFile);
 		if (isDir) {
 			await fs.copy(tmpFile, targetPath);
 			await rimraf(tmpFile);
@@ -296,7 +296,9 @@ export const pathExists = async (filePath: string): Promise<boolean> => {
  * @param filePath - The path to the file or directory to check.
  * @returns A promise that resolves to `true` if the path is a directory, otherwise `false`.
  *
- * @example <caption>#### Check if a path is a directory</caption>
+ * @example
+ * <caption>#### Check if a path is a directory</caption>
+ *
  * ```ts
  * const isDir = await isDirectory('/path/to/directory');
  * console.log(isDir); // true or false
