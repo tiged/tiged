@@ -88,15 +88,5 @@
 		"src",
 		"dist",
 		"help.md"
-	],
-	"lint-staged": {
-		"*.{js}": [
-			"eslint --fix",
-			"git add"
-		],
-		"*.{ts, js, json, yml, md}": [
-			"prettier --write",
-			"git add"
-		]
-	}
+	]
 }
