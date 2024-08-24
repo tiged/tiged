@@ -2,7 +2,9 @@
 
 ## 3.0.0
 
-- Renames degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
+- Migrate to `"moduleResolution": "Bundler"` ([#109](https://github.com/tiged/tiged/pull/109))
+
+- Rename degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
 
 - Breaking changes:
 
