@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- Fix typo ([#111](https://github.com/tiged/tiged/pull/111))
+
 - Migrate to `"moduleResolution": "Bundler"` ([#109](https://github.com/tiged/tiged/pull/109))
 
 - Fix CI tests ([#108](https://github.com/tiged/tiged/pull/108))
