@@ -964,7 +964,6 @@ function untar(
 			C: dest,
 			filter: fileToExtract
 				? (path: string, _entry: fs.Stats | ReadEntry) => {
-						console.log(path);
 						return path === fileToExtract;
 					}
 				: undefined,
