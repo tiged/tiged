@@ -2,7 +2,9 @@
 
 ## 3.0.0
 
-- Renames degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
+- Migrate to `typescript-eslint` v8 ([#105](https://github.com/tiged/tiged/pull/105))
+
+- Rename degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
 
 - Breaking changes:
 
@@ -16,6 +18,8 @@
   - Add JSDocs to everything to make sure the entirety of both the runtime code and types are well documented.
 - Added Codeberg support ([#94](https://github.com/tiged/tiged/issues/94))
 - Degit specific file ([#47](https://github.com/tiged/tiged/issues/47))
+- Fixed misleading error message when git is missing. ([#91](https://github.com/tiged/tiged/issues/91))
+- Fix: Throw error if subdirectory doesn't exist ([#35](https://github.com/tiged/tiged/issues/35))
 
 ## 2.12.7
 
