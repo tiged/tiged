@@ -2,7 +2,9 @@
 
 ## 3.0.0
 
-- Renames degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
+- Migrate to `typescript-eslint` v8 ([#105](https://github.com/tiged/tiged/pull/105))
+
+- Rename degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
 
 - Breaking changes:
 
