@@ -4,6 +4,8 @@
 
 - Migrate to `"moduleResolution": "Bundler"` ([#109](https://github.com/tiged/tiged/pull/109))
 
+- Migrate to `typescript-eslint` v8 ([#105](https://github.com/tiged/tiged/pull/105))
+
 - Rename degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
 
 - Breaking changes:

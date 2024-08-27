@@ -31,41 +31,38 @@ export const vitestGlobals = {
 
 export default tsEslint.config(
 	// `ignores` must be first.
-	{ ignores: ['dist/', '.*', ...gitIgnoreFiles] },
-	eslint.configs.recommended,
+	{ name: 'ignores', ignores: ['dist/', ...gitIgnoreFiles] },
+	{ name: 'javascript', ...eslint.configs.recommended },
 	...tsEslint.configs.recommended,
 	...tsEslint.configs.stylistic,
-	prettierConfig,
+	{ name: 'prettier-config', ...prettierConfig },
 	{
+		name: 'main',
 		languageOptions: {
 			globals: {
 				...vitestGlobals
 			},
 			parser: tsEslint.parser,
 			parserOptions: {
-				project: true,
+				projectService: {
+					defaultProject: './tsconfig.json'
+				},
 				ecmaVersion: 'latest'
 			}
 		},
 		rules: {
+			'no-undef': [0],
 			'@typescript-eslint/consistent-type-imports': [
 				2,
-				{ fixStyle: 'separate-type-imports', disallowTypeAnnotations: false }
+				{ fixStyle: 'separate-type-imports', disallowTypeAnnotations: true }
 			],
 			'@typescript-eslint/consistent-type-exports': [2],
 			'@typescript-eslint/no-unused-vars': [0],
 			'@typescript-eslint/no-explicit-any': [0],
-			'@typescript-eslint/no-empty-interface': [
+			'@typescript-eslint/no-empty-object-type': [
 				2,
-				{ allowSingleExtends: true }
+				{ allowInterfaces: 'with-single-extends' }
 			],
-			'@typescript-eslint/no-unsafe-argument': [0],
-			'@typescript-eslint/ban-types': [2],
-			'@typescript-eslint/no-namespace': [
-				2,
-				{ allowDeclarations: true, allowDefinitionFiles: true }
-			],
-			'@typescript-eslint/ban-ts-comment': [0],
 			'sort-imports': [
 				2,
 				{
@@ -77,7 +74,6 @@ export default tsEslint.config(
 				}
 			]
 		},
-		plugins: { '@typescript-eslint': tsEslint.plugin },
 		linterOptions: { reportUnusedDisableDirectives: 2 }
 	}
 );

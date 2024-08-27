@@ -1,4 +1,4 @@
-import type { Assertion, AsymmetricMatchersContaining } from 'vitest';
+import 'vitest';
 
 interface CustomMatchers<R = unknown> {
 	toMatchFiles: (files: Record<string, string | null>) => Promise<R>;
