@@ -273,7 +273,9 @@ export async function unstashFiles(dir: string, dest: string) {
  * @param filePath - The path to the file or directory to check.
  * @returns A promise that resolves to `true` if the path exists, otherwise `false`.
  *
- * @example <caption>#### Check if a file exists</caption>
+ * @example
+ * <caption>#### Check if a file exists</caption>
+ *
  * ```ts
  * const exists = await pathExists('/path/to/file');
  * console.log(exists); // true or false
@@ -294,7 +296,9 @@ export const pathExists = async (filePath: string): Promise<boolean> => {
  * @param filePath - The path to the file or directory to check.
  * @returns A promise that resolves to `true` if the path is a directory, otherwise `false`.
  *
- * @example <caption>#### Check if a path is a directory</caption>
+ * @example
+ * <caption>#### Check if a path is a directory</caption>
+ *
  * ```ts
  * const isDir = await isDirectory('/path/to/directory');
  * console.log(isDir); // true or false
