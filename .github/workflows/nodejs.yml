@@ -18,7 +18,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint files
         run: npm run lint
@@ -57,7 +57,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Pack
         id: pack
@@ -104,7 +104,7 @@ jobs:
           name: artifact
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Install build artifact
         run: npm install ${{ needs.build.outputs.artifact }}
@@ -142,7 +142,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Download artifact
         id: download-artifact
