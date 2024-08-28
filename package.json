@@ -34,8 +34,7 @@
 		"build": "npm run clean && tsup",
 		"test": "vitest --typecheck",
 		"test-types": "tsc -p tsconfig.json --noEmit",
-		"prepack": "npm run build",
-		"prepare": "husky"
+		"prepack": "npm run build"
 	},
 	"repository": {
 		"type": "git",
