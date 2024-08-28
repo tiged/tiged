@@ -562,9 +562,11 @@ class Tiged extends EventEmitter {
 	public async _getHash(repo: Repo, cached: Record<string, string>) {
 		try {
 			const refs = await fetchRefs(repo);
+
 			if (refs == null) {
 				return;
 			}
+
 			if (repo.ref === 'HEAD') {
 				return refs?.find(ref => ref.type === 'HEAD')?.hash ?? '';
 			}
@@ -573,12 +575,13 @@ class Tiged extends EventEmitter {
 		} catch (err) {
 			if (err instanceof TigedError && 'code' in err && 'message' in err) {
 				this._warn(err);
+
 				if (err.original != null) {
 					this._verbose(err.original);
 				}
 			}
 
-			// return this._getHashFromCache(repo, cached);
+			return;
 		}
 	}
 
@@ -590,14 +593,18 @@ class Tiged extends EventEmitter {
 	 * @returns The commit hash if found in the cache; otherwise, `undefined`.
 	 */
 	public _getHashFromCache(repo: Repo, cached: Record<string, string>) {
-		if (repo.ref in cached) {
-			const hash = cached[repo.ref];
-			this._info({
-				code: 'USING_CACHE',
-				message: `using cached commit hash ${hash}`
-			});
-			return hash;
+		if (!(repo.ref in cached)) {
+			return;
 		}
+
+		const hash = cached[repo.ref];
+
+		this._info({
+			code: 'USING_CACHE',
+			message: `using cached commit hash ${hash}`
+		});
+
+		return hash;
 	}
 
 	/**
@@ -627,6 +634,8 @@ class Tiged extends EventEmitter {
 		for (const ref of refs) {
 			if (ref.hash.startsWith(selector)) return ref.hash;
 		}
+
+		return;
 	}
 
 	/**
@@ -977,6 +986,8 @@ async function fetchRefs(repo: Repo) {
 				original: error
 			});
 		}
+
+		return;
 	}
 }
 
