@@ -7,6 +7,10 @@
  * @type {import('lint-staged').Config}
  */
 const lintStagedConfig = stagedFiles => {
+	if (!stagedFiles) {
+		return [];
+	}
+
 	const quotedFileNames = stagedFiles
 		.map(stagedFileName => `'${stagedFileName}'`)
 		.join(' ');
