@@ -336,7 +336,10 @@ describe(tiged, { timeout }, () => {
 			await exec(
 				`${tigedPath} tiged/tiged/help.md .tmp/test-repo-${sanitizedPath} -vx`
 			);
-			const content = await fs.readFile(`.tmp/test-repo-${sanitizedPath}/help.md`, 'utf-8');
+			const content = await fs.readFile(
+				`.tmp/test-repo-${sanitizedPath}/help.md`,
+				'utf-8'
+			);
 			const regex = /argument can be any of the following/;
 			expect(content).toMatch(regex);
 		});
