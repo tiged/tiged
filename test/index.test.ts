@@ -6,7 +6,7 @@ import { rimraf } from 'rimraf';
 import { tiged } from 'tiged';
 
 const exec = promisify(child_process.exec);
-const tigedPath = process.env.CI
+const tigedPath = process.env.TEST_DIST
 	? 'tiged -D'
 	: `node --import=tsx ${path.resolve('src/bin.ts')} -D`;
 

@@ -18,7 +18,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint files
         run: npm run lint
@@ -57,7 +57,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Pack
         id: pack
@@ -104,7 +104,7 @@ jobs:
           name: artifact
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Install build artifact
         run: npm install ${{ needs.build.outputs.artifact }}
@@ -112,8 +112,10 @@ jobs:
       - name: Erase TSConfig path aliases
         run: npx tsx scripts/eraseTSConfigPaths.mts
 
-      - name: Run tests
+      - name: Run tests on the final build artifact
         run: npm test
+        env:
+          TEST_DIST: true
 
       - name: Did we fail?
         if: failure()
@@ -140,7 +142,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Download artifact
         id: download-artifact

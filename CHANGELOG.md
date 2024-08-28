@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- Fix CI tests ([#108](https://github.com/tiged/tiged/pull/108))
+
 - Remove unused dependencies ([#106](https://github.com/tiged/tiged/pull/106))
 
 - Migrate to `typescript-eslint` v8 ([#105](https://github.com/tiged/tiged/pull/105))
