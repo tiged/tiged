@@ -439,8 +439,12 @@ class Tiged extends EventEmitter {
 			);
 		}
 
-		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
+		if (!repo.fileToExtract) {
+			await this._checkDirIsEmpty(dest);
+		} else {
+			await this._fileExists(dest + repo.fileToExtract);
+		}
 		const dir = path.join(base, repo.site, repo.user, repo.name);
 
 		if (this.mode === 'tar') {
@@ -507,6 +511,34 @@ class Tiged extends EventEmitter {
 				code: 'REMOVED',
 				message: `removed: ${bold(removedFiles.map(d => bold(d)).join(', '))}`
 			});
+		}
+	}
+
+	/**
+	 * Checks if file exists in destination path (used when tigeding a single file)
+	 *
+	 * @param path - The path to file.
+	 */
+	public async _fileExists(path: string) {
+		try {
+			const fileExists = fs.existsSync(path);
+			if (fileExists) {
+				if (this.force) {
+					this._info({
+						code: 'DEST_NOT_EMPTY',
+						message: `destination file exists. Using options.force, continuing`
+					});
+				} else {
+					throw new TigedError(
+						`destination file exists, aborting. Use options.force to override`,
+						{
+							code: 'DEST_NOT_EMPTY'
+						}
+					);
+				}
+			}
+		} catch (err) {
+			if (err instanceof TigedError && err.code !== 'ENOENT') throw err;
 		}
 	}
 
