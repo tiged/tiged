@@ -329,4 +329,19 @@ describe(tiged, { timeout }, () => {
 			});
 		});
 	});
+
+	describe('tiged specific file command', () => {
+		it('successfully gets specific file', async ({ task, expect }) => {
+			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+			await exec(
+				`${tigedPath} tiged/tiged/help.md .tmp/test-repo-${sanitizedPath} -vx`
+			);
+			const content = await fs.readFile(
+				`.tmp/test-repo-${sanitizedPath}/help.md`,
+				'utf-8'
+			);
+			const regex = /argument can be any of the following/;
+			expect(content).toMatch(regex);
+		});
+	});
 });
