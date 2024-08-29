@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as path from 'node:path';
 import { rimraf } from 'rimraf';
-import { extract } from 'tar';
+import { extract, list } from 'tar';
 import {
 	TigedError,
 	base,
@@ -927,12 +927,34 @@ async function untar(
 	dest: string,
 	subdir: Repo['subdir'] = null
 ) {
+	let isSubDirFile = false;
+	if (subdir) {
+		await list(
+			{
+				file,
+				onReadEntry: entry => {
+					if (
+						entry.type === 'File' &&
+						path.basename(entry.path) === path.basename(subdir)
+					) {
+						isSubDirFile = true;
+					}
+				}
+			},
+			[subdir]
+		);
+	}
+
 	const extractedFiles: string[] = [];
 
 	await extract(
 		{
 			file,
-			strip: subdir ? subdir.split('/').length : 1,
+			strip: subdir
+				? isSubDirFile
+					? subdir.split('/').length - 1
+					: subdir.split('/').length
+				: 1,
 			C: dest,
 			onReadEntry: entry => {
 				extractedFiles.push(entry.path);
