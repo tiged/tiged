@@ -461,7 +461,9 @@ class Tiged extends EventEmitter {
 		if (!Array.isArray(files)) {
 			files = [files];
 		}
-		const removedFiles = [];
+
+		const removedFiles: string[] = [];
+
 		for (const file of files) {
 			const filePath = path.resolve(dest, file);
 			if (await fs.pathExists(filePath)) {
