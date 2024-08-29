@@ -1,11 +1,11 @@
 import fs from 'fs-extra';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import child_process from 'node:child_process';
-import https from 'node:https';
+import * as child_process from 'node:child_process';
+import * as https from 'node:https';
 import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
-import path from 'node:path';
+import * as path from 'node:path';
 import { rimraf } from 'rimraf';
 
 const tmpDirName = 'tmp';
@@ -112,7 +112,7 @@ export function tryRequire(
 		clearCache?: true | undefined;
 	}
 ) {
-	const require = createRequire(import.meta.url);
+	const require = createRequire(__filename);
 	try {
 		if (opts && opts.clearCache === true) {
 			delete require.cache[require.resolve(file)];

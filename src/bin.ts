@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { bold, cyan, magenta, red, underline } from 'colorette';
-import enquirer from 'enquirer';
+import * as enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import fs from 'node:fs';
-import path from 'node:path';
+import * as path from 'node:path';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';
@@ -69,9 +69,9 @@ async function main() {
 		const getChoice = (file: string) => {
 			const [host, user, repo] = file.split(path.sep);
 
-			return Object.entries(
-				tryRequire(`${base}/${file}`) as Record<string, string>
-			).map(([ref, hash]) => ({
+			const cacheLogs: Record<string, string> = tryRequire(`${base}/${file}`);
+
+			return Object.entries(cacheLogs).map(([ref, hash]) => ({
 				name: hash,
 				message: `${host}:${user}/${repo}#${ref}`,
 				value: `${host}:${user}/${repo}#${ref}`

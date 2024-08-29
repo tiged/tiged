@@ -2,7 +2,7 @@ import { bold, cyan, magenta, red } from 'colorette';
 import fs from 'fs-extra';
 import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import path from 'node:path';
+import * as path from 'node:path';
 import { rimraf } from 'rimraf';
 import { extract } from 'tar';
 import {
@@ -296,7 +296,7 @@ class Tiged extends EventEmitter {
 	 */
 	constructor(
 		public src: string,
-		public opts: Options = {}
+		opts: Options = {}
 	) {
 		super();
 		if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
@@ -392,9 +392,8 @@ class Tiged extends EventEmitter {
 	 */
 	public async _getDirectives(dest: string) {
 		const directivesPath = path.resolve(dest, tigedConfigName);
-		const directives =
-			(tryRequire(directivesPath, { clearCache: true }) as TigedAction[]) ||
-			false;
+		const directives: TigedAction[] | false =
+			tryRequire(directivesPath, { clearCache: true }) || false;
 		if (directives) {
 			await fs.unlink(directivesPath);
 		}
@@ -462,7 +461,9 @@ class Tiged extends EventEmitter {
 		if (!Array.isArray(files)) {
 			files = [files];
 		}
-		const removedFiles = [];
+
+		const removedFiles: string[] = [];
+
 		for (const file of files) {
 			const filePath = path.resolve(dest, file);
 			if (await fs.pathExists(filePath)) {
@@ -563,9 +564,11 @@ class Tiged extends EventEmitter {
 	public async _getHash(repo: Repo, cached: Record<string, string>) {
 		try {
 			const refs = await fetchRefs(repo);
+
 			if (refs == null) {
 				return;
 			}
+
 			if (repo.ref === 'HEAD') {
 				return refs?.find(ref => ref.type === 'HEAD')?.hash ?? '';
 			}
@@ -574,12 +577,13 @@ class Tiged extends EventEmitter {
 		} catch (err) {
 			if (err instanceof TigedError && 'code' in err && 'message' in err) {
 				this._warn(err);
+
 				if (err.original != null) {
 					this._verbose(err.original);
 				}
 			}
 
-			// return this._getHashFromCache(repo, cached);
+			return;
 		}
 	}
 
@@ -591,14 +595,18 @@ class Tiged extends EventEmitter {
 	 * @returns The commit hash if found in the cache; otherwise, `undefined`.
 	 */
 	public _getHashFromCache(repo: Repo, cached: Record<string, string>) {
-		if (repo.ref in cached) {
-			const hash = cached[repo.ref];
-			this._info({
-				code: 'USING_CACHE',
-				message: `using cached commit hash ${hash}`
-			});
-			return hash;
+		if (!(repo.ref in cached)) {
+			return;
 		}
+
+		const hash = cached[repo.ref];
+
+		this._info({
+			code: 'USING_CACHE',
+			message: `using cached commit hash ${hash}`
+		});
+
+		return hash;
 	}
 
 	/**
@@ -628,6 +636,8 @@ class Tiged extends EventEmitter {
 		for (const ref of refs) {
 			if (ref.hash.startsWith(selector)) return ref.hash;
 		}
+
+		return;
 	}
 
 	/**
@@ -643,8 +653,8 @@ class Tiged extends EventEmitter {
 	public async _cloneWithTar(dir: string, dest: string) {
 		const { repo } = this;
 
-		const cached =
-			(tryRequire(path.join(dir, 'map.json')) as Record<string, string>) || {};
+		const cached: Record<string, string> =
+			tryRequire(path.join(dir, 'map.json')) || {};
 		const hash =
 			this.offlineMode || this.cache
 				? this._getHashFromCache(repo, cached)
@@ -724,19 +734,13 @@ class Tiged extends EventEmitter {
 		await fs.mkdir(dest, { recursive: true });
 		const extractedFiles = untar(file, dest, subdir);
 		if (extractedFiles.length === 0) {
-			let noFilesErrorMessage: string;
-			if (subdir) {
-				noFilesErrorMessage =
-					'No files to extract. Make sure you typed in the subdirectory name correctly.';
-			} else {
-				noFilesErrorMessage =
-					'No files to extract. The tar file seems to be empty';
-			}
+			const noFilesErrorMessage: string = subdir
+				? 'No files to extract. Make sure you typed in the subdirectory name correctly.'
+				: 'No files to extract. The tar file seems to be empty';
 			throw new TigedError(noFilesErrorMessage, {
 				code: 'NO_FILES'
 			});
 		}
-		console.log(extractedFiles);
 		if (this.noCache) {
 			await rimraf(file);
 		}
@@ -984,6 +988,8 @@ async function fetchRefs(repo: Repo) {
 				original: error
 			});
 		}
+
+		return;
 	}
 }
 
@@ -1003,8 +1009,8 @@ async function updateCache(
 	cached: Record<string, string>
 ) {
 	// update access logs
-	const logs =
-		(tryRequire(path.join(dir, 'access.json')) as Record<string, string>) || {};
+	const logs: Record<string, string> =
+		tryRequire(path.join(dir, 'access.json')) || {};
 	logs[repo.ref] = new Date().toISOString();
 	await fs.writeFile(
 		path.join(dir, 'access.json'),

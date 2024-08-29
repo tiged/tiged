@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- Migrate to `"moduleResolution": "Bundler"` ([#109](https://github.com/tiged/tiged/pull/109))
+
 - Fix CI tests ([#108](https://github.com/tiged/tiged/pull/108))
 
 - Remove unused dependencies ([#106](https://github.com/tiged/tiged/pull/106))

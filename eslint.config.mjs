@@ -1,6 +1,6 @@
 import eslint from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import tsEslint from 'typescript-eslint';
 
 const gitIgnoreFiles = (await fs.readFile('.gitignore', 'utf-8'))

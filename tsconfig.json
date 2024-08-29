@@ -4,17 +4,16 @@
 		"allowSyntheticDefaultImports": true,
 		"checkJs": true,
 		"declaration": true,
-		"downlevelIteration": false,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
-		"importHelpers": true,
 		"isolatedModules": true,
-		"module": "ESNext",
-		"moduleResolution": "Node10",
+		"module": "Preserve",
+		"moduleResolution": "Bundler",
 		"noEmit": true,
 		"noErrorTruncation": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,
+		"noImplicitReturns": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"outDir": "dist",
@@ -22,11 +21,13 @@
 			"tiged": ["./src/index.ts"]
 		},
 		"resolveJsonModule": true,
+		"rootDir": ".",
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"target": "ESnext",
+		"target": "ESNext",
 		"types": ["vitest/globals", "vitest/importMeta"],
-		"useDefineForClassFields": true
+		"useDefineForClassFields": true,
+		"verbatimModuleSyntax": true
 	}
 }

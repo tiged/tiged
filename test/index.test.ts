@@ -1,6 +1,6 @@
-import child_process from 'node:child_process';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import * as child_process from 'node:child_process';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { promisify } from 'node:util';
 import { rimraf } from 'rimraf';
 import { tiged } from 'tiged';
@@ -25,13 +25,13 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe.sequential('github', () => {
-		it.each([
+		it.for([
 			'tiged/tiged-test-repo-compose',
 			'tiged/tiged-test-repo',
 			'github:tiged/tiged-test-repo',
 			'git@github.com:tiged/tiged-test-repo',
 			'https://github.com/tiged/tiged-test-repo.git'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -43,11 +43,11 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe.sequential('gitlab', () => {
-		it.each([
+		it.for([
 			'gitlab:nake89/tiged-test-repo',
 			'git@gitlab.com:nake89/tiged-test-repo',
 			'https://gitlab.com/nake89/tiged-test-repo.git'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -104,11 +104,11 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe('bitbucket', () => {
-		it.each([
+		it.for([
 			'bitbucket:nake89/tiged-test-repo',
 			'git@bitbucket.org:nake89/tiged-test-repo',
 			'https://bitbucket.org/nake89/tiged-test-repo.git'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -118,11 +118,11 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe.sequential('Sourcehut', () => {
-		it.each([
+		it.for([
 			'git.sr.ht/~satotake/degit-test-repo',
 			'https://git.sr.ht/~satotake/degit-test-repo',
 			'git@git.sr.ht:~satotake/degit-test-repo'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -132,11 +132,11 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe.sequential('Codeberg', () => {
-		it.each([
+		it.for([
 			'codeberg:joaopalmeiro/tiged-test-repo',
 			'https://codeberg.org/joaopalmeiro/tiged-test-repo',
 			'git@codeberg.org:joaopalmeiro/tiged-test-repo'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -146,11 +146,11 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe('Hugging Face', () => {
-		it.each([
+		it.for([
 			'huggingface:severo/degit-test-repo',
 			'git@huggingface.co:severo/degit-test-repo',
 			'https://huggingface.co/severo/degit-test-repo.git'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
@@ -162,12 +162,12 @@ describe(tiged, { timeout }, () => {
 	});
 
 	describe('Subdirectories', () => {
-		it.each([
+		it.for([
 			'tiged/tiged-test-repo/subdir',
 			'github:tiged/tiged-test-repo/subdir',
 			'git@github.com:tiged/tiged-test-repo/subdir',
 			'https://github.com/tiged/tiged-test-repo.git/subdir'
-		])('%s', async src => {
+		])('%s', async (src, { expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(src);
 			await exec(`${tigedPath} ${src} .tmp/test-repo-${sanitizedPath} -v`);
 			await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
