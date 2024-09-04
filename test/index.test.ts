@@ -176,12 +176,12 @@ describe(tiged, { timeout }, () => {
 		});
 	});
 
-	describe('Non-existant subdirectory', () => {
+	describe('Non-existent subdirectory', () => {
 		it('throws error', async ({ task, expect }) => {
 			const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 			await expect(() =>
 				exec(
-					`${tigedPath} -v tiged/tiged-test-repo/non-existant-dir .tmp/test-repo-${sanitizedPath}`
+					`${tigedPath} -v tiged/tiged-test-repo/non-existent-dir .tmp/test-repo-${sanitizedPath}`
 				)
 			).rejects.toThrowError(/No files to extract/);
 		});
