@@ -66,22 +66,22 @@ export class TigedError extends Error {
 	/**
 	 * The error code associated with the error.
 	 */
-	public declare code?: TigedErrorOptions['code'];
+	declare public code?: TigedErrorOptions['code'];
 
 	/**
 	 * The original error that caused this error.
 	 */
-	public declare original?: TigedErrorOptions['original'];
+	declare public original?: TigedErrorOptions['original'];
 
 	/**
 	 * The reference (e.g., branch, tag, commit) that was being targeted.
 	 */
-	public declare ref?: TigedErrorOptions['ref'];
+	declare public ref?: TigedErrorOptions['ref'];
 
 	/**
 	 * The URL associated with the error.
 	 */
-	public declare url?: TigedErrorOptions['url'];
+	declare public url?: TigedErrorOptions['url'];
 
 	/**
 	 * Creates a new instance of {@linkcode TigedError}.
