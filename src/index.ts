@@ -1,7 +1,7 @@
 import { bold, cyan, magenta, red } from 'colorette';
-import fs from 'fs-extra';
 import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { rimraf } from 'rimraf';
 import { extract } from 'tar';
@@ -10,6 +10,8 @@ import {
 	base,
 	exec,
 	fetch,
+	isDirectory,
+	pathExists,
 	stashFiles,
 	tigedConfigName,
 	tryRequire,
@@ -466,8 +468,8 @@ class Tiged extends EventEmitter {
 
 		for (const file of files) {
 			const filePath = path.resolve(dest, file);
-			if (await fs.pathExists(filePath)) {
-				const isDir = (await fs.lstat(filePath)).isDirectory();
+			if (await pathExists(filePath)) {
+				const isDir = await isDirectory(filePath);
 				if (isDir) {
 					await rimraf(filePath);
 					removedFiles.push(`${file}/`);
@@ -772,7 +774,9 @@ class Tiged extends EventEmitter {
 			} else {
 				await exec(`git clone --depth 1 ${gitPath} ${tempDir}`);
 			}
-			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
+			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`, {
+				recursive: true
+			});
 			await Promise.all(
 				files.map(async file => {
 					return fs.rename(
