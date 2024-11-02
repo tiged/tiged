@@ -20,7 +20,8 @@ const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 		v: 'verbose',
 		m: 'mode',
 		s: 'subgroup',
-		d: 'sub-directory'
+		d: 'sub-directory',
+		x: 'extract'
 	},
 	boolean: [
 		'force',

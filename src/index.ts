@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as path from 'node:path';
 import { rimraf } from 'rimraf';
+import type { ReadEntry } from 'tar';
 import { extract } from 'tar';
 import {
 	TigedError,
@@ -98,6 +99,13 @@ export interface Options {
 	 * @default undefined
 	 */
 	'sub-directory'?: string;
+
+	/**
+	 * Specifies which files to extract.
+	 *
+	 * @default undefined
+	 */
+	extract?: boolean;
 }
 
 // TODO: We might not need this one.
@@ -257,6 +265,11 @@ class Tiged extends EventEmitter {
 	public declare subdir?: string;
 
 	/**
+	 * Specifies which files to extract.
+	 */
+	public declare extract?: boolean;
+
+	/**
 	 * Holds the parsed repository information.
 	 */
 	public declare repo: Repo;
@@ -310,8 +323,15 @@ class Tiged extends EventEmitter {
 		this.proxy = this._getHttpsProxy(); // TODO allow setting via --proxy
 		this.subgroup = opts.subgroup;
 		this.subdir = opts['sub-directory'];
+		this.extract = opts['extract'];
 
 		this.repo = parse(src);
+		if (this.extract) {
+			// TODO this is a dirty hack. Should probably be done in the parse function.
+			this.repo.fileToExtract = this.repo.subdir;
+			this.repo.subdir = null;
+		}
+
 		if (this.subgroup) {
 			this.repo.subgroup = true;
 			this.repo.name = this.repo.subdir?.slice(1) ?? '';
@@ -418,8 +438,12 @@ class Tiged extends EventEmitter {
 			);
 		}
 
-		await this._checkDirIsEmpty(dest);
 		const { repo } = this;
+		if (!repo.fileToExtract) {
+			await this._checkDirIsEmpty(dest);
+		} else {
+			await this._fileExists(dest + repo.fileToExtract);
+		}
 		const dir = path.join(base, repo.site, repo.user, repo.name);
 
 		if (this.mode === 'tar') {
@@ -488,6 +512,34 @@ class Tiged extends EventEmitter {
 				code: 'REMOVED',
 				message: `removed: ${bold(removedFiles.map(d => bold(d)).join(', '))}`
 			});
+		}
+	}
+
+	/**
+	 * Checks if file exists in destination path (used when tigeding a single file)
+	 *
+	 * @param path - The path to file.
+	 */
+	public async _fileExists(path: string) {
+		try {
+			const fileExists = fs.existsSync(path);
+			if (fileExists) {
+				if (this.force) {
+					this._info({
+						code: 'DEST_NOT_EMPTY',
+						message: `destination file exists. Using options.force, continuing`
+					});
+				} else {
+					throw new TigedError(
+						`destination file exists, aborting. Use options.force to override`,
+						{
+							code: 'DEST_NOT_EMPTY'
+						}
+					);
+				}
+			}
+		} catch (err) {
+			if (err instanceof TigedError && err.code !== 'ENOENT') throw err;
 		}
 	}
 
@@ -732,7 +784,10 @@ class Tiged extends EventEmitter {
 		});
 
 		await fs.mkdir(dest, { recursive: true });
-		const extractedFiles = untar(file, dest, subdir);
+		const fileToExtract = repo.fileToExtract
+			? `${repo.name}-${hash}${repo.fileToExtract}`
+			: undefined;
+		const extractedFiles = untar(file, dest, subdir, fileToExtract);
 		if (extractedFiles.length === 0) {
 			const noFilesErrorMessage: string = subdir
 				? 'No files to extract. Make sure you typed in the subdirectory name correctly.'
@@ -866,6 +921,11 @@ export interface Repo {
 	 * if supported by the hosting service.
 	 */
 	subgroup?: boolean;
+
+	/**
+	 * Optional. Extract a single file from the repo.
+	 */
+	fileToExtract?: string | null;
 }
 
 /**
@@ -922,13 +982,28 @@ function parse(src: string): Repo {
  * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
  * @returns A list of extracted files.
  */
-function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+function untar(
+	file: string,
+	dest: string,
+	subdir: Repo['subdir'] = null,
+	fileToExtract: string | null = null
+) {
 	const extractedFiles: string[] = [];
+
 	extract(
 		{
 			file,
-			strip: subdir ? subdir.split('/').length : 1,
+			strip: subdir
+				? subdir.split('/').length
+				: fileToExtract
+					? fileToExtract.split('/').length - 1
+					: 1,
 			C: dest,
+			filter: fileToExtract
+				? (path: string, _entry: fs.Stats | ReadEntry) => {
+						return path === fileToExtract;
+					}
+				: undefined,
 			sync: true,
 			onReadEntry: entry => {
 				extractedFiles.push(entry.path);
