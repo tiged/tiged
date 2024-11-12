@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run tests
+        run: npm test
+
       - name: Lint files
         run: npm run lint
 
@@ -70,6 +73,9 @@ jobs:
         with:
           name: artifact
           path: ./*.tgz
+
+      - name: Run publint
+        run: npx publint@latest --strict
 
       - name: Did we fail?
         if: failure()

@@ -5,25 +5,34 @@
     "node": ">=18.0.0"
   },
   "description": "Straightforward project scaffolding",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "default": {
+      "module-sync": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "module": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       }
     }
   },
   "bin": {
-    "degit": "dist/bin.js",
-    "tiged": "dist/bin.mjs"
+    "degit": "dist/bin.cjs",
+    "tiged": "dist/bin.js"
   },
   "scripts": {
     "lint": "eslint --color .",
@@ -84,5 +93,9 @@
     "src",
     "dist",
     "help.md"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }
