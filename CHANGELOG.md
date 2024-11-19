@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- Support cloning a single file ([#113](https://github.com/tiged/tiged/pull/113))
+
 - chore: remove `.npmrc` file ([#116](https://github.com/tiged/tiged/pull/116))
 
 - build: migrate to ESM ([#118](https://github.com/tiged/tiged/pull/118))
