@@ -7,18 +7,18 @@
  * @type {import('lint-staged').Config}
  */
 const lintStagedConfig = stagedFiles => {
-	if (!stagedFiles) {
-		return [];
-	}
+  if (!stagedFiles) {
+    return [];
+  }
 
-	const quotedFileNames = stagedFiles
-		.map(stagedFileName => `'${stagedFileName}'`)
-		.join(' ');
+  const quotedFileNames = stagedFiles
+    .map(stagedFileName => `'${stagedFileName}'`)
+    .join(' ');
 
-	return [
-		`prettier --ignore-unknown --write ${quotedFileNames}`,
-		`eslint --fix --no-warn-ignored ${quotedFileNames}`
-	];
+  return [
+    `prettier --ignore-unknown --write ${quotedFileNames}`,
+    `eslint --fix --no-warn-ignored ${quotedFileNames}`,
+  ];
 };
 
 export default lintStagedConfig;

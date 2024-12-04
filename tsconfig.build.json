@@ -1,10 +1,10 @@
 {
-	"extends": "./tsconfig.json",
-	"compilerOptions": {
-		"allowJs": false,
-		"checkJs": false,
-		"noEmit": false,
-		"rootDir": "./src"
-	},
-	"include": ["src"]
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "checkJs": false,
+    "noEmit": false,
+    "rootDir": "./src"
+  },
+  "include": ["src"]
 }

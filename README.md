@@ -152,17 +152,17 @@ You can also use tiged inside a Node script:
 const tiged = require('tiged');
 
 const emitter = tiged('user/repo', {
-	disableCache: true,
-	force: true,
-	verbose: true
+  disableCache: true,
+  force: true,
+  verbose: true,
 });
 
 emitter.on('info', info => {
-	console.log(info.message);
+  console.log(info.message);
 });
 
 emitter.clone('path/to/dest').then(() => {
-	console.log('done');
+  console.log('done');
 });
 ```
 
@@ -175,10 +175,10 @@ You can manipulate repositories after they have been cloned with _actions_, spec
 ```json
 // degit.json
 [
-	{
-		"action": "clone",
-		"src": "user/another-repo"
-	}
+  {
+    "action": "clone",
+    "src": "user/another-repo"
+  }
 ]
 ```
 
@@ -189,10 +189,10 @@ This will clone `user/another-repo`, preserving the contents of the existing wor
 ```json
 // degit.json
 [
-	{
-		"action": "remove",
-		"files": ["LICENSE"]
-	}
+  {
+    "action": "remove",
+    "files": ["LICENSE"]
+  }
 ]
 ```
 

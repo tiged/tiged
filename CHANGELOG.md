@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- chore: fix `prettier` config ([#117](https://github.com/tiged/tiged/pull/117))
+
 - ci: Switch to Node.js v22 ([#115](https://github.com/tiged/tiged/pull/115))
 
 - Remove `fs-extra` ([#110](https://github.com/tiged/tiged/pull/110))
