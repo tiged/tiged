@@ -2,6 +2,8 @@
 
 ## 3.0.0
 
+- chore: remove `.npmrc` file ([#116](https://github.com/tiged/tiged/pull/116))
+
 - build: migrate to ESM ([#118](https://github.com/tiged/tiged/pull/118))
 
 - chore: fix `prettier` config ([#117](https://github.com/tiged/tiged/pull/117))
