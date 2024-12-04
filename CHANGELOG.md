@@ -4,6 +4,8 @@
 
 - ci: Switch to Node.js v22 ([#115](https://github.com/tiged/tiged/pull/115))
 
+- Remove `fs-extra` ([#110](https://github.com/tiged/tiged/pull/110))
+
 - Fix husky and lint-staged ([#112](https://github.com/tiged/tiged/pull/112))
 
 - Fix typo ([#111](https://github.com/tiged/tiged/pull/111))

@@ -4,12 +4,12 @@ import { bold, cyan, magenta, red, underline } from 'colorette';
 import * as enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
-import fs from 'node:fs';
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';
-import { base, tryRequire } from './utils';
+import { base, pathExists, tryRequire } from './utils';
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
 	alias: {
@@ -42,8 +42,9 @@ const [src, dest = '.'] = args._;
  */
 async function main() {
 	if (args.help) {
-		const help = fs
-			.readFileSync(path.join(__dirname, '..', 'help.md'), 'utf-8')
+		const help = (
+			await fs.readFile(path.join(__dirname, '..', 'help.md'), 'utf-8')
+		)
 			.replace(/^(\s*)#+ (.+)/gm, (m, s, _) => s + bold(_))
 			.replace(/_([^_]+)_/g, (m, _) => underline(_))
 			.replace(/`([^`]+)`/g, (m, _) => cyan(_)); //` syntax highlighter fix
@@ -54,17 +55,21 @@ async function main() {
 
 		const accessLookup = new Map<string, number>();
 
-		glob(`**/access.json`, { cwd: base }).forEach(file => {
-			const [host, user, repo] = file.split(path.sep);
+		const accessJsonFiles = glob(`**/access.json`, { cwd: base });
 
-			const json = fs.readFileSync(`${base}/${file}`, 'utf-8');
-			const logs: Record<string, string> = JSON.parse(json);
+		await Promise.all(
+			accessJsonFiles.map(async file => {
+				const [host, user, repo] = file.split(path.sep);
 
-			Object.entries(logs).forEach(([ref, timestamp]) => {
-				const id = `${host}:${user}/${repo}#${ref}`;
-				accessLookup.set(id, new Date(timestamp).getTime());
-			});
-		});
+				const json = await fs.readFile(`${base}/${file}`, 'utf-8');
+				const logs: Record<string, string> = JSON.parse(json);
+
+				Object.entries(logs).forEach(([ref, timestamp]) => {
+					const id = `${host}:${user}/${repo}#${ref}`;
+					accessLookup.set(id, new Date(timestamp).getTime());
+				});
+			})
+		);
 
 		const getChoice = (file: string) => {
 			const [host, user, repo] = file.split(path.sep);
@@ -117,7 +122,8 @@ async function main() {
 		]);
 
 		const empty =
-			!fs.existsSync(options.dest) || fs.readdirSync(options.dest).length === 0;
+			!(await pathExists(options.dest)) ||
+			(await fs.readdir(options.dest)).length === 0;
 
 		if (!empty) {
 			const { force } = await enquirer.prompt<Options>([
