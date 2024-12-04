@@ -113,7 +113,7 @@ export function tryRequire(
     clearCache?: true | undefined;
   },
 ) {
-  const require = createRequire(__filename);
+  const require = createRequire(import.meta.url);
   try {
     if (opts && opts.clearCache === true) {
       delete require.cache[require.resolve(file)];

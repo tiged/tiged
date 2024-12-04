@@ -16,7 +16,7 @@ import {
   tigedConfigName,
   tryRequire,
   unstashFiles,
-} from './utils';
+} from './utils.js';
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 

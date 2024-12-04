@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import glob from 'tiny-glob';
-import { isDirectory } from '../src/utils';
+import { isDirectory } from '../src/utils.js';
 
 expect.extend({
   async toMatchFiles(
