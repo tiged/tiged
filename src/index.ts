@@ -1,7 +1,7 @@
 import { bold, cyan, magenta, red } from 'colorette';
-import fs from 'fs-extra';
 import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { rimraf } from 'rimraf';
 import { extract } from 'tar';
@@ -10,6 +10,8 @@ import {
 	base,
 	exec,
 	fetch,
+	isDirectory,
+	pathExists,
 	stashFiles,
 	tigedConfigName,
 	tryRequire,
@@ -216,73 +218,73 @@ class Tiged extends EventEmitter {
 	/**
 	 * Enables offline mode, where operations rely on cached data.
 	 */
-	public declare offlineMode?: boolean;
+	declare public offlineMode?: boolean;
 
 	/**
 	 * Disables the use of cache for operations,
 	 * ensuring data is always fetched anew.
 	 */
-	public declare noCache?: boolean;
+	declare public noCache?: boolean;
 
 	/**
 	 * Enables caching of data for future operations.
 	 * @deprecated Will be removed in v3.X
 	 */
-	public declare cache?: boolean;
+	declare public cache?: boolean;
 
 	/**
 	 * Forces the operation to proceed, despite non-empty destination directory
 	 * potentially overwriting existing files.
 	 */
-	public declare force?: boolean;
+	declare public force?: boolean;
 
 	/**
 	 * Enables verbose output for more detailed logging information.
 	 */
-	public declare verbose?: boolean;
+	declare public verbose?: boolean;
 
 	/**
 	 * Specifies the proxy server to be used for network requests.
 	 */
-	public declare proxy?: string;
+	declare public proxy?: string;
 
 	/**
 	 * Indicates if the repository is a subgroup, affecting repository parsing.
 	 */
-	public declare subgroup?: boolean;
+	declare public subgroup?: boolean;
 
 	/**
 	 * Specifies a subdirectory within the repository to focus on.
 	 */
-	public declare subdir?: string;
+	declare public subdir?: string;
 
 	/**
 	 * Holds the parsed repository information.
 	 */
-	public declare repo: Repo;
+	declare public repo: Repo;
 
 	/**
 	 * Indicates the mode of operation,
 	 * which determines how the repository is cloned.
 	 * Valid modes are `'tar'` and `'git'`.
 	 */
-	public declare mode: ValidModes;
+	declare public mode: ValidModes;
 
 	/**
 	 * Flags whether stash operations have been performed to avoid duplication.
 	 */
-	public declare _hasStashed: boolean;
+	declare public _hasStashed: boolean;
 
 	/**
 	 * Defines actions for directives such as
 	 * cloning and removing files or directories.
 	 */
-	public declare directiveActions: {
+	declare public directiveActions: {
 		clone: (dir: string, dest: string, action: TigedAction) => Promise<void>;
 		remove: (dir: string, dest: string, action: RemoveAction) => Promise<void>;
 	};
 
-	public declare on: (
+	declare public on: (
 		event: 'info' | 'warn',
 		callback: (info: Info) => void
 	) => this;
@@ -466,8 +468,8 @@ class Tiged extends EventEmitter {
 
 		for (const file of files) {
 			const filePath = path.resolve(dest, file);
-			if (await fs.pathExists(filePath)) {
-				const isDir = (await fs.lstat(filePath)).isDirectory();
+			if (await pathExists(filePath)) {
+				const isDir = await isDirectory(filePath);
 				if (isDir) {
 					await rimraf(filePath);
 					removedFiles.push(`${file}/`);
@@ -772,7 +774,9 @@ class Tiged extends EventEmitter {
 			} else {
 				await exec(`git clone --depth 1 ${gitPath} ${tempDir}`);
 			}
-			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
+			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`, {
+				recursive: true
+			});
 			await Promise.all(
 				files.map(async file => {
 					return fs.rename(

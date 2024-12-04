@@ -1,6 +1,7 @@
-import fs from 'fs-extra';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as child_process from 'node:child_process';
+import { createWriteStream } from 'node:fs';
+import * as fs from 'node:fs/promises';
 import * as https from 'node:https';
 import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
@@ -65,22 +66,22 @@ export class TigedError extends Error {
 	/**
 	 * The error code associated with the error.
 	 */
-	public declare code?: TigedErrorOptions['code'];
+	declare public code?: TigedErrorOptions['code'];
 
 	/**
 	 * The original error that caused this error.
 	 */
-	public declare original?: TigedErrorOptions['original'];
+	declare public original?: TigedErrorOptions['original'];
 
 	/**
 	 * The reference (e.g., branch, tag, commit) that was being targeted.
 	 */
-	public declare ref?: TigedErrorOptions['ref'];
+	declare public ref?: TigedErrorOptions['ref'];
 
 	/**
 	 * The URL associated with the error.
 	 */
-	public declare url?: TigedErrorOptions['url'];
+	declare public url?: TigedErrorOptions['url'];
 
 	/**
 	 * Creates a new instance of {@linkcode TigedError}.
@@ -196,7 +197,7 @@ export async function fetch(url: string, dest: string, proxy?: string) {
 					fetch(response.headers.location, dest, proxy).then(fulfil, reject);
 				} else {
 					response
-						.pipe(fs.createWriteStream(dest))
+						.pipe(createWriteStream(dest))
 						.on('finish', () => fulfil())
 						.on('error', reject);
 				}
@@ -227,16 +228,15 @@ export async function stashFiles(dir: string, dest: string) {
 		}
 	}
 	await fs.mkdir(tmpDir);
-	const files = await fs.readdir(dest);
+	const files = await fs.readdir(dest, { recursive: true });
 	for (const file of files) {
 		const filePath = path.join(dest, file);
 		const targetPath = path.join(tmpDir, file);
-		const isDir = (await fs.lstat(filePath)).isDirectory();
+		const isDir = await isDirectory(filePath);
 		if (isDir) {
-			await fs.copy(filePath, targetPath);
-			await rimraf(filePath);
+			await fs.cp(filePath, targetPath, { recursive: true });
 		} else {
-			await fs.copy(filePath, targetPath);
+			await fs.cp(filePath, targetPath);
 			await fs.unlink(filePath);
 		}
 	}
@@ -250,22 +250,67 @@ export async function stashFiles(dir: string, dest: string) {
  */
 export async function unstashFiles(dir: string, dest: string) {
 	const tmpDir = path.join(dir, tmpDirName);
-	const files = await fs.readdir(tmpDir);
+	const files = await fs.readdir(tmpDir, { recursive: true });
 	for (const filename of files) {
 		const tmpFile = path.join(tmpDir, filename);
 		const targetPath = path.join(dest, filename);
-		const isDir = (await fs.lstat(tmpFile)).isDirectory();
+		const isDir = await isDirectory(tmpFile);
 		if (isDir) {
-			await fs.copy(tmpFile, targetPath);
-			await rimraf(tmpFile);
+			await fs.cp(tmpFile, targetPath, { recursive: true });
 		} else {
 			if (filename !== tigedConfigName) {
-				await fs.copy(tmpFile, targetPath);
+				await fs.cp(tmpFile, targetPath);
 			}
 			await fs.unlink(tmpFile);
 		}
 	}
 	await rimraf(tmpDir);
 }
+
+/**
+ * Asynchronously checks if a given file path exists.
+ *
+ * @param filePath - The path to the file or directory to check.
+ * @returns A promise that resolves to `true` if the path exists, otherwise `false`.
+ *
+ * @example
+ * <caption>#### Check if a file exists</caption>
+ *
+ * ```ts
+ * const exists = await pathExists('/path/to/file');
+ * console.log(exists); // true or false
+ * ```
+ */
+export const pathExists = async (filePath: string): Promise<boolean> => {
+	try {
+		await fs.access(filePath);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
+
+/**
+ * Asynchronously checks if a given file path is a directory.
+ *
+ * @param filePath - The path to the file or directory to check.
+ * @returns A promise that resolves to `true` if the path is a directory, otherwise `false`.
+ *
+ * @example
+ * <caption>#### Check if a path is a directory</caption>
+ *
+ * ```ts
+ * const isDir = await isDirectory('/path/to/directory');
+ * console.log(isDir); // true or false
+ * ```
+ */
+export const isDirectory = async (filePath: string): Promise<boolean> => {
+	try {
+		const stats = await fs.lstat(filePath);
+		return stats.isDirectory();
+	} catch (err) {
+		return false;
+	}
+};
 
 export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
