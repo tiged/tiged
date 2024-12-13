@@ -3,7 +3,6 @@ import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { rimraf } from 'rimraf';
 import { extract } from 'tar';
 import {
   TigedError,
@@ -471,7 +470,7 @@ class Tiged extends EventEmitter {
       if (await pathExists(filePath)) {
         const isDir = await isDirectory(filePath);
         if (isDir) {
-          await rimraf(filePath);
+          await fs.rm(filePath, { recursive: true, force: true });
           removedFiles.push(`${file}/`);
         } else {
           await fs.unlink(filePath);
@@ -508,7 +507,7 @@ class Tiged extends EventEmitter {
             message: `destination directory is not empty. Using options.force, continuing`,
           });
 
-          await rimraf(dir);
+          await fs.rm(dir, { recursive: true, force: true });
         } else {
           throw new TigedError(
             `destination directory is not empty, aborting. Use options.force to override`,
@@ -744,7 +743,7 @@ class Tiged extends EventEmitter {
       });
     }
     if (this.noCache) {
-      await rimraf(file);
+      await fs.rm(file);
     }
   }
 
@@ -785,7 +784,7 @@ class Tiged extends EventEmitter {
           );
         }),
       );
-      await rimraf(tempDir);
+      await fs.rm(tempDir, { recursive: true, force: true });
     } else {
       if (isWin) {
         await fs.mkdir(dest, { recursive: true });
@@ -800,7 +799,7 @@ class Tiged extends EventEmitter {
       } else {
         await exec(`git clone --depth 1 ${gitPath} ${dest}`);
       }
-      await rimraf(path.resolve(dest, '.git'));
+      await fs.rm(path.resolve(dest, '.git'), { recursive: true, force: true });
     }
   }
 }
