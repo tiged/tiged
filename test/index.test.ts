@@ -2,7 +2,6 @@ import * as child_process from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import { rimraf } from 'rimraf';
 import { tiged } from 'tiged';
 
 const exec = promisify(child_process.exec);
@@ -17,11 +16,11 @@ const convertSpecialCharsToHyphens = (str: string) =>
 
 describe(tiged, { timeout }, () => {
   beforeAll(async () => {
-    await rimraf('.tmp');
+    await fs.rm('.tmp', { recursive: true, force: true });
   });
 
   afterAll(async () => {
-    await rimraf('.tmp');
+    await fs.rm('.tmp', { recursive: true, force: true });
   });
 
   describe.sequential('github', () => {
