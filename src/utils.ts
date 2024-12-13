@@ -7,7 +7,6 @@ import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { rimraf } from 'rimraf';
 
 const tmpDirName = 'tmp';
 
@@ -216,7 +215,7 @@ export async function fetch(url: string, dest: string, proxy?: string) {
 export async function stashFiles(dir: string, dest: string) {
   const tmpDir = path.join(dir, tmpDirName);
   try {
-    await rimraf(tmpDir);
+    await fs.rm(tmpDir, { recursive: true, force: true });
   } catch (e) {
     if (
       !(e instanceof Error && 'errno' in e && 'syscall' in e && 'code' in e)
@@ -264,7 +263,7 @@ export async function unstashFiles(dir: string, dest: string) {
       await fs.unlink(tmpFile);
     }
   }
-  await rimraf(tmpDir);
+  await fs.rm(tmpDir, { recursive: true, force: true });
 }
 
 /**
