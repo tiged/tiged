@@ -39,7 +39,7 @@
     "lint:fix": "eslint --color . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "npx rimraf dist",
+    "clean": "node scripts/deleteDist.js",
     "build": "npm run clean && tsup",
     "test": "vitest --typecheck",
     "test-types": "tsc -p tsconfig.json --noEmit",
