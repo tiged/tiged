@@ -1,4 +1,4 @@
-import { bold, cyan, magenta, red } from 'colorette';
+import { bold, cyan, magenta, red } from 'ansis';
 import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';

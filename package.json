@@ -61,7 +61,7 @@
   },
   "homepage": "https://github.com/tiged/tiged#readme",
   "dependencies": {
-    "colorette": "^2.0.20",
+    "ansis": "^3.3.2",
     "enquirer": "^2.4.1",
     "fuzzysearch": "^1.0.3",
     "https-proxy-agent": "^7.0.6",

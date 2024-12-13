@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { bold, cyan, magenta, red, underline } from 'colorette';
+import { bold, cyan, magenta, red, underline } from 'ansis';
 import * as enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
