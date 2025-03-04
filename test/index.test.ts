@@ -328,4 +328,16 @@ describe(tiged, { timeout }, () => {
       });
     });
   });
+
+  describe('commit hash', () => {
+    it('is able to clone non ref hash', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      await expect(
+        exec(
+          `${tigedPath} https://github.com/tiged/find-commit-hash-fix#83d5cae7fc5176f73486ffe82144044711930073 .tmp/test-repo-${sanitizedPath}`
+        )
+      ).resolves.not.toThrow();
+    });
+  });
+  
 });

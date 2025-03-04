@@ -574,7 +574,17 @@ class Tiged extends EventEmitter {
         return refs?.find(ref => ref.type === 'HEAD')?.hash ?? '';
       }
 
-      return this._selectRef(refs, repo.ref);
+      const selectedRef = this._selectRef(refs, repo.ref);
+      if (selectedRef) {
+        return selectedRef
+      }
+
+      const isCommitHash = /^[0-9a-f]{40}$/.test(repo.ref);
+      if (!isCommitHash) {
+        return repo.ref
+      }
+      
+      return;
     } catch (err) {
       if (err instanceof TigedError && 'code' in err && 'message' in err) {
         this._warn(err);
