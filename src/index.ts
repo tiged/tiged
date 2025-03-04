@@ -580,7 +580,7 @@ class Tiged extends EventEmitter {
       }
 
       const isCommitHash = /^[0-9a-f]{40}$/.test(repo.ref);
-      if (!isCommitHash) {
+      if (isCommitHash) {
         return repo.ref;
       }
 
@@ -976,7 +976,7 @@ async function fetchRefs(repo: Repo) {
           };
         }
 
-        const match = /refs\/(\w+)\/(.+)/.exec(ref);
+        const match = /refs\/([^/]+)\/(.+)/.exec(ref);
         if (!match)
           throw new TigedError(`could not parse ${ref}`, {
             code: 'BAD_REF',
