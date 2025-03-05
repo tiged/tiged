@@ -1,17 +1,17 @@
 /**
  * Generates a lint-staged configuration based on the given staged files.
  *
- * @param stagedFiles - An array of file paths of staged files.
+ * @param stagedFileNames - An array of file paths of staged files.
  * @returns An array of commands to be executed by `lint-staged`.
  *
- * @type {import('lint-staged').Config}
+ * @type {import('lint-staged').FunctionTask}
  */
-const lintStagedConfig = stagedFiles => {
-  if (!stagedFiles) {
+const lintStagedConfig = (stagedFileNames = []) => {
+  if (stagedFileNames.length === 0) {
     return [];
   }
 
-  const quotedFileNames = stagedFiles
+  const quotedFileNames = stagedFileNames
     .map(stagedFileName => `'${stagedFileName}'`)
     .join(' ');
 
