@@ -61,11 +61,11 @@
   },
   "homepage": "https://github.com/tiged/tiged#readme",
   "dependencies": {
-    "ansis": "^3.17.0",
     "enquirer": "^2.4.1",
     "fuzzysearch": "^1.0.3",
     "https-proxy-agent": "^7.0.6",
     "mri": "^1.2.0",
+    "picocolors": "^1.1.1",
     "tar": "^7.4.3",
     "tiny-glob": "^0.2.9"
   },

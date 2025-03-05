@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-import { bold, cyan, magenta, red, underline } from 'ansis';
 import * as enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import picocolors from 'picocolors';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import glob from 'tiny-glob/sync.js';
 import { base, pathExists, tryRequire } from './utils.js';
+
+const { bold, cyan, magenta, red, underline } = picocolors;
 
 const args = mri<Options & { help?: string }>(process.argv.slice(2), {
   alias: {
