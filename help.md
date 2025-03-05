@@ -67,7 +67,7 @@ Options:
 `--disable-cache`, `-D` Do not use cache. Always fetch data online.
 `--force`, `-f` Allow non-empty destination directory
 `--verbose`, `-v` Extra logging
-`--subgroup`, `-s` Use if repo is in a subroup (GitLab)
+`--subgroup`, `-s` Use if repo is in a subgroup (GitLab)
 `--mode=`, `-m=` Force the mode by which tiged clones the repo
 Valid options are `tar` or `git` (uses SSH)
 
