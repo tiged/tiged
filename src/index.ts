@@ -1,8 +1,8 @@
-import { bold, cyan, magenta, red } from 'ansis';
 import { execSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import picocolors from 'picocolors';
 import { extract } from 'tar';
 import {
   TigedError,
@@ -16,6 +16,8 @@ import {
   tryRequire,
   unstashFiles,
 } from './utils.js';
+
+const { bold, cyan, magenta, red } = picocolors;
 
 const validModes = new Set<ValidModes>(['tar', 'git']);
 
