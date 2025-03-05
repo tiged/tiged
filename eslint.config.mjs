@@ -1,11 +1,6 @@
 import eslint from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
-import * as fs from 'node:fs/promises';
 import tsEslint from 'typescript-eslint';
-
-const gitIgnoreFiles = (await fs.readFile('.gitignore', 'utf-8'))
-  .trim()
-  .split('\n');
 
 /**
  * An object representing the globals provided by Vitest for use in testing.
@@ -31,7 +26,20 @@ export const vitestGlobals = {
 
 export default tsEslint.config(
   // `ignores` must be first.
-  { name: 'ignores', ignores: ['dist/', ...gitIgnoreFiles] },
+  {
+    name: 'ignores',
+    ignores: [
+      '**/dist/',
+      '**/.yalc/',
+      '**/build/',
+      '**/lib/',
+      '**/temp/',
+      '**/.temp/',
+      '**/.tmp/',
+      '**/.yarn/',
+      '**/coverage/',
+    ],
+  },
   { name: 'javascript', ...eslint.configs.recommended },
   ...tsEslint.configs.recommended,
   ...tsEslint.configs.stylistic,
