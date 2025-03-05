@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as enquirer from 'enquirer';
+import enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import * as fs from 'node:fs/promises';
@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import picocolors from 'picocolors';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
-import glob from 'tiny-glob/sync.js';
+import { glob } from 'tinyglobby';
 import { base, pathExists, tryRequire } from './utils.js';
 
 const { bold, cyan, magenta, red, underline } = picocolors;
@@ -57,7 +57,9 @@ async function main() {
 
     const accessLookup = new Map<string, number>();
 
-    const accessJsonFiles = glob(`**/access.json`, { cwd: base });
+    const accessJsonFiles = await glob(`**/access.json`, {
+      cwd: base,
+    });
 
     await Promise.all(
       accessJsonFiles.map(async file => {
@@ -85,15 +87,18 @@ async function main() {
       }));
     };
 
-    const choices = glob(`**/map.json`, { cwd: base })
-      .map(getChoice)
+    const choices = (
+      await Promise.all(
+        (await glob(`**/map.json`, { cwd: base })).map(getChoice),
+      )
+    )
       .reduce(
         (accumulator, currentValue) => accumulator.concat(currentValue),
         [],
       )
       .sort((a, b) => {
-        const aTime = accessLookup.get(a.value) || 0;
-        const bTime = accessLookup.get(b.value) || 0;
+        const aTime = accessLookup.get(a.value) ?? 0;
+        const bTime = accessLookup.get(b.value) ?? 0;
 
         return bTime - aTime;
       });
