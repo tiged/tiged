@@ -37,6 +37,7 @@
   "scripts": {
     "lint": "eslint --color .",
     "lint:fix": "eslint --color . --fix",
+    "erase-ts-config-paths": "tsx scripts/eraseTSConfigPaths.mts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "clean": "tsx scripts/remove.mts",

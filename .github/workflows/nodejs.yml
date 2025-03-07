@@ -116,7 +116,7 @@ jobs:
         run: npm install ${{ needs.build.outputs.artifact }}
 
       - name: Erase TSConfig path aliases
-        run: npx tsx scripts/eraseTSConfigPaths.mts
+        run: npm run erase-ts-config-paths
 
       - name: Run tests on the final build artifact
         run: npm test
