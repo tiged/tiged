@@ -896,9 +896,11 @@ function parse(src: string): Repo {
     /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
       src,
     );
+
   if (!match) {
     throw new TigedError(`could not parse ${src}`, {
       code: 'BAD_SRC',
+      url: src,
     });
   }
 
@@ -907,8 +909,8 @@ function parse(src: string): Repo {
   const tld = tldMatch ? tldMatch[0] : null;
   const siteName = tld ? site.replace(new RegExp(`${tld}$`), '') : site;
 
-  const user = match[4];
-  const name = match[5].replace(/\.git$/, '');
+  const user = match[4] ?? '';
+  const name = match[5]?.replace(/\.git$/, '') ?? '';
   const subdir = match[6];
   const ref = match[7] || 'HEAD';
 
@@ -963,48 +965,50 @@ function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
  */
 async function fetchRefs(repo: Repo) {
   try {
-    const { stdout } = await exec(`git ls-remote ${repo.url}`);
+    const { stdout } = await exec(`git ls-remote ${repo.url} ${repo.ref}`);
 
     return stdout
+      .trim()
       .split('\n')
       .filter(Boolean)
       .map(row => {
-        const [hash, ref] = row.split('\t');
+        const [hash = '', ref = ''] = row.split('\t');
 
         if (ref === 'HEAD') {
           return {
-            type: 'HEAD',
+            name: hash,
+            type: ref,
             hash,
           };
         }
 
         const match = /refs\/(\w+)\/(.+)/.exec(ref);
+
         if (!match)
           throw new TigedError(`could not parse ${ref}`, {
             code: 'BAD_REF',
+            ref,
+            url: repo.url,
           });
 
-        return {
-          type:
-            match[1] === 'heads'
-              ? 'branch'
-              : match[1] === 'refs'
-                ? 'ref'
-                : match[1],
-          name: match[2],
-          hash,
-        };
+        const type =
+          match[1] === 'heads'
+            ? 'branch'
+            : match[1] === 'refs'
+              ? 'ref'
+              : (match[1] ?? '');
+
+        const name = match[2] ?? '';
+
+        return { type, name, hash };
       });
   } catch (error) {
-    if (error instanceof Error) {
-      throw new TigedError(`could not fetch remote ${repo.url}`, {
-        code: 'COULD_NOT_FETCH',
-        url: repo.url,
-        original: error,
-      });
-    }
-
-    return;
+    throw new TigedError(`could not fetch remote ${repo.url}`, {
+      code: 'COULD_NOT_FETCH',
+      url: repo.url,
+      original: error instanceof Error ? error : undefined,
+      ref: repo.ref,
+    });
   }
 }
 
