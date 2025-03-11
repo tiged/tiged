@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import * as enquirer from 'enquirer';
-import fuzzysearch from 'fuzzysearch';
+import dam from "real-damerau-levenshtein";
 import mri from 'mri';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -107,7 +107,7 @@ async function main() {
         name: 'src',
         message: 'Repo to clone?',
         suggest: (input: string, choices: { value: string }[]) =>
-          choices.filter(({ value }) => fuzzysearch(input, value)),
+          choices.filter(({ value }) => dam(input, value).similarity > 0.5),
         choices,
       } as any,
       {
