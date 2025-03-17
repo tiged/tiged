@@ -69,6 +69,8 @@ describe(tiged, { timeout }, () => {
         subdir1: null,
         'subdir1/subdir2': null,
         'subdir1/subdir2/file.txt': "I'm a file.",
+        'subdir1/.gitkeep': '',
+        'subdir1/subdir2/.gitkeep': '',
       });
     });
   });
@@ -85,6 +87,8 @@ describe(tiged, { timeout }, () => {
       await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
         subdir2: null,
         'subdir2/file.txt': "I'm a file.",
+        '.gitkeep': '',
+        'subdir2/.gitkeep': '',
       });
     });
 
@@ -98,6 +102,7 @@ describe(tiged, { timeout }, () => {
       );
       await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
         'file.txt': "I'm a file.",
+        '.gitkeep': '',
       });
     });
   });
