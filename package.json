@@ -37,9 +37,10 @@
   "scripts": {
     "lint": "eslint --color .",
     "lint:fix": "eslint --color . --fix",
+    "erase-ts-config-paths": "tsx scripts/eraseTSConfigPaths.mts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "node scripts/deleteDist.js",
+    "clean": "tsx scripts/remove.mts",
     "build": "npm run clean && tsup",
     "test": "vitest --typecheck",
     "test-types": "tsc -p tsconfig.json --noEmit",
@@ -70,21 +71,21 @@
     "tinyglobby": "^0.2.12"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
+    "@eslint/js": "^9.24.0",
     "@types/eslint-config-prettier": "^6.11.3",
     "@types/fuzzysearch": "^1.0.2",
-    "@types/node": "^22.13.10",
-    "eslint": "^9.22.0",
-    "eslint-config-prettier": "^10.1.1",
+    "@types/node": "^22.14.0",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.1",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.8"
+    "vitest": "^3.1.1"
   },
   "sideEffects": false,
   "files": [
