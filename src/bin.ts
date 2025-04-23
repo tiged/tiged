@@ -2,18 +2,17 @@
 
 import enquirer from 'enquirer';
 import fuzzysearch from 'fuzzysearch';
-import mri from 'mri';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import picocolors from 'picocolors';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import { glob } from 'tinyglobby';
-import { base, pathExists, tryRequire } from './utils.js';
+import { base, parseArgs, pathExists, tryRequire } from './utils.js';
 
 const { bold, cyan, magenta, red, underline } = picocolors;
 
-const args = mri<Options & { help?: string }>(process.argv.slice(2), {
+const args = parseArgs<Options & { help?: string }>(process.argv.slice(2), {
   alias: {
     f: 'force',
     c: 'cache',

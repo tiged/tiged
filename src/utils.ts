@@ -312,4 +312,189 @@ export const isDirectory = async (filePath: string): Promise<boolean> => {
   }
 };
 
+interface ParseOptions {
+  boolean?: string[];
+  alias?: Record<string, string | string[]>;
+}
+
+interface ParsedArgs {
+  [key: string]: boolean | string | number | (string | number)[] | undefined;
+  _: string[];
+}
+
+export function parseArgs<T extends ParseOptions>(
+  args: string[],
+  options: ParseOptions = {},
+): ParsedArgs & T {
+  const result: ParsedArgs = { _: [] };
+
+  // Create normalized alias map with proper direction (alias -> key)
+  const aliases: Record<string, string[]> = {};
+  const reverseAliases: Record<string, string[]> = {};
+
+  if (options.alias) {
+    Object.entries(options.alias).forEach(([key, value]) => {
+      const targetAliases = Array.isArray(value) ? value : [value];
+
+      reverseAliases[key] = targetAliases;
+
+      targetAliases.forEach(alias => {
+        aliases[alias] = aliases[alias] || [];
+        if (!aliases[alias].includes(key)) {
+          aliases[alias].push(key);
+        }
+      });
+    });
+  }
+
+  // Track boolean flags, including alias flags that map to boolean flags
+  const booleanFlags = new Set(options.boolean || []);
+
+  // Check if a key or any of its aliases are boolean
+  const isBooleanFlag = (key: string): boolean => {
+    if (booleanFlags.has(key)) return true;
+
+    const keyAliases = aliases[key];
+    if (keyAliases) {
+      return keyAliases.some(alias => booleanFlags.has(alias));
+    }
+
+    return false;
+  };
+
+  // Apply a value to the result object and its aliases
+  const setValue = (key: string, value: any) => {
+    result[key] = value;
+
+    // Also set on all aliased keys
+    if (aliases[key]) {
+      for (const targetKey of aliases[key]) {
+        result[targetKey] = value;
+      }
+    }
+
+    // Set on all aliases for this key
+    if (reverseAliases[key]) {
+      for (const alias of reverseAliases[key]) {
+        result[alias] = value;
+      }
+    }
+  };
+
+  let i = 0;
+  let stopParsing = false;
+
+  while (i < args.length) {
+    const arg = args[i];
+
+    if (stopParsing) {
+      // After -- all remaining args go into _
+      result._.push(arg);
+    } else if (arg === '--') {
+      // Stop parsing flags after this
+      stopParsing = true;
+    } else if (arg.startsWith('--')) {
+      // Long option
+      if (arg.startsWith('--no-')) {
+        // Negated flag (--no-something)
+        const key = arg.slice(5); // Remove '--no-'
+        setValue(key, false);
+      } else {
+        // Regular long option
+        const match = arg.match(/^--([^=]+)(?:=(.*))?$/);
+        if (match) {
+          const key = match[1];
+
+          if (match[2] !== undefined) {
+            // --key=value form
+            if (isBooleanFlag(key)) {
+              // Boolean flag still gets set to true
+              setValue(key, true);
+            } else {
+              const value = match[2];
+
+              // Convert numeric strings to numbers
+              const numericValue = Number(value);
+              const finalValue =
+                !isNaN(numericValue) && value !== '' ? numericValue : value;
+
+              if (result[key] !== undefined && !Array.isArray(result[key])) {
+                setValue(key, [result[key], finalValue]);
+              } else if (Array.isArray(result[key])) {
+                (result[key] as (string | number)[]).push(finalValue);
+                // Update aliases manually for arrays
+                if (aliases[key]) {
+                  aliases[key].forEach(alias => {
+                    result[alias] = [...(result[key] as (string | number)[])];
+                  });
+                }
+                if (reverseAliases[key]) {
+                  reverseAliases[key].forEach(alias => {
+                    result[alias] = [...(result[key] as (string | number)[])];
+                  });
+                }
+              } else {
+                setValue(key, finalValue);
+              }
+            }
+          } else if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+            // --key value form
+            if (isBooleanFlag(key)) {
+              // For boolean flags, don't consume the next argument
+              setValue(key, true);
+            } else {
+              // Otherwise, consume the next argument as the value
+              const value = args[i + 1];
+              const numericValue = Number(value);
+              const finalValue =
+                !isNaN(numericValue) && value !== '' ? numericValue : value;
+              setValue(key, finalValue);
+              i++;
+            }
+          } else {
+            // Flag without a value
+            setValue(key, true);
+          }
+        }
+      }
+    } else if (arg.startsWith('-') && arg !== '-') {
+      // Short options
+      const flags = arg.slice(1).split('');
+
+      let j = 0;
+      while (j < flags.length) {
+        const flag = flags[j];
+        const isBoolean = isBooleanFlag(flag);
+
+        if (
+          !isBoolean &&
+          j === flags.length - 1 &&
+          i + 1 < args.length &&
+          !args[i + 1].startsWith('-')
+        ) {
+          // Last flag in a group can take the next arg as its value (unless it's a boolean flag)
+          const value = args[i + 1];
+          const numericValue = Number(value);
+          const finalValue =
+            !isNaN(numericValue) && value !== '' ? numericValue : value;
+          setValue(flag, finalValue);
+          i++;
+        } else {
+          // All other flags are boolean
+          setValue(flag, true);
+        }
+
+        j++;
+      }
+    } else {
+      // Bare argument (not a flag or option)
+      result._.push(arg);
+    }
+
+    i++;
+  }
+
+  return result;
+}
+
 export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
