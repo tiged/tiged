@@ -227,6 +227,20 @@ describe(tiged, { timeout }, () => {
         'subdir/file.txt': 'hello from a subdirectory!',
       });
     });
+
+    it('can clone a single file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -dv`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
+      });
+    });
   });
 
   describe('api', () => {
@@ -242,6 +256,19 @@ describe(tiged, { timeout }, () => {
         'file.txt': 'hello from github!',
         subdir: null,
         'subdir/file.txt': 'hello from a subdirectory!',
+      });
+    });
+
+    it('can clone one file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      await tiged('tiged/tiged-test-repo/subdir/file.txt', {
+        force: true,
+        disableCache: true,
+        verbose: true,
+      }).clone(`.tmp/test-repo-${sanitizedPath}`);
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
       });
     });
   });
