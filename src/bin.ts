@@ -23,6 +23,7 @@ const args = mri<Options & { help?: string }>(process.argv.slice(2), {
     m: 'mode',
     s: 'subgroup',
     d: 'sub-directory',
+    // no short alias for proxy to avoid conflict with -p in other tools
   },
   boolean: [
     'force',

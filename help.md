@@ -70,5 +70,6 @@ Options:
 `--subgroup`, `-s` Use if repo is in a subgroup (GitLab)
 `--mode=`, `-m=` Force the mode by which tiged clones the repo
 Valid options are `tar` or `git` (uses SSH)
+`--proxy=` Specify a proxy URL for HTTPS requests (overrides https_proxy environment variable)
 
 See https://github.com/tiged/tiged for more information
