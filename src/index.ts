@@ -6,9 +6,9 @@ import picocolors from 'picocolors';
 import { extract } from 'tar';
 import {
   TigedError,
-  base,
   exec,
   fetch,
+  getCacheDir,
   isDirectory,
   pathExists,
   stashFiles,
@@ -101,6 +101,14 @@ export interface Options {
    * @default undefined
    */
   'sub-directory'?: string;
+
+  /**
+   * Specifies a custom cache directory for storing downloaded tarballs.
+   * If not specified, uses XDG_CACHE_HOME/tiged or ~/.cache/tiged.
+   *
+   * @default undefined
+   */
+  cacheDir?: string;
 }
 
 // TODO: We might not need this one.
@@ -260,6 +268,11 @@ class Tiged extends EventEmitter {
   declare public subdir?: string;
 
   /**
+   * The cache directory for storing downloaded tarballs.
+   */
+  declare public cacheDir: string;
+
+  /**
    * Holds the parsed repository information.
    */
   declare public repo: Repo;
@@ -313,6 +326,7 @@ class Tiged extends EventEmitter {
     this.proxy = this._getHttpsProxy(); // TODO allow setting via --proxy
     this.subgroup = opts.subgroup;
     this.subdir = opts['sub-directory'];
+    this.cacheDir = getCacheDir(opts.cacheDir);
 
     this.repo = parse(src);
     if (this.subgroup) {
@@ -423,7 +437,7 @@ class Tiged extends EventEmitter {
 
     await this._checkDirIsEmpty(dest);
     const { repo } = this;
-    const dir = path.join(base, repo.site, repo.user, repo.name);
+    const dir = path.join(this.cacheDir, repo.site, repo.user, repo.name);
 
     if (this.mode === 'tar') {
       await this._cloneWithTar(dir, dest);

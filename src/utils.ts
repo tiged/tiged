@@ -17,6 +17,31 @@ const getHomeOrTmp = () => homedir() || tmpdir();
 const homeOrTmp = /* @__PURE__ */ getHomeOrTmp();
 
 /**
+ * Gets the XDG-compliant cache directory.
+ * Respects $XDG_CACHE_HOME, falling back to ~/.cache
+ */
+function getXdgCacheDir(): string {
+  const xdgCache = process.env.XDG_CACHE_HOME;
+  if (xdgCache) {
+    return path.join(xdgCache, 'tiged');
+  }
+  return path.join(homeOrTmp, '.cache', 'tiged');
+}
+
+/**
+ * Gets the base cache directory for tiged.
+ * 
+ * @param customCacheDir - Optional custom cache directory override
+ * @returns The cache directory path
+ */
+export function getCacheDir(customCacheDir?: string): string {
+  if (customCacheDir) {
+    return customCacheDir;
+  }
+  return getXdgCacheDir();
+}
+
+/**
  * Represents the possible error codes for the Tiged utility.
  */
 export type TigedErrorCode =
@@ -312,4 +337,7 @@ export const isDirectory = async (filePath: string): Promise<boolean> => {
   }
 };
 
-export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
+/**
+ * @deprecated Use getCacheDir() instead. This is kept for backward compatibility.
+ */
+export const base = /* @__PURE__ */ getCacheDir();
