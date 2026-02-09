@@ -726,13 +726,15 @@ class Tiged extends EventEmitter {
         }
       }
     } catch (err) {
-      if (err instanceof Error) {
-        throw new TigedError(`could not download ${url}`, {
-          code: 'COULD_NOT_DOWNLOAD',
-          url,
-          original: err,
-        });
-      }
+      const original =
+        err instanceof Error
+          ? err
+          : new Error(typeof err === 'string' ? err : JSON.stringify(err));
+      throw new TigedError(`could not download ${url}`, {
+        code: 'COULD_NOT_DOWNLOAD',
+        url,
+        original,
+      });
     }
 
     if (!this.noCache) await updateCache(dir, repo, hash, cached);
