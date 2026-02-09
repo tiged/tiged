@@ -200,10 +200,12 @@ A robust cache should download to a temp file and rename atomically, and optiona
 Common CI wants split cleanly:
 
 1. **Read cache but don’t write**
+
    - Goal: speed up builds without polluting cache.
    - Example: shared runner cache is provided externally.
 
 2. **Write cache but ignore existing** (“refresh”)
+
    - Goal: avoid corrupted/stale tarballs but still repopulate.
 
 3. **No cache at all**
@@ -248,14 +250,17 @@ Then define common “modes” as presets.
 Replace ambiguous/legacy flags with explicit ones:
 
 - `--offline`
+
   - No network access.
   - Implies `cache.read=true`.
   - Implies `cache.write=false` (optional, but safer; offline shouldn’t mutate cache).
 
 - `--no-cache`
+
   - Equivalent to `--no-cache-read --no-cache-write`.
 
 - `--no-cache-read`
+
   - Never reuse an existing tarball.
   - Still allowed to write a fresh tarball (unless `--no-cache-write`).
 
@@ -298,16 +303,19 @@ Migration mapping:
 ### Behavioral details (tar mode)
 
 - Default (no flags):
+
   - `offline=false, cache.read=true, cache.write=true`.
   - Always resolve refs via network when allowed.
   - Use tarball cache by hash if already present.
 
 - Offline:
+
   - If ref is a 40-char hash: use `<hash>.tar.gz` if present.
   - If ref is a branch/tag/HEAD: require `map.json[ref]`.
   - Never download.
 
 - No-cache-read:
+
   - Still resolve hash normally.
   - Always download tarball (and ideally replace/overwrite existing cached tarball atomically).
 
@@ -348,11 +356,13 @@ But keep this separate from tar cache so the simple case stays simple.
 ## Concrete next steps
 
 1. Fix v2 bugs (even if semantics change in v3):
+
    - offline mode network gating
    - `updateCache()` old tarball deletion check
    - offline “ref is hash” shortcut
 
 2. In v2, deprecate confusing knobs more loudly:
+
    - warn when using `--cache` / `opts.cache`
 
 3. Implement v3 cache API/flags with a migration note in README/help.

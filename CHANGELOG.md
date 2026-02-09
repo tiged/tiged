@@ -27,6 +27,7 @@
 - Rename degit references to tiged ([#102](https://github.com/tiged/tiged/pull/102))
 
 - Breaking changes:
+
   - Change default export to a named export ([#101](https://github.com/tiged/tiged/pull/101))
 
 - Migrate codebase to TypeScript ([#89](https://github.com/tiged/tiged/pull/89)):
