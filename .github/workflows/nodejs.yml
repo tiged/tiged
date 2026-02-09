@@ -1,6 +1,10 @@
 name: Node.js CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
@@ -38,6 +42,7 @@ jobs:
 
   build:
     needs: [lint]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
     name: Build artifact for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
     outputs:
