@@ -355,14 +355,81 @@ But keep this separate from tar cache so the simple case stays simple.
 
 ## Concrete next steps
 
-1. Fix v2 bugs (even if semantics change in v3):
+This breaks down into two tracks: **v2 bugfixes** (small, safe changes) and a **v3 design/implementation plan** (bigger, breaking changes).
 
-   - offline mode network gating
-   - `updateCache()` old tarball deletion check
-   - offline “ref is hash” shortcut
+### Track 1: v2 bugfixes (safe + minimal)
 
-2. In v2, deprecate confusing knobs more loudly:
+- [ ] **Fix offline-mode network gating in tar mode**
 
-   - warn when using `--cache` / `opts.cache`
+  - **Where:** `src/index.ts` in `_cloneWithTar()`.
+  - **Bug today:** tarball download is guarded by `if (!offlineMode || !cache)`, so `--offline-mode` can still download unless the deprecated `--cache` flag is also set.
+  - **Desired v2 behavior:** `--offline-mode` should mean **no network access** in tar mode.
+  - **Acceptance:** `tiged user/repo --offline-mode` never attempts `fetch()`; it either succeeds from an existing `<hash>.tar.gz` or fails with a clear “missing from cache” error.
 
-3. Implement v3 cache API/flags with a migration note in README/help.
+- [ ] **Fix `updateCache()` deletion logic**
+
+  - **Where:** `src/index.ts` in `updateCache()`.
+  - **Bug today:** when deciding whether to delete the old tarball, the “still used?” check compares cached values to the **new** `hash` instead of the **old** `oldHash`.
+  - **Desired v2 behavior:** only delete `oldHash.tar.gz` if **no ref in `map.json` points to `oldHash`**.
+  - **Acceptance:** when `map.json[ref]` changes, the old tarball is deleted only if no other mapping references it.
+
+- [ ] **Offline “ref is hash” shortcut**
+
+  - **Where:** `src/index.ts` in `_getHash()` / `_cloneWithTar()`.
+  - **Problem today:** `tiged user/repo#<fullHash> --offline-mode` can fail if `<fullHash>` is not present as a key in `map.json`, even when `<fullHash>.tar.gz` exists.
+  - **Desired v2 behavior:** if `repo.ref` is a full 40-char SHA (or an unambiguous full hash), treat it as the hash directly (no `map.json` lookup).
+  - **Acceptance:** offline runs succeed when the tarball exists by hash, without requiring `map.json` to contain the hash as a ref key.
+
+- [ ] **(Optional, but high value) Atomic tarball writes**
+  - **Where:** `fetch()` in `src/utils.ts` or the tar download call site.
+  - **Goal:** reduce cache corruption from partial downloads.
+  - **Acceptance:** downloads write to `*.tmp` then `rename()` to the final `*.tar.gz` on success.
+
+### Track 2: v3 cache redesign (breaking)
+
+#### 1) Define the target semantics
+
+- [ ] Specify three independent knobs in the public API:
+  - `network` (allowed vs disallowed)
+  - `cache.read` (reuse existing tarballs / metadata)
+  - `cache.write` (write tarballs / metadata)
+- [ ] Decide preset behavior:
+  - `--offline`: `network=false`, `cache.read=true`, `cache.write=false` (recommended)
+  - `--no-cache`: `cache.read=false`, `cache.write=false` (network allowed)
+
+#### 2) CLI + JS API surface
+
+- [ ] CLI flags (v3): `--offline`, `--no-cache`, `--no-cache-read`, `--no-cache-write`, `--cache-dir <path>`
+- [ ] JS options (v3):
+
+```ts
+interface OptionsV3 {
+  offline?: boolean;
+  cache?: {
+    read?: boolean;
+    write?: boolean;
+    dir?: string;
+  };
+}
+```
+
+- [ ] Migration mapping + warnings:
+  - v2 `disableCache` / `--disable-cache` → v3 `cache: { read: false, write: false }`
+  - v2 `offlineMode` / `--offline-mode` → v3 `offline: true`
+  - v2 `cache` / `--cache` → warn, map to `offline: true` (or remove)
+
+#### 3) Implementation steps
+
+- [ ] Refactor tar path to compute an explicit “policy” object early (network/read/write) and use it for:
+  - hash resolution (`ls-remote` vs `map.json`)
+  - tarball reuse (stat vs forced download)
+  - cache writes (`map.json`, `access.json`, tarball persistence)
+- [ ] Ensure all paths share consistent rules (tar + git mode), even if git caching remains opt-in.
+
+#### 4) Test plan
+
+- [ ] Add unit tests around the policy decisions:
+  - offline never hits network
+  - no-cache-read forces download
+  - no-cache-write never updates `map.json`/`access.json`
+- [ ] Add a regression test for `updateCache()` deletion behavior.
