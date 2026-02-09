@@ -200,12 +200,10 @@ A robust cache should download to a temp file and rename atomically, and optiona
 Common CI wants split cleanly:
 
 1. **Read cache but don’t write**
-
    - Goal: speed up builds without polluting cache.
    - Example: shared runner cache is provided externally.
 
 2. **Write cache but ignore existing** (“refresh”)
-
    - Goal: avoid corrupted/stale tarballs but still repopulate.
 
 3. **No cache at all**
@@ -250,17 +248,14 @@ Then define common “modes” as presets.
 Replace ambiguous/legacy flags with explicit ones:
 
 - `--offline`
-
   - No network access.
   - Implies `cache.read=true`.
   - Implies `cache.write=false` (optional, but safer; offline shouldn’t mutate cache).
 
 - `--no-cache`
-
   - Equivalent to `--no-cache-read --no-cache-write`.
 
 - `--no-cache-read`
-
   - Never reuse an existing tarball.
   - Still allowed to write a fresh tarball (unless `--no-cache-write`).
 
@@ -303,19 +298,16 @@ Migration mapping:
 ### Behavioral details (tar mode)
 
 - Default (no flags):
-
   - `offline=false, cache.read=true, cache.write=true`.
   - Always resolve refs via network when allowed.
   - Use tarball cache by hash if already present.
 
 - Offline:
-
   - If ref is a 40-char hash: use `<hash>.tar.gz` if present.
   - If ref is a branch/tag/HEAD: require `map.json[ref]`.
   - Never download.
 
 - No-cache-read:
-
   - Still resolve hash normally.
   - Always download tarball (and ideally replace/overwrite existing cached tarball atomically).
 
@@ -360,21 +352,18 @@ This breaks down into two tracks: **v2 bugfixes** (small, safe changes) and a **
 ### Track 1: v2 bugfixes (safe + minimal)
 
 - [ ] **Fix offline-mode network gating in tar mode**
-
   - **Where:** `src/index.ts` in `_cloneWithTar()`.
   - **Bug today:** tarball download is guarded by `if (!offlineMode || !cache)`, so `--offline-mode` can still download unless the deprecated `--cache` flag is also set.
   - **Desired v2 behavior:** `--offline-mode` should mean **no network access** in tar mode.
   - **Acceptance:** `tiged user/repo --offline-mode` never attempts `fetch()`; it either succeeds from an existing `<hash>.tar.gz` or fails with a clear “missing from cache” error.
 
 - [ ] **Fix `updateCache()` deletion logic**
-
   - **Where:** `src/index.ts` in `updateCache()`.
   - **Bug today:** when deciding whether to delete the old tarball, the “still used?” check compares cached values to the **new** `hash` instead of the **old** `oldHash`.
   - **Desired v2 behavior:** only delete `oldHash.tar.gz` if **no ref in `map.json` points to `oldHash`**.
   - **Acceptance:** when `map.json[ref]` changes, the old tarball is deleted only if no other mapping references it.
 
 - [ ] **Offline “ref is hash” shortcut**
-
   - **Where:** `src/index.ts` in `_getHash()` / `_cloneWithTar()`.
   - **Problem today:** `tiged user/repo#<fullHash> --offline-mode` can fail if `<fullHash>` is not present as a key in `map.json`, even when `<fullHash>.tar.gz` exists.
   - **Desired v2 behavior:** if `repo.ref` is a full 40-char SHA (or an unambiguous full hash), treat it as the hash directly (no `map.json` lookup).
