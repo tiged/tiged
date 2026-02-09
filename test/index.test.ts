@@ -228,6 +228,25 @@ describe(tiged, { timeout }, () => {
       });
     });
 
+    it('creates a new folder when <dest> is omitted', async ({
+      task,
+      expect,
+    }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      const cwd = `.tmp/no-dest-${sanitizedPath}`;
+
+      await fs.rm(cwd, { recursive: true, force: true });
+      await fs.mkdir(cwd, { recursive: true });
+
+      await exec(`cd ${cwd} && ${tigedPath} tiged/tiged-test-repo -v`);
+
+      await expect(`${cwd}/tiged-test-repo`).toMatchFiles({
+        'file.txt': 'hello from github!',
+        subdir: null,
+        'subdir/file.txt': 'hello from a subdirectory!',
+      });
+    });
+
     it('can clone a root file', async ({ task, expect }) => {
       const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 

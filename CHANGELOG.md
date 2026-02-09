@@ -1,5 +1,9 @@
 # tiged changelog
 
+## Unreleased
+
+- CLI: when `<dest>` is omitted, create a new folder named after the repo
+
 ## 3.0.0
 
 - Support cloning a single file ([#113](https://github.com/tiged/tiged/pull/113))
