@@ -57,9 +57,13 @@ async function main() {
 
     const accessLookup = new Map<string, number>();
 
-    const accessJsonFiles = await glob(`**/access.json`, {
-      cwd: base,
-    });
+    const hasCacheDir = await pathExists(base);
+
+    const accessJsonFiles = hasCacheDir
+      ? await glob(`**/access.json`, {
+          cwd: base,
+        })
+      : [];
 
     await Promise.all(
       accessJsonFiles.map(async file => {
@@ -89,7 +93,9 @@ async function main() {
 
     const choices = (
       await Promise.all(
-        (await glob(`**/map.json`, { cwd: base })).map(getChoice),
+        (hasCacheDir ? await glob(`**/map.json`, { cwd: base }) : []).map(
+          getChoice,
+        ),
       )
     )
       .reduce(

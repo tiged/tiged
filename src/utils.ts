@@ -9,6 +9,7 @@ import { homedir, tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import xdg from '@folder/xdg';
 
 const tmpDirName = 'tmp';
 
@@ -364,4 +365,15 @@ export const isDirectory = async (filePath: string): Promise<boolean> => {
   }
 };
 
-export const base = /* @__PURE__ */ path.join(homeOrTmp, '.degit');
+const legacyCacheDir = /* @__PURE__ */ path.join(homeOrTmp, '.tiged');
+
+const xdgCacheDir = (() => {
+  try {
+    return xdg({ subdir: 'tiged' }).cache;
+  } catch {
+    return null;
+  }
+})();
+
+export const base =
+  process.env.XDG_CACHE_HOME && xdgCacheDir ? xdgCacheDir : legacyCacheDir;

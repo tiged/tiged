@@ -16,7 +16,7 @@
 
 </div>
 
-**tiged** makes copies of git repositories. When you run `tiged some-user/some-repo` or (for backward compatibility) `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to `~/.degit/some-user/some-repo/commithash.tar.gz` if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
+**tiged** makes copies of git repositories. When you run `tiged some-user/some-repo` or (for backward compatibility) `degit some-user/some-repo`, it will find the latest commit on https://github.com/some-user/some-repo and download the associated tar file to a local cache directory if it doesn't already exist locally. (This is much quicker than using `git clone`, because you're not downloading the entire git history.)
 
 ## Installation
 
@@ -56,9 +56,9 @@ tiged git@bitbucket.org:user/repo
 tiged https://bitbucket.org/user/repo
 
 # download from Sourcehut
-tiged git.sr.ht/user/repo
-tiged git@git.sr.ht:user/repo
-tiged https://git.sr.ht/user/repo
+tiged git.sr.ht/~user/repo
+tiged git@git.sr.ht:~user/repo
+tiged https://git.sr.ht/~user/repo
 
 # download from Hugging Face
 tiged huggingface:user/repo
@@ -97,15 +97,18 @@ tiged --disable-cache user/repo
 
 ### Caching and offline mode
 
-By default (tar mode), tiged caches downloaded tarballs under `~/.degit`:
+By default (tar mode), tiged caches downloaded tarballs under:
 
-- `~/.degit/<host>/<user>/<repo>/<hash>.tar.gz` (tarballs keyed by commit hash)
-- `~/.degit/<host>/<user>/<repo>/map.json` (maps `ref -> hash`)
-- `~/.degit/<host>/<user>/<repo>/access.json` (tracks last access time per ref)
+- `$XDG_CACHE_HOME/tiged` (when `XDG_CACHE_HOME` is set)
+- `~/.tiged` (otherwise)
+
+- `<cacheDir>/<host>/<user>/<repo>/<hash>.tar.gz` (tarballs keyed by commit hash)
+- `<cacheDir>/<host>/<user>/<repo>/map.json` (maps `ref -> hash`)
+- `<cacheDir>/<host>/<user>/<repo>/access.json` (tracks last access time per ref)
 
 #### Offline mode
 
-Use offline mode when you want **no network access** and you expect the required data to already be present in `~/.degit`:
+Use offline mode when you want **no network access** and you expect the required data to already be present in the cache directory:
 
 ```bash
 tiged --offline-mode user/repo
@@ -229,7 +232,7 @@ Remove a file at the specified path.
 
 ## Known bugs and workarounds
 
-- `zlib: unexpected end of file`: this is solved by using option `--disable-cache` or clearing the cache folder (`rm -rf ~/.degit`); more details in [#45](https://github.com/tiged/tiged/issues/45)
+- `zlib: unexpected end of file`: this is solved by using option `--disable-cache` or clearing the cache folder (e.g. `rm -rf ~/.tiged`); more details in [#45](https://github.com/tiged/tiged/issues/45)
 
 ### Why I forked degit?
 
