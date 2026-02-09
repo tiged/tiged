@@ -3,11 +3,12 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('tar', () => {
+vi.mock('../src/tar.js', () => {
   return {
-    extract: vi.fn((opts: any) => {
-      // Simulate extracting one file so tiged treats the tarball as valid.
-      opts?.onReadEntry?.({ path: 'README.md' });
+    untarToDir: vi.fn(async () => {
+      // Keep these unit tests focused on cache/offline control flow.
+      // The tarball files created in this suite are not real archives.
+      return ['README.md'];
     }),
   };
 });
