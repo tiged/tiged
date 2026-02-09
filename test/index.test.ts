@@ -228,12 +228,56 @@ describe(tiged, { timeout }, () => {
       });
     });
 
+    it('can clone a root file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from github!',
+      });
+    });
+
     it('can clone a single file', async ({ task, expect }) => {
       const sanitizedPath = convertSpecialCharsToHyphens(task.name);
 
       await expect(
         exec(
-          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -dv`,
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
+      });
+    });
+  });
+
+  describe.sequential('single file + --force', () => {
+    let sanitizedPath: string;
+
+    it('fails without --force', async ({ task, expect }) => {
+      sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      await fs.mkdir(path.join(`.tmp/test-repo-${sanitizedPath}`), {
+        recursive: true,
+      });
+      await exec(`echo "not empty" > .tmp/test-repo-${sanitizedPath}/file.txt`);
+
+      await expect(() =>
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).rejects.toThrowError(/destination directory is not empty/);
+    });
+
+    it('succeeds with --force', async ({ expect }) => {
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -fv`,
         ),
       ).resolves.not.toThrow();
 

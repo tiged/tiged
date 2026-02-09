@@ -22,13 +22,13 @@ https://gitlab.com/user/repo
 ## BitBucket repos
 
 bitbucket:user/repo
-https://bitbucket.com/user/repo
+https://bitbucket.org/user/repo
 
 ## Sourcehut repos
 
-git.sr.ht/user/repo
-git@git.sr.ht:user/repo
-https://git.sr.ht/user/repo
+git.sr.ht/~user/repo
+git@git.sr.ht:~user/repo
+https://git.sr.ht/~user/repo
 
 ## Hugging Face repos
 
@@ -56,18 +56,24 @@ user/repo#v1.2.3
 
 user/repo#abcd1234
 
+You can also specify a subdirectory or a single file by appending a path:
+
+user/repo/subdir
+user/repo/subdir/file.txt
+
 The `dest` directory (or the current directory, if unspecified) must be empty
 unless the `--force` option is used.
 
 Options:
 
 `--help`, `-h` Show this message
-`--offline-mode`, `-o` Only use local cache. No fetching data online.
+`--offline-mode`, `-o` Only use local cache (never downloads). Errors if missing.
 `--cache`, `-c` Deprecated legacy cache behavior. Will be removed in v3.X
 `--disable-cache`, `-D` Do not use cache. Always fetch data online.
-`--force`, `-f` Allow non-empty destination directory
+`--force`, `-f` Overwrite existing destination directory (deletes its contents)
 `--verbose`, `-v` Extra logging
 `--subgroup`, `-s` Use if repo is in a subgroup (GitLab)
+`--sub-directory`, `-d` Clone only a subdirectory of the repo
 `--mode=`, `-m=` Force the mode by which tiged clones the repo
 Valid options are `tar` or `git` (uses SSH)
 
