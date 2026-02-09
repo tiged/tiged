@@ -227,6 +227,64 @@ describe(tiged, { timeout }, () => {
         'subdir/file.txt': 'hello from a subdirectory!',
       });
     });
+
+    it('can clone a root file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from github!',
+      });
+    });
+
+    it('can clone a single file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
+      });
+    });
+  });
+
+  describe.sequential('single file + --force', () => {
+    let sanitizedPath: string;
+
+    it('fails without --force', async ({ task, expect }) => {
+      sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      await fs.mkdir(path.join(`.tmp/test-repo-${sanitizedPath}`), {
+        recursive: true,
+      });
+      await exec(`echo "not empty" > .tmp/test-repo-${sanitizedPath}/file.txt`);
+
+      await expect(() =>
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -v`,
+        ),
+      ).rejects.toThrowError(/destination directory is not empty/);
+    });
+
+    it('succeeds with --force', async ({ expect }) => {
+      await expect(
+        exec(
+          `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -fv`,
+        ),
+      ).resolves.not.toThrow();
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
+      });
+    });
   });
 
   describe('api', () => {
@@ -242,6 +300,19 @@ describe(tiged, { timeout }, () => {
         'file.txt': 'hello from github!',
         subdir: null,
         'subdir/file.txt': 'hello from a subdirectory!',
+      });
+    });
+
+    it('can clone one file', async ({ task, expect }) => {
+      const sanitizedPath = convertSpecialCharsToHyphens(task.name);
+      await tiged('tiged/tiged-test-repo/subdir/file.txt', {
+        force: true,
+        disableCache: true,
+        verbose: true,
+      }).clone(`.tmp/test-repo-${sanitizedPath}`);
+
+      await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
+        'file.txt': 'hello from a subdirectory!',
       });
     });
   });

@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import picocolors from 'picocolors';
-import { extract } from 'tar';
+import { extract, list } from 'tar';
 import {
   TigedError,
   base,
@@ -784,7 +784,7 @@ class Tiged extends EventEmitter {
     });
 
     await fs.mkdir(dest, { recursive: true });
-    const extractedFiles = untar(file, dest, subdir);
+    const extractedFiles = await untar(file, dest, subdir);
     if (extractedFiles.length === 0) {
       const noFilesErrorMessage: string = subdir
         ? 'No files to extract. Make sure you typed in the subdirectory name correctly.'
@@ -978,20 +978,47 @@ function parse(src: string): Repo {
  * @param subdir - Optional subdirectory within the tar file to extract. Defaults to null.
  * @returns A list of extracted files.
  */
-function untar(file: string, dest: string, subdir: Repo['subdir'] = null) {
+async function untar(
+  file: string,
+  dest: string,
+  subdir: Repo['subdir'] = null,
+) {
+  let isSubDirFile = false;
+  if (subdir) {
+    await list(
+      {
+        file,
+        onReadEntry: entry => {
+          if (
+            entry.type === 'File' &&
+            path.basename(entry.path) === path.basename(subdir)
+          ) {
+            isSubDirFile = true;
+          }
+        },
+      },
+      [subdir],
+    );
+  }
+
   const extractedFiles: string[] = [];
-  extract(
+
+  await extract(
     {
       file,
-      strip: subdir ? subdir.split('/').length : 1,
+      strip: subdir
+        ? isSubDirFile
+          ? subdir.split('/').length - 1
+          : subdir.split('/').length
+        : 1,
       C: dest,
-      sync: true,
       onReadEntry: entry => {
         extractedFiles.push(entry.path);
       },
     },
     subdir ? [subdir] : [],
   );
+
   return extractedFiles;
 }
 
