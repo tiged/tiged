@@ -1,9 +1,5 @@
 # tiged changelog
 
-## Unreleased
-
-- CLI: when `<dest>` is omitted, create a new folder named after the repo
-
 ## 3.0.0
 
 - Support cloning a single file ([#113](https://github.com/tiged/tiged/pull/113))
@@ -34,6 +30,8 @@
 
 - Breaking changes:
   - Change default export to a named export ([#101](https://github.com/tiged/tiged/pull/101))
+  - CLI: when `<dest>` is omitted, create a new folder named after the repo (use `.` to clone into the current directory)
+  - Cache directory is now `~/.tiged` (or `$XDG_CACHE_HOME/tiged` when `XDG_CACHE_HOME` is set)
 
 - Migrate codebase to TypeScript ([#89](https://github.com/tiged/tiged/pull/89)):
   - Replace mocha with Vitest as it has better ESM and TypeScript support.
