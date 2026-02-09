@@ -5,14 +5,14 @@ Scope: how tiged caches repo downloads today (v2), what’s confusing/buggy, and
 
 ## Executive summary
 
-- **Today (v2), caching is mostly a tarball cache** under `~/.degit/…` keyed by commit hash, with a small JSON index (`map.json`) and access log (`access.json`).
+- **Today (v2), caching is mostly a tarball cache** under `~/.tiged/…` (or `$XDG_CACHE_HOME/tiged/…` when `XDG_CACHE_HOME` is set) keyed by commit hash, with a small JSON index (`map.json`) and access log (`access.json`).
 - **The CLI/API flags are confusing because they mix three concerns**:
   1. whether to reuse existing cached data,
   2. whether to write new cache entries,
   3. whether to allow any network access (offline).
 - **`--offline-mode` does not reliably prevent network access** due to a logic bug in the tar clone path.
 - **`updateCache()` has a bug that can delete the wrong tarball**, which can make cache behavior feel flaky.
-- **`--mode=git` does not cache at all**; only tar mode uses the `~/.degit` cache.
+- **`--mode=git` does not cache at all**; only tar mode uses the `~/.tiged`/XDG cache.
 
 For v3, the most sensible update is to **separate “cache read”, “cache write”, and “offline/no-network”** in both the CLI and JS API, and make the behavior consistent across modes.
 
@@ -22,19 +22,19 @@ For v3, the most sensible update is to **separate “cache read”, “cache wri
 
 All caching happens under:
 
-- `base = ~/.degit` (see `src/utils.ts`)
-- Per repo directory: `~/.degit/<site>/<user>/<name>/`
+- `base = ~/.tiged` or `$XDG_CACHE_HOME/tiged` (see `src/utils.ts`)
+- Per repo directory: `<base>/<site>/<user>/<name>/`
 
 ### Files created
 
 For tar mode (`--mode=tar`, the default for supported hosts):
 
-- `~/.degit/<site>/<user>/<name>/<hash>.tar.gz`
+- `<base>/<site>/<user>/<name>/<hash>.tar.gz`
   - The tarball for the exact commit hash.
-- `~/.degit/<site>/<user>/<name>/map.json`
+- `<base>/<site>/<user>/<name>/map.json`
   - JSON object mapping `ref -> hash`.
   - Example keys: `"HEAD"`, `"main"`, `"v1.2.3"`.
-- `~/.degit/<site>/<user>/<name>/access.json`
+- `<base>/<site>/<user>/<name>/access.json`
   - JSON object mapping `ref -> ISO timestamp`.
   - Used by interactive mode to sort choices.
 
@@ -57,7 +57,7 @@ This distinction matters:
 In tar mode:
 
 1. Resolve the desired **commit hash** by running `git ls-remote` against `repo.url`.
-2. Look for `~/.degit/<…>/<hash>.tar.gz`.
+2. Look for `<base>/<…>/<hash>.tar.gz`.
    - If it exists, reuse it.
    - Otherwise, download the tarball.
 3. Update cache metadata:
@@ -112,7 +112,7 @@ That’s not a common or intuitive mode, and it’s not what the help text impli
 
 - Uses `git clone`/`git fetch` with `--depth 1` into the destination (and a temp `.tiged` folder when extracting a subdir).
 - Removes the destination’s `.git` folder at the end.
-- **Does not read or write the `~/.degit` cache at all.**
+- **Does not read or write the tar cache at all.**
 
 ---
 
@@ -163,7 +163,7 @@ In v2:
 
 ### 5) Potential cache corruption on partial downloads
 
-The README mentions `zlib: unexpected end of file` and suggests disabling cache or deleting `~/.degit`.
+The README mentions `zlib: unexpected end of file` and suggests disabling cache or deleting the cache directory.
 
 That symptom often points to:
 
