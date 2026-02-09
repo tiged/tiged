@@ -63,7 +63,7 @@ Options:
 
 `--help`, `-h` Show this message
 `--offline-mode`, `-o` Only use local cache. No fetching data online.
-`--cache`, `-c` Same as above. Deprecated. Will be removed in v3.X
+`--cache`, `-c` Deprecated legacy cache behavior. Will be removed in v3.X
 `--disable-cache`, `-D` Do not use cache. Always fetch data online.
 `--force`, `-f` Allow non-empty destination directory
 `--verbose`, `-v` Extra logging

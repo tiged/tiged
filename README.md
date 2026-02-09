@@ -95,6 +95,35 @@ Normally tiged caches tar.gz of the repo for future use. This is sometimes unwan
 tiged --disable-cache user/repo
 ```
 
+### Caching and offline mode
+
+By default (tar mode), tiged caches downloaded tarballs under `~/.degit`:
+
+- `~/.degit/<host>/<user>/<repo>/<hash>.tar.gz` (tarballs keyed by commit hash)
+- `~/.degit/<host>/<user>/<repo>/map.json` (maps `ref -> hash`)
+- `~/.degit/<host>/<user>/<repo>/access.json` (tracks last access time per ref)
+
+#### Offline mode
+
+Use offline mode when you want **no network access** and you expect the required data to already be present in `~/.degit`:
+
+```bash
+tiged --offline-mode user/repo
+```
+
+How offline mode resolves what to extract:
+
+- If you specify a full 40-char commit hash (`user/repo#<40-hex>`), tiged uses it directly and looks for `<hash>.tar.gz`.
+- If you specify a branch/tag/`HEAD`, tiged looks up the hash via `map.json`.
+
+If the ref is not in `map.json` or the tarball file is missing, offline mode fails with an error instead of attempting to download.
+
+#### Legacy `--cache` flag
+
+`--cache` is deprecated and will be removed in v3.x. It keeps legacy behavior around using cached `map.json` for ref resolution.
+
+If your goal is “never hit the network”, use `--offline-mode` instead.
+
 ### Specify a subdirectory
 
 To clone a specific subdirectory instead of the entire repo, just add it to the argument:

@@ -1,6 +1,10 @@
 name: Node.js CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
@@ -20,9 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
-
       - name: Lint files
         run: npm run lint
 
@@ -32,11 +33,16 @@ jobs:
       - name: Test types
         run: npm run test-types
 
+      - name: Run tests
+        run: npm test
+
       - name: Did we fail?
         if: failure()
         run: ls -R
 
   build:
+    needs: [lint]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.os }}
     name: Build artifact for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}
     outputs:
