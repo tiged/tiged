@@ -33,7 +33,7 @@ const args = mri<Options & { help?: string }>(process.argv.slice(2), {
     'subgroup',
   ],
 });
-const [src, dest = '.'] = args._;
+const [src, destArg] = args._;
 
 /**
  * The main function of the application.
@@ -158,7 +158,7 @@ async function main() {
       cache: options.cache,
     });
   } else {
-    await run(src, dest, args);
+    await run(src, destArg, args);
   }
 }
 
@@ -170,8 +170,9 @@ async function main() {
  * @param dest - The destination directory where the repository will be cloned to.
  * @param args - Additional options for the cloning process.
  */
-async function run(src: string, dest: string, args: Options) {
+async function run(src: string, dest: string | undefined, args: Options) {
   const t = tiged(src, args);
+  const resolvedDest = dest ?? t.repo.name;
 
   t.on('info', event => {
     console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
@@ -182,7 +183,7 @@ async function run(src: string, dest: string, args: Options) {
   });
 
   try {
-    await t.clone(dest);
+    await t.clone(resolvedDest);
   } catch (err) {
     if (err instanceof Error) {
       console.error(red(`! ${err.message.replace('options.', '--')}`));

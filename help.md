@@ -4,7 +4,9 @@ Usage:
 
 `tiged <src>[#ref] [<dest>] [options]`
 
-Fetches the `src` repo, and extracts it to `dest` (or the current directory).
+Fetches the `src` repo, and extracts it to `dest`.
+
+If `dest` is not provided, tiged creates a new folder named after the repo.
 
 The `src` argument can be any of the following:
 

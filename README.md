@@ -42,6 +42,14 @@ tiged git@github.com:user/repo
 tiged https://github.com/user/repo
 ```
 
+By default, if you omit `<dest>`, tiged creates a new folder named after the repo.
+
+To clone into the current directory explicitly, pass `.` as the destination:
+
+```bash
+tiged user/repo .
+```
+
 Or you can download from GitLab, BitBucket, Sourcehut, Hugging Face, and Codeberg:
 
 ```bash
