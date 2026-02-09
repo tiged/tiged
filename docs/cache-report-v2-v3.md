@@ -7,9 +7,9 @@ Scope: how tiged caches repo downloads today (v2), what’s confusing/buggy, and
 
 - **Today (v2), caching is mostly a tarball cache** under `~/.degit/…` keyed by commit hash, with a small JSON index (`map.json`) and access log (`access.json`).
 - **The CLI/API flags are confusing because they mix three concerns**:
-  1) whether to reuse existing cached data,
-  2) whether to write new cache entries,
-  3) whether to allow any network access (offline).
+  1. whether to reuse existing cached data,
+  2. whether to write new cache entries,
+  3. whether to allow any network access (offline).
 - **`--offline-mode` does not reliably prevent network access** due to a logic bug in the tar clone path.
 - **`updateCache()` has a bug that can delete the wrong tarball**, which can make cache behavior feel flaky.
 - **`--mode=git` does not cache at all**; only tar mode uses the `~/.degit` cache.
@@ -44,6 +44,7 @@ For tar mode (`--mode=tar`, the default for supported hosts):
 - The ref mapping (`map.json`) is keyed by **the user-supplied ref string** (`repo.ref`).
 
 This distinction matters:
+
 - Online runs can resolve `ref -> hash` via `git ls-remote`, and then use the tarball cache if present.
 - Offline runs cannot resolve `ref -> hash` unless it’s already in `map.json`.
 
@@ -80,13 +81,16 @@ Note: the current implementation uses a thrown string (`"don't use cache"`) to b
 ### `--offline-mode` / `offlineMode`
 
 Intended (per help text):
+
 - **No network**. Only use local cached data.
 
 Actual v2 behavior:
-- Hash resolution *does* switch to `map.json` when offline mode is enabled.
+
+- Hash resolution _does_ switch to `map.json` when offline mode is enabled.
 - But the tarball download path has logic that can still attempt a network download unless a second flag (`--cache`) is also set.
 
 Net result:
+
 - Users can observe **offline mode still hitting the network**, which violates expectations.
 
 ### `--cache` (deprecated)
@@ -94,11 +98,13 @@ Net result:
 Help text says `--cache` is the same as offline mode and will be removed in v3.
 
 Actual v2 behavior:
+
 - `--cache` causes tiged to use `map.json` for hash resolution.
 - But unlike true offline mode, it may still download the tarball if the tarball file is missing.
 
 This makes `--cache` behave like:
-- “Use cached *ref → hash*, but still allow network for the tarball.”
+
+- “Use cached _ref → hash_, but still allow network for the tarball.”
 
 That’s not a common or intuitive mode, and it’s not what the help text implies.
 
@@ -127,15 +133,17 @@ If a user runs:
 …and `<fullHash>.tar.gz` exists, v2 can still fail because it tries to find `<fullHash>` inside `map.json` (as a `ref`).
 
 A sensible offline implementation should allow:
+
 - if ref is a full hash, treat it as the hash (no map lookup needed).
 
 ### 3) `updateCache()` can delete the wrong tarball
 
-When `map.json` changes, v2 attempts to delete the *old* tarball if it’s unused.
+When `map.json` changes, v2 attempts to delete the _old_ tarball if it’s unused.
 
 However, the “is this tarball still used?” check compares cached values to the **new** hash rather than the **old** hash. That can cause it to delete a tarball that’s still needed.
 
 Impact:
+
 - Cache appears unreliable.
 - Offline workflows become flaky (tarball missing unexpectedly).
 
@@ -148,6 +156,7 @@ In practice, users want to independently control:
 - **network**: allowed vs disallowed
 
 In v2:
+
 - `--disable-cache` is close to “read=false, write=false”, but not named that way.
 - `--offline-mode` intends “network=false” but doesn’t enforce it.
 - `--cache` is deprecated and behaves oddly.
@@ -157,6 +166,7 @@ In v2:
 The README mentions `zlib: unexpected end of file` and suggests disabling cache or deleting `~/.degit`.
 
 That symptom often points to:
+
 - interrupted download, leaving a truncated `.tar.gz` that later gets reused.
 
 A robust cache should download to a temp file and rename atomically, and optionally validate the archive.
@@ -183,20 +193,20 @@ A robust cache should download to a temp file and rename atomically, and optiona
 - Needs:
   - `--offline` meaning “never hit network”.
   - Works when ref is a full hash.
-  - Works for branches/tags *only if* they were resolved before and recorded.
+  - Works for branches/tags _only if_ they were resolved before and recorded.
 
 ### D. CI environments
 
 Common CI wants split cleanly:
 
-1) **Read cache but don’t write**
+1. **Read cache but don’t write**
    - Goal: speed up builds without polluting cache.
    - Example: shared runner cache is provided externally.
 
-2) **Write cache but ignore existing** (“refresh”)
+2. **Write cache but ignore existing** (“refresh”)
    - Goal: avoid corrupted/stale tarballs but still repopulate.
 
-3) **No cache at all**
+3. **No cache at all**
    - Goal: hermetic runs with no cross-job state.
 
 ### E. Debugging / recovering from corruption
@@ -224,11 +234,11 @@ Common CI wants split cleanly:
 
 Define these independent behaviors:
 
-1) **Network**
+1. **Network**
    - `network: true|false`
-2) **Cache read** (reuse local tarball / local metadata)
+2. **Cache read** (reuse local tarball / local metadata)
    - `cache.read: true|false`
-3) **Cache write** (save tarball / update metadata)
+3. **Cache write** (save tarball / update metadata)
    - `cache.write: true|false`
 
 Then define common “modes” as presets.
@@ -261,6 +271,7 @@ Optional but high-value:
 ### JS API proposal (breaking change)
 
 Deprecate/remove:
+
 - `cache?: boolean` (currently deprecated already)
 - `disableCache?: boolean`
 
@@ -319,6 +330,7 @@ Migration mapping:
 Recommendation: **not by default**.
 
 Reasons:
+
 - Git mode is primarily for private repos and unsupported hosts.
 - Caching git repositories implies storing full template sources on disk, which may surprise users and has security/compliance implications.
 - Correct git caching (mirrors, updates, authentication, concurrency, Windows/macOS/Linux parity) is significantly more complex than tarball caching.
@@ -335,12 +347,12 @@ But keep this separate from tar cache so the simple case stays simple.
 
 ## Concrete next steps
 
-1) Fix v2 bugs (even if semantics change in v3):
+1. Fix v2 bugs (even if semantics change in v3):
    - offline mode network gating
    - `updateCache()` old tarball deletion check
    - offline “ref is hash” shortcut
 
-2) In v2, deprecate confusing knobs more loudly:
+2. In v2, deprecate confusing knobs more loudly:
    - warn when using `--cache` / `opts.cache`
 
-3) Implement v3 cache API/flags with a migration note in README/help.
+3. Implement v3 cache API/flags with a migration note in README/help.

@@ -174,7 +174,7 @@ export async function fetch(url: string, dest: string, proxy?: string) {
   // Some hosts (e.g. SourceHut) respond differently to the legacy https client.
   // Use Node's built-in fetch (undici) for those hosts when no proxy is configured.
   const hostname = new URL(url).hostname;
-  const useBuiltInFetch = !proxy && (hostname === 'git.sr.ht');
+  const useBuiltInFetch = !proxy && hostname === 'git.sr.ht';
 
   if (useBuiltInFetch) {
     const response = await globalThis.fetch(url, {
