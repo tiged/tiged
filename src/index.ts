@@ -668,8 +668,13 @@ class Tiged extends EventEmitter {
 
     const cached: Record<string, string> =
       tryRequire(path.join(dir, 'map.json')) || {};
-    const hash =
-      this.offlineMode || this.cache
+
+    const isFullCommitHash = /^[0-9a-f]{40}$/.test(repo.ref);
+    const hash = this.offlineMode
+      ? isFullCommitHash
+        ? repo.ref
+        : this._getHashFromCache(repo, cached)
+      : this.cache
         ? this._getHashFromCache(repo, cached)
         : await this._getHash(repo, cached);
 
@@ -692,7 +697,35 @@ class Tiged extends EventEmitter {
           : `${repo.url}/archive/${hash}.tar.gz`;
 
     try {
-      if (!this.offlineMode || !this.cache) {
+      if (this.offlineMode) {
+        if (this.noCache) {
+          throw new TigedError(
+            `--offline-mode cannot be used with --disable-cache`,
+            {
+              code: 'BAD_REF',
+              ref: repo.ref,
+              url,
+            },
+          );
+        }
+
+        try {
+          await fs.stat(file);
+          this._verbose({
+            code: 'FILE_EXISTS',
+            message: `${file} already exists locally`,
+          });
+        } catch {
+          throw new TigedError(
+            `offline mode: missing cached tarball for ${repo.ref}`,
+            {
+              code: 'CACHE_MISS',
+              ref: repo.ref,
+              url,
+            },
+          );
+        }
+      } else {
         try {
           if (this.noCache) {
             this._verbose({
@@ -701,12 +734,13 @@ class Tiged extends EventEmitter {
             });
             throw "don't use cache";
           }
+
           await fs.stat(file);
           this._verbose({
             code: 'FILE_EXISTS',
             message: `${file} already exists locally`,
           });
-        } catch (err) {
+        } catch {
           // Not getting file from cache. Either because there is no cached tar or because option no cache is set to true.
           await fs.mkdir(path.dirname(file), { recursive: true });
 
@@ -726,6 +760,9 @@ class Tiged extends EventEmitter {
         }
       }
     } catch (err) {
+      if (err instanceof TigedError) {
+        throw err;
+      }
       const original =
         err instanceof Error
           ? err
@@ -1042,15 +1079,16 @@ async function updateCache(
 
   const oldHash = cached[repo.ref];
   if (oldHash) {
-    let used = false;
+    let usedElsewhere = false;
     for (const key in cached) {
-      if (cached[key] === hash) {
-        used = true;
+      if (key === repo.ref) continue;
+      if (cached[key] === oldHash) {
+        usedElsewhere = true;
         break;
       }
     }
 
-    if (!used) {
+    if (!usedElsewhere) {
       // we no longer need this tar file
       try {
         await fs.unlink(path.join(dir, `${oldHash}.tar.gz`));
