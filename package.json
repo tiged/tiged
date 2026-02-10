@@ -64,10 +64,10 @@
   "dependencies": {
     "@folder/xdg": "^4.0.1",
     "enquirer": "^2.4.1",
-    "https-proxy-agent": "^7.0.6",
     "mri": "^1.2.0",
     "picocolors": "^1.1.1",
-    "tinyglobby": "^0.2.13"
+    "tinyglobby": "^0.2.13",
+    "undici": "^7.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
