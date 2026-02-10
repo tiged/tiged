@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import enquirer from 'enquirer';
-import mri from 'mri';
+import parseCliArgs from './cli-parser.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import picocolors from 'picocolors';
@@ -17,7 +17,7 @@ import {
 
 const { bold, cyan, magenta, red, underline } = picocolors;
 
-const args = mri<Options & { help?: string }>(process.argv.slice(2), {
+const args = parseCliArgs<Options & { help?: string }>(process.argv.slice(2), {
   alias: {
     f: 'force',
     c: 'cache',

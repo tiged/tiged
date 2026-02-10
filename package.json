@@ -64,7 +64,6 @@
   "dependencies": {
     "@folder/xdg": "^4.0.1",
     "enquirer": "^2.4.1",
-    "mri": "^1.2.0",
     "picocolors": "^1.1.1",
     "tinyglobby": "^0.2.13",
     "undici": "^7.21.0"
