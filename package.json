@@ -68,7 +68,6 @@
     "https-proxy-agent": "^7.0.6",
     "mri": "^1.2.0",
     "picocolors": "^1.1.1",
-    "tar": "^7.4.3",
     "tinyglobby": "^0.2.13"
   },
   "devDependencies": {

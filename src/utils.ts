@@ -28,6 +28,7 @@ export type TigedErrorCode =
   | 'MISSING_GIT'
   | 'COULD_NOT_DOWNLOAD'
   | 'CACHE_MISS'
+  | 'BAD_TAR_PATH'
   | 'BAD_SRC'
   | 'UNSUPPORTED_HOST'
   | 'BAD_REF'
