@@ -417,6 +417,7 @@ const calculateStringDistance = (
   const { rowWidth, d } = initializeDPMatrix(aTrimmed, bTrimmed);
   const da = new Uint32Array(0x10000);
   da.fill(0);
+  const getD = (index: number) => d[index] ?? 0;
 
   for (let i = 1; i <= aTrimmed.length; i++) {
     let db = 0;
@@ -429,16 +430,16 @@ const calculateStringDistance = (
         db = j;
       }
       d[getIndex(rowWidth, i, j)] = Math.min(
-        d[getIndex(rowWidth, i - 1, j - 1)] + cost,
-        d[getIndex(rowWidth, i, j - 1)] + 1,
-        d[getIndex(rowWidth, i - 1, j)] + 1,
-        d[getIndex(rowWidth, k - 1, l - 1)] + (i - k - 1) + (j - l - 1) + 1,
+        getD(getIndex(rowWidth, i - 1, j - 1)) + cost,
+        getD(getIndex(rowWidth, i, j - 1)) + 1,
+        getD(getIndex(rowWidth, i - 1, j)) + 1,
+        getD(getIndex(rowWidth, k - 1, l - 1)) + (i - k - 1) + (j - l - 1) + 1,
       );
       da[aTrimmed.charCodeAt(i - 1)] = i;
     }
   }
 
-  return d[getIndex(rowWidth, aTrimmed.length, bTrimmed.length)];
+  return getD(getIndex(rowWidth, aTrimmed.length, bTrimmed.length));
 };
 
 export const damerauLevenshtein = (
