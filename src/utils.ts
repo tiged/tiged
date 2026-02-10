@@ -5,9 +5,8 @@ import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { ProxyAgent, fetch as undiciFetch } from 'undici';
+import { ProxyAgent, request } from 'undici';
 import xdg from '@folder/xdg';
 
 const tmpDirName = 'tmp';
@@ -174,34 +173,72 @@ export async function fetch(url: string, dest: string, proxy?: string) {
   await fs.mkdir(path.dirname(dest), { recursive: true });
   const dispatcher = proxy ? new ProxyAgent(proxy) : undefined;
   try {
-    const response = await undiciFetch(url, {
-      redirect: 'follow',
-      dispatcher,
-    });
+    const maxRedirects = 10;
+    const requestHeaders = {
+      accept: '*/*',
+      'user-agent': 'tiged',
+    };
 
-    if (!response.ok) {
+    const resolveLocation = (location: string | string[] | undefined) => {
+      if (!location) return null;
+      const value = Array.isArray(location) ? location[0] : location;
+      if (!value) return null;
+      return value;
+    };
+
+    const requestWithRedirects = async (
+      currentUrl: string,
+      redirects: number,
+    ): Promise<{ statusCode: number; statusText?: string; body: any }> => {
+      if (redirects > maxRedirects) {
+        throw new Error('Too many redirects');
+      }
+
+      const { statusCode, statusText, headers, body } = await request(
+        currentUrl,
+        {
+          dispatcher,
+          headers: requestHeaders,
+        },
+      );
+
+      if (statusCode >= 300 && statusCode < 400) {
+        const location = resolveLocation(headers.location);
+        if (!location) {
+          body?.resume?.();
+          throw new Error('No location header');
+        }
+        const nextUrl = new URL(location, currentUrl).toString();
+        body?.resume?.();
+        return requestWithRedirects(nextUrl, redirects + 1);
+      }
+
+      return { statusCode, statusText, body };
+    };
+
+    const { statusCode, statusText, body } = await requestWithRedirects(url, 0);
+
+    if (statusCode >= 400) {
+      body?.resume?.();
       const err = new Error(
-        `Request failed with status ${response.status} ${response.statusText}`,
+        `Request failed with status ${statusCode} ${statusText ?? ''}`,
       ) as Error & { status?: number; url?: string };
-      err.status = response.status;
+      err.status = statusCode;
       err.url = url;
       throw err;
     }
 
-    if (response.body == null) {
+    if (body == null) {
       const err = new Error('No response body') as Error & {
         status?: number;
         url?: string;
       };
-      err.status = response.status;
+      err.status = statusCode;
       err.url = url;
       throw err;
     }
 
-    await pipeline(
-      Readable.fromWeb(response.body as any),
-      createWriteStream(dest),
-    );
+    await pipeline(body, createWriteStream(dest));
   } finally {
     await dispatcher?.close();
   }
