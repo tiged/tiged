@@ -8,16 +8,16 @@ const gunzipAsync = promisify(gunzip);
 
 type TarType = 'file' | 'directory' | 'other';
 
-type TarHeader = {
+interface TarHeader {
   name: string;
   mode?: number;
   size: number;
   type: TarType;
-};
+}
 
 const isZeroBlock = (block: Uint8Array) => {
-  for (let i = 0; i < block.length; i++) {
-    if (block[i] !== 0) return false;
+  for (const b of block) {
+    if (b !== 0) return false;
   }
   return true;
 };
@@ -90,7 +90,8 @@ const ensureSafeOutPath = (destResolved: string, relativePosixPath: string) => {
 const parseHeaderAt = (tar: Uint8Array, offset: number) => {
   const block = tar.subarray(offset, offset + 512);
   if (block.length < 512) return null;
-  if (isZeroBlock(block)) return { header: null as any, nextOffset: offset + 512 };
+  if (isZeroBlock(block))
+    return { header: null as any, nextOffset: offset + 512 };
 
   const name = decodeCString(block.subarray(0, 100));
   const mode = parseOctal(block.subarray(100, 108));
@@ -133,11 +134,11 @@ const parseHeaderAt = (tar: Uint8Array, offset: number) => {
   return { header, dataStart, nextOffset };
 };
 
-type ScanResult = {
+interface ScanResult {
   rootPrefix: string;
   subdirRelNorm: string | null;
   isSubDirFile: boolean;
-};
+}
 
 const scanTarGz = async (tgz: Uint8Array, subdirNorm: string | null) => {
   const tar = new Uint8Array(await gunzipAsync(tgz));
@@ -185,11 +186,16 @@ const scanTarGz = async (tgz: Uint8Array, subdirNorm: string | null) => {
     const nameNorm = normalizeTarPath(effectiveName);
 
     // Determine root prefix from the first real entry.
-    if (!rootPrefix && (header.type === 'file' || header.type === 'directory')) {
+    if (
+      !rootPrefix &&
+      (header.type === 'file' || header.type === 'directory')
+    ) {
       const first = nameNorm.split('/')[0];
       if (first && first !== '.' && first !== 'pax_global_header') {
         rootPrefix = first;
-        subdirRelNorm = subdirNorm ? splitRootPrefix(subdirNorm, rootPrefix) : null;
+        subdirRelNorm = subdirNorm
+          ? splitRootPrefix(subdirNorm, rootPrefix)
+          : null;
       }
     }
 
@@ -220,7 +226,9 @@ export async function untarToDir(
 
   const tgz = await fs.readFile(file);
 
-  const subdirNorm = subdir ? normalizeTarPath(subdir).replace(/\/+$/, '') : null;
+  const subdirNorm = subdir
+    ? normalizeTarPath(subdir).replace(/\/+$/, '')
+    : null;
   const { tar, rootPrefix, subdirRelNorm, isSubDirFile } = await scanTarGz(
     tgz,
     subdirNorm,
@@ -231,9 +239,7 @@ export async function untarToDir(
   const shouldInclude = (relPath: string) => {
     if (!subdirRelNorm) return true;
     if (isSubDirFile) return relPath === subdirRelNorm;
-    return (
-      relPath === subdirRelNorm || relPath.startsWith(`${subdirRelNorm}/`)
-    );
+    return relPath === subdirRelNorm || relPath.startsWith(`${subdirRelNorm}/`);
   };
 
   let pendingPax: Record<string, string> | null = null;
