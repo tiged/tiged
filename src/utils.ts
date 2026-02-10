@@ -1,14 +1,12 @@
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as child_process from 'node:child_process';
 import { createWriteStream } from 'node:fs';
 import * as fs from 'node:fs/promises';
-import * as https from 'node:https';
 import { createRequire } from 'node:module';
 import type { constants } from 'node:os';
 import { homedir, tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { ProxyAgent, request } from 'undici';
 import xdg from '@folder/xdg';
 
 const tmpDirName = 'tmp';
@@ -173,90 +171,77 @@ export async function exec(
  */
 export async function fetch(url: string, dest: string, proxy?: string) {
   await fs.mkdir(path.dirname(dest), { recursive: true });
+  const dispatcher = proxy ? new ProxyAgent(proxy) : undefined;
+  try {
+    const maxRedirects = 10;
+    const requestHeaders = {
+      accept: '*/*',
+      'user-agent': 'tiged',
+    };
 
-  // Some hosts (e.g. SourceHut) respond differently to the legacy https client.
-  // Use Node's built-in fetch (undici) for those hosts when no proxy is configured.
-  const hostname = new URL(url).hostname;
-  const useBuiltInFetch = !proxy && hostname === 'git.sr.ht';
+    const resolveLocation = (location: string | string[] | undefined) => {
+      if (!location) return null;
+      const value = Array.isArray(location) ? location[0] : location;
+      if (!value) return null;
+      return value;
+    };
 
-  if (useBuiltInFetch) {
-    const response = await globalThis.fetch(url, {
-      redirect: 'follow',
-    });
+    const requestWithRedirects = async (
+      currentUrl: string,
+      redirects: number,
+    ): Promise<{ statusCode: number; statusText?: string; body: any }> => {
+      if (redirects > maxRedirects) {
+        throw new Error('Too many redirects');
+      }
 
-    if (!response.ok) {
+      const { statusCode, statusText, headers, body } = await request(
+        currentUrl,
+        {
+          dispatcher,
+          headers: requestHeaders,
+        },
+      );
+
+      if (statusCode >= 300 && statusCode < 400) {
+        const location = resolveLocation(headers.location);
+        if (!location) {
+          body?.resume?.();
+          throw new Error('No location header');
+        }
+        const nextUrl = new URL(location, currentUrl).toString();
+        body?.resume?.();
+        return requestWithRedirects(nextUrl, redirects + 1);
+      }
+
+      return { statusCode, statusText, body };
+    };
+
+    const { statusCode, statusText, body } = await requestWithRedirects(url, 0);
+
+    if (statusCode >= 400) {
+      body?.resume?.();
       const err = new Error(
-        `Request failed with status ${response.status} ${response.statusText}`,
+        `Request failed with status ${statusCode} ${statusText ?? ''}`,
       ) as Error & { status?: number; url?: string };
-      err.status = response.status;
+      err.status = statusCode;
       err.url = url;
       throw err;
     }
 
-    if (response.body == null) {
+    if (body == null) {
       const err = new Error('No response body') as Error & {
         status?: number;
         url?: string;
       };
-      err.status = response.status;
+      err.status = statusCode;
       err.url = url;
       throw err;
     }
 
-    await pipeline(
-      Readable.fromWeb(response.body as any),
-      createWriteStream(dest),
-    );
-    return;
+    await pipeline(body, createWriteStream(dest));
+  } finally {
+    await dispatcher?.close();
   }
-
-  // Default/proxy path: https + https-proxy-agent.
-  await new Promise<void>((fulfil, reject) => {
-    const parsedUrl = new URL(url);
-    const options: https.RequestOptions = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port,
-      path: `${parsedUrl.pathname}${parsedUrl.search}`,
-      headers: {
-        Connection: 'close',
-      },
-      agent: proxy ? new HttpsProxyAgent(proxy) : undefined,
-    };
-
-    https
-      .get(options, response => {
-        const code = response.statusCode;
-        if (code == null) {
-          return reject(new Error('No status code'));
-        }
-
-        if (code >= 400) {
-          const err = new Error(
-            `Request failed with status ${code} ${response.statusMessage ?? ''}`,
-          ) as Error & { status?: number; url?: string };
-          err.status = code;
-          err.url = url;
-          return reject(err);
-        }
-
-        if (code >= 300) {
-          const location = response.headers.location;
-          if (location == null) {
-            return reject(new Error('No location header'));
-          }
-          const nextUrl = new URL(location, parsedUrl).toString();
-          response.resume();
-          fetch(nextUrl, dest, proxy).then(fulfil, reject);
-          return;
-        }
-
-        response
-          .pipe(createWriteStream(dest))
-          .on('finish', () => fulfil())
-          .on('error', reject);
-      })
-      .on('error', reject);
-  });
 }
 
 /**
