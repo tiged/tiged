@@ -378,3 +378,79 @@ const xdgCacheDir = (() => {
 
 export const base =
   process.env.XDG_CACHE_HOME && xdgCacheDir ? xdgCacheDir : legacyCacheDir;
+
+interface DamerauLevenshteinResult {
+  steps: number;
+  relative: number;
+  similarity: number;
+}
+
+const getIndex = (rowWidth: number, x: number, y: number) =>
+  (y + 1) * rowWidth + (x + 1);
+
+const initializeDPMatrix = (a: string, b: string) => {
+  const maxDistance = a.length + b.length;
+  const rowWidth = a.length + 2;
+  const colWidth = b.length + 2;
+  const d = new Uint32Array(rowWidth * colWidth);
+  d[getIndex(rowWidth, -1, -1)] = maxDistance;
+  for (let i = 0; i <= a.length; i++) {
+    d[getIndex(rowWidth, i, -1)] = maxDistance;
+    d[getIndex(rowWidth, i, 0)] = i;
+  }
+  for (let i = 0; i <= b.length; i++) {
+    d[getIndex(rowWidth, -1, i)] = maxDistance;
+    d[getIndex(rowWidth, 0, i)] = i;
+  }
+  return { rowWidth, d };
+};
+
+const calculateStringDistance = (
+  a: string,
+  b: string,
+  maxLength = Math.max(a.length, b.length),
+) => {
+  if (a.length + b.length === 0 || maxLength === 0) return 0;
+
+  const aTrimmed = a.length > maxLength ? a.substring(0, maxLength) : a;
+  const bTrimmed = b.length > maxLength ? b.substring(0, maxLength) : b;
+  const { rowWidth, d } = initializeDPMatrix(aTrimmed, bTrimmed);
+  const da = new Uint32Array(0x10000);
+  da.fill(0);
+
+  for (let i = 1; i <= aTrimmed.length; i++) {
+    let db = 0;
+    for (let j = 1; j <= bTrimmed.length; j++) {
+      const k = da[bTrimmed.charCodeAt(j - 1)] ?? 0;
+      const l = db;
+      let cost = 1;
+      if (aTrimmed.charCodeAt(i - 1) === bTrimmed.charCodeAt(j - 1)) {
+        cost = 0;
+        db = j;
+      }
+      d[getIndex(rowWidth, i, j)] = Math.min(
+        d[getIndex(rowWidth, i - 1, j - 1)] + cost,
+        d[getIndex(rowWidth, i, j - 1)] + 1,
+        d[getIndex(rowWidth, i - 1, j)] + 1,
+        d[getIndex(rowWidth, k - 1, l - 1)] + (i - k - 1) + (j - l - 1) + 1,
+      );
+      da[aTrimmed.charCodeAt(i - 1)] = i;
+    }
+  }
+
+  return d[getIndex(rowWidth, aTrimmed.length, bTrimmed.length)];
+};
+
+export const damerauLevenshtein = (
+  str1: string,
+  str2: string,
+): DamerauLevenshteinResult => {
+  const steps = calculateStringDistance(str1, str2);
+  const length = Math.max(str1.length, str2.length);
+  const relative = length === 0 ? 0 : steps / length;
+  const similarity = 1 - relative;
+  return { steps, relative, similarity };
+};
+
+export const damerauLevenshteinSimilarity = (str1: string, str2: string) =>
+  damerauLevenshtein(str1, str2).similarity;

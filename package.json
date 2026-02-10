@@ -64,7 +64,6 @@
   "dependencies": {
     "@folder/xdg": "^4.0.1",
     "enquirer": "^2.4.1",
-    "fuzzysearch": "^1.0.3",
     "https-proxy-agent": "^7.0.6",
     "mri": "^1.2.0",
     "picocolors": "^1.1.1",
@@ -73,7 +72,6 @@
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@types/eslint-config-prettier": "^6.11.3",
-    "@types/fuzzysearch": "^1.0.2",
     "@types/node": "^22.14.1",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
