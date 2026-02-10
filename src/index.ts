@@ -101,6 +101,13 @@ export interface Options {
    * @default undefined
    */
   'sub-directory'?: string;
+
+  /**
+   * Specifies the proxy server to use for network requests.
+   *
+   * @default undefined
+   */
+  proxy?: string;
 }
 
 // TODO: We might not need this one.
@@ -310,7 +317,7 @@ class Tiged extends EventEmitter {
     this.cache = opts.cache;
     this.force = opts.force;
     this.verbose = opts.verbose;
-    this.proxy = this._getHttpsProxy(); // TODO allow setting via --proxy
+    this.proxy = opts.proxy ?? this._getHttpsProxy();
     this.subgroup = opts.subgroup;
     this.subdir = opts['sub-directory'];
 
@@ -343,7 +350,11 @@ class Tiged extends EventEmitter {
         }
         const opts = Object.assign(
           { force: true },
-          { cache: action.cache, verbose: action.verbose },
+          {
+            cache: action.cache,
+            verbose: action.verbose,
+            proxy: this.proxy,
+          },
         );
         const t = tiged(action.src, opts);
 
@@ -372,8 +383,6 @@ class Tiged extends EventEmitter {
 
   // Return the HTTPS proxy address. Try to get the value by environment
   // variable `https_proxy` or `HTTPS_PROXY`.
-  //
-  // TODO allow setting via --proxy
   /**
    * Retrieves the HTTPS proxy from the environment variables.
    *

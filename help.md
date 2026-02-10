@@ -74,6 +74,7 @@ Options:
 `--disable-cache`, `-D` Do not use cache. Always fetch data online.
 `--force`, `-f` Overwrite existing destination directory (deletes its contents)
 `--verbose`, `-v` Extra logging
+`--proxy`, `-p` Proxy server URL for network requests
 `--subgroup`, `-s` Use if repo is in a subgroup (GitLab)
 `--sub-directory`, `-d` Clone only a subdirectory of the repo
 `--mode=`, `-m=` Force the mode by which tiged clones the repo
