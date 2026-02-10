@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import enquirer from 'enquirer';
-import fuzzysearch from 'fuzzysearch';
 import mri from 'mri';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -9,7 +8,12 @@ import picocolors from 'picocolors';
 import type { Options } from 'tiged';
 import { tiged } from 'tiged';
 import { glob } from 'tinyglobby';
-import { base, pathExists, tryRequire } from './utils.js';
+import {
+  base,
+  damerauLevenshteinSimilarity,
+  pathExists,
+  tryRequire,
+} from './utils.js';
 
 const { bold, cyan, magenta, red, underline } = picocolors;
 
@@ -117,8 +121,16 @@ async function main() {
         type: 'autocomplete',
         name: 'src',
         message: 'Repo to clone?',
-        suggest: (input: string, choices: { value: string }[]) =>
-          choices.filter(({ value }) => fuzzysearch(input, value)),
+        suggest: (input: string, choices: { value: string }[]) => {
+          const query = input.trim();
+          if (!query) return choices;
+          const queryLower = query.toLowerCase();
+          return choices.filter(({ value }) => {
+            const valueLower = value.toLowerCase();
+            if (valueLower.includes(queryLower)) return true;
+            return damerauLevenshteinSimilarity(queryLower, valueLower) >= 0.5;
+          });
+        },
         choices,
       } as any,
       {
