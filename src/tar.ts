@@ -96,7 +96,7 @@ const parseHeaderAt = (tar: Uint8Array, offset: number) => {
   const name = decodeCString(block.subarray(0, 100));
   const mode = parseOctal(block.subarray(100, 108));
   const size = parseOctal(block.subarray(124, 136));
-  const typeflag = block[156];
+  const typeflag = block[156] ?? 0;
   const magic = decodeCString(block.subarray(257, 263));
   const prefix = decodeCString(block.subarray(345, 500));
 
