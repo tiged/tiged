@@ -107,8 +107,9 @@ tiged --disable-cache user/repo
 
 By default (tar mode), tiged caches downloaded tarballs under:
 
-- `$XDG_CACHE_HOME/tiged` (when `XDG_CACHE_HOME` is set)
-- `~/.tiged` (otherwise)
+- macOS: `~/Library/Caches/tiged`
+- Windows: `%LOCALAPPDATA%\tiged\Cache`
+- Linux: `$XDG_CACHE_HOME/tiged` (or `~/.cache/tiged`)
 
 - `<cacheDir>/<host>/<user>/<repo>/<hash>.tar.gz` (tarballs keyed by commit hash)
 - `<cacheDir>/<host>/<user>/<repo>/map.json` (maps `ref -> hash`)

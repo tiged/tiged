@@ -27,3 +27,8 @@ Before pushing, ALWAYS run:
 - `npm run test-types`
 
 Run `npm run format` even after creating/modifying Markdown files.
+
+If you need to auto-fix issues:
+
+- `npm run lint:fix`
+- `npm run format`
