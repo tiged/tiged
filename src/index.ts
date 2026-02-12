@@ -224,6 +224,11 @@ export function tiged(src: string, opts?: Options) {
  */
 class Tiged extends EventEmitter {
   /**
+   * The source repository to be cloned, specified as a string.
+   */
+  public src: string;
+
+  /**
    * Enables offline mode, where operations rely on cached data.
    */
   declare public offlineMode?: boolean;
@@ -304,11 +309,11 @@ class Tiged extends EventEmitter {
    * @param src - The source repository string.
    * @param opts - Optional parameters to customize the behavior.
    */
-  constructor(
-    public src: string,
-    opts: Options = {},
-  ) {
+  constructor(src: string, opts: Options = {}) {
     super();
+
+    this.src = src;
+
     if (opts['offline-mode']) this.offlineMode = opts['offline-mode'];
     if (opts.offlineMode) this.offlineMode = opts.offlineMode;
     if (opts['disable-cache']) this.noCache = opts['disable-cache'];
