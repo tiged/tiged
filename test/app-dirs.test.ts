@@ -32,7 +32,12 @@ describe('resolveAppDirs', () => {
 
     expect(dirs).toEqual({
       cache: path.posix.join('/Users/tester', 'Library', 'Caches', 'tiged'),
-      config: path.posix.join('/Users/tester', 'Library', 'Preferences', 'tiged'),
+      config: path.posix.join(
+        '/Users/tester',
+        'Library',
+        'Preferences',
+        'tiged',
+      ),
       data: path.posix.join(
         '/Users/tester',
         'Library',
