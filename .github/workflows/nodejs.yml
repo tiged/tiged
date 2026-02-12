@@ -94,8 +94,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x, 22.x, latest]
+        node-version: [22.x, 24.x, latest]
         os: [windows-latest, ubuntu-latest, macos-latest]
+        exclude:
+          - os: windows-latest
+            node-version: 22.x
+          - os: windows-latest
+            node-version: 24.x
+          - os: macos-latest
+            node-version: 22.x
+          - os: macos-latest
+            node-version: 24.x
 
     steps:
       - name: Checkout repository
@@ -139,7 +148,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [latest]
         os: [ubuntu-latest]
 
     steps:
