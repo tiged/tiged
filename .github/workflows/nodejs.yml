@@ -148,7 +148,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [latest]
         os: [ubuntu-latest]
 
     steps:
