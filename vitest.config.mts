@@ -40,7 +40,9 @@ const vitestConfig = defineConfig({
     globals: true,
     globalSetup: ['./test/vitest-global.setup.ts'],
     include: ['**/*.test.?(c|m)ts?(x)'],
-    name: packageJson.name,
+    name: {
+      label: packageJson.name,
+    },
 
     reporters: process.env.GITHUB_ACTIONS
       ? [['default', { summary: false }], ['github-actions']]
