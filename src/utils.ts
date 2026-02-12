@@ -7,7 +7,6 @@ import { homedir, tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { ProxyAgent, request } from 'undici';
-import xdg from '@folder/xdg';
 
 const tmpDirName = 'tmp';
 
@@ -16,6 +15,61 @@ export const tigedConfigName = 'degit.json';
 const getHomeOrTmp = () => homedir() || tmpdir();
 
 const homeOrTmp = /* @__PURE__ */ getHomeOrTmp();
+
+export interface AppDirs {
+  data: string;
+  config: string;
+  cache: string;
+}
+
+export interface ResolveAppDirsOptions {
+  platform?: NodeJS.Platform;
+  env?: NodeJS.ProcessEnv;
+  home?: string;
+}
+
+export const resolveAppDirs = (
+  appName: string,
+  options: ResolveAppDirsOptions = {},
+): AppDirs => {
+  const platform = options.platform ?? process.platform;
+  const env = options.env ?? process.env;
+  const home = options.home ?? homeOrTmp;
+  const platformPath = platform === 'win32' ? path.win32 : path.posix;
+
+  if (platform === 'darwin') {
+    const library = platformPath.join(home, 'Library');
+    return {
+      data: platformPath.join(library, 'Application Support', appName),
+      config: platformPath.join(library, 'Preferences', appName),
+      cache: platformPath.join(library, 'Caches', appName),
+    };
+  }
+
+  if (platform === 'win32') {
+    const localAppData =
+      env.LOCALAPPDATA ?? platformPath.join(home, 'AppData', 'Local');
+    const roamingAppData =
+      env.APPDATA ?? platformPath.join(home, 'AppData', 'Roaming');
+
+    return {
+      data: platformPath.join(localAppData, appName, 'Data'),
+      config: platformPath.join(roamingAppData, appName, 'Config'),
+      cache: platformPath.join(localAppData, appName, 'Cache'),
+    };
+  }
+
+  const dataHome =
+    env.XDG_DATA_HOME ?? platformPath.join(home, '.local', 'share');
+  const configHome = env.XDG_CONFIG_HOME ?? platformPath.join(home, '.config');
+  const cacheHome = env.XDG_CACHE_HOME ?? platformPath.join(home, '.cache');
+
+  return {
+    data: platformPath.join(dataHome, appName),
+    config: platformPath.join(configHome, appName),
+    cache: platformPath.join(cacheHome, appName),
+  };
+};
 
 /**
  * Represents the possible error codes for the Tiged utility.
@@ -351,18 +405,9 @@ export const isDirectory = async (filePath: string): Promise<boolean> => {
   }
 };
 
-const legacyCacheDir = /* @__PURE__ */ path.join(homeOrTmp, '.tiged');
+const appDirs = /* @__PURE__ */ resolveAppDirs('tiged');
 
-const xdgCacheDir = (() => {
-  try {
-    return xdg({ subdir: 'tiged' }).cache;
-  } catch {
-    return null;
-  }
-})();
-
-export const base =
-  process.env.XDG_CACHE_HOME && xdgCacheDir ? xdgCacheDir : legacyCacheDir;
+export const base = appDirs.cache;
 
 interface DamerauLevenshteinResult {
   steps: number;
