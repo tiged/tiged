@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.x
+          node-version: 24.x
           check-latest: true
           cache: 'npm'
 
@@ -51,15 +51,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
         os: [ubuntu-latest]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
@@ -74,7 +74,7 @@ jobs:
           echo "tarball=$(npm pack | tail -n1)" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         id: artifact-upload
         with:
           name: artifact
@@ -108,10 +108,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
@@ -119,7 +119,7 @@ jobs:
 
       - name: Download artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           path: ./
           name: artifact
@@ -153,10 +153,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           check-latest: true
@@ -167,7 +167,7 @@ jobs:
 
       - name: Download artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           path: ./
           name: artifact
