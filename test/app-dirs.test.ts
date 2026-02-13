@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveAppDirs } from '../src/utils.js';
 
-describe('resolveAppDirs', () => {
+describe(resolveAppDirs, () => {
   it('uses XDG directories on linux', () => {
     const env = {
       XDG_CACHE_HOME: '/xdg/cache',

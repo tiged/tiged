@@ -3,8 +3,11 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../src/tar.js', () => {
+vi.mock(import('../src/tar.js'), async importOriginal => {
+  const actual = await importOriginal();
+
   return {
+    ...actual,
     untarToDir: vi.fn(async () => {
       // Keep these unit tests focused on cache/offline control flow.
       // The tarball files created in this suite are not real archives.
