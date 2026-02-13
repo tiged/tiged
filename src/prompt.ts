@@ -1,31 +1,31 @@
-import readline from 'node:readline';
-import readlinePromises from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
+import * as readline from 'node:readline';
+import * as readlinePromises from 'node:readline/promises';
 
 const defaultListLimit = 10;
 
-export interface PromptChoice {
+export type PromptChoice = {
   name?: string;
   message: string;
   value: string;
-}
+};
 
-export interface InputPromptConfig {
+export type InputPromptConfig = {
   message: string;
   initial?: string;
-}
+};
 
-export interface TogglePromptConfig {
+export type TogglePromptConfig = {
   message: string;
   initial?: boolean;
-}
+};
 
-export interface AutocompletePromptConfig {
+export type AutocompletePromptConfig = {
   message: string;
   choices: PromptChoice[];
   suggest: (input: string, choices: PromptChoice[]) => PromptChoice[];
   limit?: number;
-}
+};
 
 /**
  * Creates a readline interface configured for prompting users.
@@ -116,7 +116,7 @@ export const promptAutocomplete = async (config: AutocompletePromptConfig) => {
       readline.clearScreenDown(output);
     }
 
-    const header = `${config.message}`;
+    const header = config.message;
     const inputLine = `Search or select number: ${inputValue}`;
     const body = currentChoices.length
       ? renderChoices(currentChoices)
