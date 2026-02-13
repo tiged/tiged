@@ -9,13 +9,13 @@ import { createTiged } from 'tiged';
 import { glob } from 'tinyglobby';
 import { parseCliArgs } from './cli-parser.js';
 import { accessLogsFileName } from './constants.js';
+import { promptAutocomplete, promptInput, promptToggle } from './prompt.js';
 import {
   base,
   damerauLevenshteinSimilarity,
   pathExists,
   tryRequire,
 } from './utils.js';
-import { promptAutocomplete, promptInput, promptToggle } from './prompt.js';
 
 const { bold, cyanBright, magentaBright, red, underline } = picocolors;
 
@@ -209,7 +209,7 @@ async function main(): Promise<void> {
 
     const srcAnswer = await promptAutocomplete({
       message: 'Repo to clone?',
-      suggest: (input: string, suggestChoices) => {
+      suggest(input: string, suggestChoices) {
         const query = input.trim();
         if (!query) return suggestChoices;
         const queryLower = query.toLowerCase();

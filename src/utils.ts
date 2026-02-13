@@ -78,7 +78,7 @@ export const resolveAppDirs = (
 };
 
 /**
- * Represents an error that occurs during the tiged process.
+ * Represents an error that occurs during the **`Tiged`** process.
  *
  * @extends Error
  *
@@ -157,37 +157,16 @@ export function tryRequire(
 /**
  * Executes a command and returns the `stdout` and `stderr` as strings.
  *
+ * ### Note: This function was previously known as **`exec`**.
+ *
  * @param command - The command to execute.
- * @param size - The maximum buffer size in kilobytes (default: 500KB).
+ * @param options - Optional options for executing the command.
  * @returns A {@linkcode Promise | promise} that resolves to an object containing the `stdout` and `stderr` strings.
  *
  * @internal
+ * @since 3.0.0
  */
 export const executeCommand = promisify(child_process.exec);
-// export async function executeCommand(
-//   command: string,
-//   size = 500,
-// ): Promise<{ stdout: string; stderr: string }> {
-//   return new Promise<{ stdout: string; stderr: string }>((fulfil, reject) => {
-//     child_process.exec(
-//       command,
-//       { maxBuffer: 1024 * size },
-//       (err, stdout, stderr) => {
-//         if (err) {
-//           reject(err);
-//           return;
-//         }
-
-//         fulfil({ stdout, stderr });
-//       },
-//     );
-//   }).catch(err => {
-//     if (err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
-//       return executeCommand(command, size * 2);
-//     }
-//     return Promise.reject(err);
-//   });
-// }
 
 /**
  * Fetches a resource from the specified URL
@@ -195,12 +174,15 @@ export const executeCommand = promisify(child_process.exec);
  * Optionally, a proxy URL can be provided to make the
  * request through a proxy server.
  *
+ * ### Note: This function was previously known as **`fetch`**.
+ *
  * @param url - The URL of the resource to fetch.
  * @param tarballFilePath - The destination path to save the fetched resource.
  * @param proxy - Optional. The URL of the proxy server to use for the request.
  * @returns A {@linkcode Promise | promise} that resolves when the resource is successfully fetched and saved, or rejects with an error.
  *
  * @internal
+ * @since 3.0.0
  */
 export async function downloadTarball(
   url: string,
@@ -296,7 +278,7 @@ export async function downloadTarball(
  *
  * @internal
  */
-export async function stashFiles(dir: string, dest: string) {
+export async function stashFiles(dir: string, dest: string): Promise<void> {
   const tmpDir = path.join(dir, stashDirectoryName);
 
   try {
@@ -345,12 +327,12 @@ export async function stashFiles(dir: string, dest: string) {
  * Un-stashes files from a temporary directory to a destination directory.
  *
  * @param dir - The directory where the temporary directory is located.
- * @param dest - The destination directory where the files will be unstashed.
+ * @param dest - The destination directory where the files will be un-stashed.
  * @returns A {@linkcode Promise | promise} that resolves when the un-stashing process is complete.
  *
  * @internal
  */
-export async function unStashFiles(dir: string, dest: string) {
+export async function unStashFiles(dir: string, dest: string): Promise<void> {
   const tmpDir = path.join(dir, stashDirectoryName);
 
   const files = await fs.readdir(tmpDir, { recursive: true });
@@ -389,8 +371,8 @@ export async function unStashFiles(dir: string, dest: string) {
  * console.log(exists); // true or false
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const pathExists = async (filePath: string): Promise<boolean> => {
   try {
@@ -416,8 +398,8 @@ export const pathExists = async (filePath: string): Promise<boolean> => {
  * console.log(isDir); // true or false
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const isDirectory = async (filePath: string): Promise<boolean> => {
   try {
@@ -525,8 +507,8 @@ export const damerauLevenshteinSimilarity = (
  * // Throws an error if Git is not installed or not in the PATH.
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const ensureGitExists = async (): Promise<void> => {
   try {
@@ -542,20 +524,11 @@ export const ensureGitExists = async (): Promise<void> => {
   }
 };
 
-const supported: Record<string, string> = {
-  github: '.com',
-  gitlab: '.com',
-  bitbucket: '.org',
-  'git.sr.ht': '.ht',
-  huggingface: '.co',
-  codeberg: '.org',
-};
-
 /**
  * Checks if the given host name is supported.
  *
  * @param hostName - The host name to check.
- * @returns A `boolean` indicating whether the host name is supported.
+ * @returns A **`boolean`** indicating whether the host name is supported.
  *
  * @internal
  * @since 3.0.0
@@ -788,22 +761,30 @@ export async function updateCache(
 }
 
 /**
- * Retrieves the old hash of a given repository reference.
+ * Resolves a commit hash for a repository reference by performing a shallow
+ * **`git fetch`** in a temporary directory.
  *
- * @param repo - The repository object containing the URL and reference.
- * @returns A {@linkcode Promise | promise} that resolves to the old hash string of the repository reference.
+ * Used as a fallback in {@linkcode Tiged.getHash | getHash} when the **`ref`**
+ * cannot be matched from the **`git ls-remote`** results (e.g. abbreviated
+ * commit hashes or refs that are not advertised by the remote).
  *
- * @remarks
- * This function initializes a temporary Git repository,
- * fetches the specified reference, retrieves the commit hash,
- * and then cleans up the temporary directory.
+ * @param repo - The repository object. Uses {@linkcode Repo.url | repo.url} as the remote and {@linkcode Repo.ref | repo.ref} as the fetch target. If `ref` contains a `#` delimiter, the segments are reversed and space-joined before being passed to `git fetch` (e.g. `"a#b"` becomes `"b a"`).
+ * @returns A {@linkcode Promise | promise} that resolves to the full SHA-1 commit hash of the fetched reference, or an empty string if the rev-list output is empty.
  *
  * @example
+ * <caption>#### Resolve a commit hash from a remote repository</caption>
  *
  * ```ts
- * const repo = { url: 'https://github.com/user/repo.git', ref: 'main' };
- * const oldHash = await getOldHash(repo);
- * console.log(oldHash); // Outputs the commit hash of the 'main' branch
+ * const repo: Repo = {
+ *   name: 'tiged-test-repo',
+ *   ref: 'main',
+ *   site: 'github',
+ *   ssh: 'git@github.com:user/repo',
+ *   url: 'https://github.com/user/repo',
+ * };
+ *
+ * const hash = await getOldHash(repo);
+ * console.log(hash); // e.g. 'b09755bc4cca3d3b398fbe5e411daeae79869581'
  * ```
  *
  * @internal

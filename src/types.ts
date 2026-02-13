@@ -330,6 +330,7 @@ export type TigedErrorOptions = ErrorOptions & {
 
 /**
  * @internal
+ * @since 3.0.0
  */
 export type DamerauLevenshteinResult = {
   steps: number;

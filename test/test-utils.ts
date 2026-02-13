@@ -10,8 +10,8 @@ import { createTiged } from 'tiged';
  * This directory is typically used to store temporary files
  * needed for testing purposes.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const fixturesDirectoryName = '.tmp';
 
@@ -19,8 +19,8 @@ const fixturesDirectoryName = '.tmp';
  * The absolute path to the
  * {@linkcode fixturesDirectoryName | fixtures directory}.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const fixturesDirectoryPath = path.join(
   import.meta.dirname,
@@ -36,8 +36,8 @@ export const fixturesDirectoryPath = path.join(
  * - **`'tar'`**: Downloads the repository as a tarball.
  * - **`'git'`**: Clones the repository using Git.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const validModes = [
   'tar',
@@ -47,16 +47,16 @@ export const validModes = [
 /**
  * The absolute file path to the `tiged` CLI executable.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const tigedCLIFilePath = path.join(import.meta.dirname, '..', 'src', 'bin.ts');
 
 /**
  * The default CLI command for the {@linkcode runTigedCLI} function.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const defaultCLICommand = process.env.TEST_DIST ? 'tiged' : 'tsx';
 
@@ -64,8 +64,8 @@ const defaultCLICommand = process.env.TEST_DIST ? 'tiged' : 'tsx';
  * An array of default command-line arguments for the
  * {@linkcode runTigedCLI} function.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const defaultCLIArguments = process.env.TEST_DIST
   ? ['-D']
@@ -74,8 +74,8 @@ const defaultCLIArguments = process.env.TEST_DIST
 /**
  * The default options for the {@linkcode runTigedCLI} function.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const defaultExecFileOptions = {
   encoding: 'utf-8',
@@ -84,8 +84,8 @@ const defaultExecFileOptions = {
 /**
  * The default options for the {@linkcode runTigedAPI} function.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const defaultTigedOptions = {
   disableCache: true,
@@ -108,8 +108,8 @@ const defaultTigedOptions = {
  * console.log(sanitizedPath) //=> 'git-github-com-tiged-tiged-test-repo'
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const convertSpecialCharsToHyphens = (inputString: string): string =>
   inputString.replaceAll(/[^a-zA-Z0-9]+/g, '-');
@@ -128,8 +128,8 @@ const convertSpecialCharsToHyphens = (inputString: string): string =>
  * // outputPath: '.tmp/tiged-tiged-test-repo'
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const getOutputDirectoryPath = (inputString: string): string => {
   const sanitizedPath = convertSpecialCharsToHyphens(inputString);
@@ -146,8 +146,8 @@ export const getOutputDirectoryPath = (inputString: string): string => {
  * @param options - Options for the execution.
  * @returns A {@linkcode Promise | promise} that resolves with the standard output and standard error of the executed file.
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 const exec = promisify(child_process.exec);
 
@@ -166,8 +166,8 @@ const exec = promisify(child_process.exec);
  * ).resolves.not.toThrowError();
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const runTigedCLI = async (
   CLIArguments: readonly string[] = [],
@@ -222,8 +222,8 @@ export const runTigedCLI = async (
  * ).resolves.not.toThrowError();
  * ```
  *
- * @since 3.0.0
  * @internal
+ * @since 3.0.0
  */
 export const runTigedAPI = (
   src: string,
