@@ -4,6 +4,7 @@ import * as fs from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { pipeline } from 'node:stream/promises';
+import { promisify } from 'node:util';
 import type { Dispatcher } from 'undici';
 import { ProxyAgent, request } from 'undici';
 import type { SupportedHostNames } from './constants.js';
@@ -12,6 +13,7 @@ import {
   homeOrTmpDirectoryPath,
   stashDirectoryName,
   supportedHostNames,
+  supportedHosts,
   tigedConfigFileName,
 } from './constants.js';
 import type {
@@ -161,30 +163,31 @@ export function tryRequire(
  *
  * @internal
  */
-export async function executeCommand(
-  command: string,
-  size = 500,
-): Promise<{ stdout: string; stderr: string }> {
-  return new Promise<{ stdout: string; stderr: string }>((fulfil, reject) => {
-    child_process.exec(
-      command,
-      { maxBuffer: 1024 * size },
-      (err, stdout, stderr) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+export const executeCommand = promisify(child_process.exec);
+// export async function executeCommand(
+//   command: string,
+//   size = 500,
+// ): Promise<{ stdout: string; stderr: string }> {
+//   return new Promise<{ stdout: string; stderr: string }>((fulfil, reject) => {
+//     child_process.exec(
+//       command,
+//       { maxBuffer: 1024 * size },
+//       (err, stdout, stderr) => {
+//         if (err) {
+//           reject(err);
+//           return;
+//         }
 
-        fulfil({ stdout, stderr });
-      },
-    );
-  }).catch(err => {
-    if (err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
-      return executeCommand(command, size * 2);
-    }
-    return Promise.reject(err);
-  });
-}
+//         fulfil({ stdout, stderr });
+//       },
+//     );
+//   }).catch(err => {
+//     if (err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
+//       return executeCommand(command, size * 2);
+//     }
+//     return Promise.reject(err);
+//   });
+// }
 
 /**
  * Fetches a resource from the specified URL
@@ -542,7 +545,7 @@ export const ensureGitExists = async (): Promise<void> => {
 const supported: Record<string, string> = {
   github: '.com',
   gitlab: '.com',
-  bitbucket: '.com',
+  bitbucket: '.org',
   'git.sr.ht': '.ht',
   huggingface: '.co',
   codeberg: '.org',
@@ -581,7 +584,7 @@ export function extractRepositoryInfo(
   subDirectory: string,
 ): Repo {
   const match =
-    /^(?:(?:https:\/\/)?([^:/]+\.[^:/]+)\/|git@([^:/]+)[:/]|([^/]+):)?([^/\s]+)\/([^/\s#]+)(?:((?:\/[^/\s#]+)+))?(?:\/)?(?:#(.+))?/.exec(
+    /^(?:(?:https:\/\/)?(?<site>[^:/]+)(?:\.[^:/]+)\/|git@(?<siteName>[^:/]+)(?:\.[^:/]+)[:/]|(?<org>[^/:]+):)?(?<repo>[^/\s.]+)(?:\.git)?\/(?<repo2>(?:[^/\s#.]+|[^/\s#.]+)?)?(?:\.git)?(?:\/(?<repo3>(?:[^/\s#.]+)+))?(?:\.git)?(?:\/)?(?:#(?<commitHash>[^.]+)(?:\.git)?)?/.exec(
       src,
     );
 
@@ -592,8 +595,8 @@ export function extractRepositoryInfo(
     });
   }
 
-  const site = match[1] ?? match[2] ?? match[3] ?? 'github.com';
-  const topLevelDomainMatch = /\.([a-z]{2,})$/.exec(site);
+  const site = match[1] ?? match[2] ?? match[3] ?? 'github';
+  const topLevelDomainMatch = /\.([a-z]{3,})$/.exec(site);
   const topLevelDomain = topLevelDomainMatch ? topLevelDomainMatch[0] : null;
   const siteName = topLevelDomain
     ? site.replace(new RegExp(`${topLevelDomain}$`), '')
@@ -601,24 +604,45 @@ export function extractRepositoryInfo(
 
   const user = match[4] ?? '';
   const name = match[5]?.replace(/\.git$/, '') ?? '';
-  const repoSubDirectory = match[6];
+  const repoSubDirectory = addLeadingSlashIfMissing(match[6]);
   const ref = match[7] ?? 'HEAD';
 
+  if (!isHostNameSupported(siteName)) {
+    throw new TigedError(
+      `tiged supports the following: ${Object.values(supportedHosts)
+        .map(({ name }) => name)
+        .join(', ')}.
+        But received ${siteName}.`,
+      {
+        code: 'UNSUPPORTED_HOST',
+        ref,
+        url: src,
+      },
+    );
+  }
+
   const domain = `${siteName}${
-    topLevelDomain || supported[siteName] || supported[site] || ''
+    topLevelDomain ?? supportedHosts[siteName].topLevelDomain
   }`;
 
   const url = `https://${domain}/${user}/${name}`;
   const ssh = `git@${domain}:${user}/${name}`;
 
   return {
-    site: siteName,
-    user,
-    name,
+    name: subgroup
+      ? repoSubDirectory
+        ? repoSubDirectory.slice(1) || ''
+        : ''
+      : name,
     ref,
-    url,
-    ssh,
-    subDirectory: repoSubDirectory ?? subDirectory,
+    site: siteName,
+    ssh: subgroup ? `${ssh}${repoSubDirectory}.git` : ssh,
+    subDirectory: subgroup
+      ? repoSubDirectory
+      : subDirectory || repoSubDirectory,
+    subgroup,
+    url: subgroup ? `${url}${repoSubDirectory}` : url,
+    user,
   };
 }
 

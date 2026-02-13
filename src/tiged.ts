@@ -21,6 +21,7 @@ import {
   addLeadingSlashIfMissing,
   base,
   downloadTarball,
+  ensureGitExists,
   executeCommand,
   extractRepositoryInfo,
   fetchRefs,
@@ -462,9 +463,9 @@ export class Tiged extends EventEmitter {
   /**
    * Clones the repository to the specified destination.
    *
-   * @param destinationDirectoryName - The destination directory where the repository will be cloned.
+   * @param destinationDirectoryName - The destination directory where the repository will be cloned (default: **{@linkcode Tiged.repo.name}**).
    */
-  public async clone(destinationDirectoryName: string): Promise<void> {
+  public async clone(destinationDirectoryName?: string): Promise<void> {
     const { repo } = this;
 
     const destinationDirectoryPath = path.resolve(
@@ -854,10 +855,10 @@ export class Tiged extends EventEmitter {
 
     const url =
       repo.site === 'gitlab'
-        ? `${repo.url}/-/archive/${hash}/${repo.name}-${hash}.tar.gz`
+        ? `${repo.url}/-/archive/${hash}/${repo.name}-${tarballFileName}`
         : repo.site === 'bitbucket'
-          ? `${repo.url}/get/${hash}.tar.gz`
-          : `${repo.url}/archive/${hash}.tar.gz`;
+          ? `${repo.url}/get/${tarballFileName}`
+          : `${repo.url}/archive/${tarballFileName}`;
 
     try {
       if (this.offlineMode) {
@@ -988,66 +989,99 @@ export class Tiged extends EventEmitter {
     _repositoryCacheDirectoryPath: string,
     destinationDirectoryPath: string,
   ): Promise<void> {
-    let gitPath = /https:\/\//.test(this.repo.name)
-      ? this.repo.url
-      : this.repo.ssh;
+    await ensureGitExists();
 
-    gitPath = this.repo.site === 'huggingface' ? this.repo.url : gitPath;
-    const isWin = process.platform === 'win32';
-    if (this.repo.subDirectory) {
-      await fs.mkdir(path.join(destinationDirectoryPath, '.tiged'), {
-        recursive: true,
-      });
-      const tempDir = path.join(destinationDirectoryPath, '.tiged');
-      if (isWin) {
-        await executeCommand(
-          `cd ${tempDir} && git init && git remote add origin ${gitPath} && git fetch --depth 1 origin ${this.repo.ref} && git checkout FETCH_HEAD`,
+    const { repo, subDirectory } = this;
+
+    const { url } = repo;
+
+    const ref = repo.ref.includes('#')
+      ? repo.ref.split('#').reverse().join(' ')
+      : repo.ref;
+
+    const isWindows = process.platform === 'win32';
+
+    this.logVerbose({
+      code: 'EXTRACTING',
+      dest: destinationDirectoryPath,
+      message: `extracting ${
+        subDirectory ? `the ${bold(subDirectory)} sub-directory from ` : ''
+      }${bold(url)} to ${bold(destinationDirectoryPath)}.\n`,
+      repo,
+    });
+
+    const cloneRepoDestination = subDirectory
+      ? path.join(destinationDirectoryPath, '.tiged')
+      : destinationDirectoryPath;
+
+    await fs.mkdir(cloneRepoDestination, { recursive: true });
+
+    if (isWindows) {
+      await executeCommand(
+        `cd ${cloneRepoDestination} && git init && git remote add origin ${url} && git fetch --depth 1 origin ${ref} && git checkout FETCH_HEAD`,
+      );
+    } else if (ref && ref !== 'HEAD') {
+      await executeCommand(
+        `cd ${cloneRepoDestination}; git init; git remote add origin ${url}; git fetch --depth 1 origin ${ref}; git checkout FETCH_HEAD`,
+      );
+    } else {
+      await executeCommand(
+        `git clone --depth 1 ${url} ${cloneRepoDestination}`,
+      );
+    }
+
+    await fs.rm(path.join(cloneRepoDestination, '.git'), {
+      force: true,
+      recursive: true,
+    });
+
+    if (subDirectory) {
+      const tempSubDirectory = path.join(cloneRepoDestination, subDirectory);
+
+      if (!(await pathExists(tempSubDirectory))) {
+        throw new TigedError(
+          'No files to extract. Make sure you typed in the sub-directory name correctly.',
+          {
+            code: 'NO_FILES',
+            ref: repo.ref,
+            url,
+          },
         );
-      } else if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
-        await executeCommand(
-          `cd ${tempDir}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`,
-        );
-      } else {
-        await executeCommand(`git clone --depth 1 ${gitPath} ${tempDir}`);
       }
 
-      const filesToExtract = await fs.readdir(
-        `${tempDir}${this.repo.subDirectory}`,
-        { recursive: true },
-      );
+      const tempSubDirectoryStats = await fs.lstat(tempSubDirectory);
+
+      const resolvedTempSubDirectory = tempSubDirectoryStats.isFile()
+        ? path.dirname(tempSubDirectory)
+        : tempSubDirectory;
+
+      const filesToExtract = await fs.readdir(resolvedTempSubDirectory, {
+        encoding: 'utf-8',
+      });
 
       await Promise.all(
-        filesToExtract.map(async fileToExtract => {
-          return fs.rename(
-            `${tempDir}${this.repo.subDirectory}/${fileToExtract}`,
-            `${destinationDirectoryPath}/${fileToExtract}`,
-          );
-        }),
+        filesToExtract.map(async fileToExtract =>
+          fs.rename(
+            path.join(resolvedTempSubDirectory, fileToExtract),
+            path.join(destinationDirectoryPath, fileToExtract),
+          ),
+        ),
       );
 
-      await fs.rm(tempDir, { force: true, recursive: true });
-    } else {
-      if (isWin) {
-        await fs.mkdir(destinationDirectoryPath, { recursive: true });
+      await fs.rm(cloneRepoDestination, { force: true, recursive: true });
+    }
 
-        await executeCommand(
-          `cd ${destinationDirectoryPath} && git init && git remote add origin ${gitPath} && git fetch --depth 1 origin ${this.repo.ref} && git checkout FETCH_HEAD`,
-        );
-      } else if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
-        await fs.mkdir(destinationDirectoryPath, { recursive: true });
+    const extractedFiles = await fs.readdir(destinationDirectoryPath, {
+      encoding: 'utf-8',
+    });
 
-        await executeCommand(
-          `cd ${destinationDirectoryPath}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`,
-        );
-      } else {
-        await executeCommand(
-          `git clone --depth 1 ${gitPath} ${destinationDirectoryPath}`,
-        );
-      }
+    if (extractedFiles.length === 0) {
+      const noFilesErrorMessage = `No files to extract. ${repo.subDirectory ? 'Make sure you typed in the sub-directory name correctly' : 'The tar file seems to be empty'}.`;
 
-      await fs.rm(path.resolve(destinationDirectoryPath, '.git'), {
-        force: true,
-        recursive: true,
+      throw new TigedError(noFilesErrorMessage, {
+        code: 'NO_FILES',
+        ref: repo.ref,
+        url,
       });
     }
   }

@@ -99,7 +99,7 @@ export const tigedDefaultOptions = {
  * @since 3.0.0
  */
 export const supportedHosts = {
-  bitbucket: { name: 'BitBucket', topLevelDomain: '.com' },
+  bitbucket: { name: 'BitBucket', topLevelDomain: '.org' },
   codeberg: { name: 'Codeberg', topLevelDomain: '.org' },
   'git.sr': { name: 'SourceHut', topLevelDomain: '.ht' },
   github: { name: 'GitHub', topLevelDomain: '.com' },
