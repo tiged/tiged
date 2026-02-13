@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-import parseCliArgs from './cli-parser.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import picocolors from 'picocolors';
-import type { Options } from 'tiged';
-import { tiged } from 'tiged';
+import type { TigedOptions } from 'tiged';
+import { createTiged } from 'tiged';
 import { glob } from 'tinyglobby';
+import { parseCliArgs } from './cli-parser.js';
+import { accessLogsFileName } from './constants.js';
 import {
   base,
   damerauLevenshteinSimilarity,
@@ -15,83 +17,174 @@ import {
 } from './utils.js';
 import { promptAutocomplete, promptInput, promptToggle } from './prompt.js';
 
-const { bold, cyan, magenta, red, underline } = picocolors;
+const { bold, cyanBright, magentaBright, red, underline } = picocolors;
 
-const args = parseCliArgs<Options & { help?: string }>(process.argv.slice(2), {
-  alias: {
-    f: 'force',
-    c: 'cache',
-    o: 'offline-mode',
-    D: 'disable-cache',
-    v: 'verbose',
-    m: 'mode',
-    s: 'subgroup',
-    d: 'sub-directory',
-    p: 'proxy',
+type TigedOptionsStringKeys = keyof {
+  [key in keyof Required<TigedOptions> as [
+    NonNullable<TigedOptions[key]>,
+  ] extends [string]
+    ? key
+    : never]: TigedOptions[key];
+};
+
+type TigedOptionsBooleanKeys = keyof {
+  [key in keyof Required<TigedOptions> as [boolean] extends [
+    NonNullable<TigedOptions[key]>,
+  ]
+    ? key
+    : never]: TigedOptions[key];
+};
+
+const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
+  process.argv.slice(2),
+  {
+    alias: {
+      D: ['disable-cache', 'disableCache'],
+      d: ['sub-directory', 'subDirectory'],
+      f: 'force',
+      h: 'help',
+      m: 'mode',
+      o: ['offline-mode', 'offlineMode'],
+      p: 'proxy',
+      s: 'subgroup',
+      v: 'verbose',
+    },
+
+    boolean: [
+      'disableCache',
+      'force',
+      'offlineMode',
+      'subgroup',
+      'verbose',
+    ] as const satisfies TigedOptionsBooleanKeys[],
+
+    string: [
+      'mode',
+      'proxy',
+      'subDirectory',
+    ] as const satisfies TigedOptionsStringKeys[],
   },
-  boolean: [
-    'force',
-    'cache',
-    'offline-mode',
-    'disable-cache',
-    'verbose',
-    'subgroup',
-  ],
-});
-const [src, destArg] = args._;
+);
+
+const [src = '', destArg] = CLIArguments!._;
+
+/**
+ * Runs the cloning process from the specified source
+ * to the destination directory.
+ *
+ * @param src - The source repository to clone from.
+ * @param dest - The destination directory where the repository will be cloned to.
+ * @param tigedOptions - Additional options for the cloning process.
+ * @returns A {@linkcode Promise | promise} that resolves when the cloning process is complete.
+ */
+async function run(
+  src: string,
+  dest: string | undefined,
+  tigedOptions: TigedOptions,
+): Promise<void> {
+  const tiged = createTiged(src, tigedOptions);
+
+  const resolvedDest = dest ?? tiged.repo.name;
+
+  tiged.on('info', event => {
+    console.error(
+      cyanBright(`> ${event.message?.replace('options.', '--') ?? ''}`),
+    );
+  });
+
+  tiged.on('warn', event => {
+    console.error(
+      magentaBright(`! ${event.message?.replace('options.', '--') ?? ''}`),
+    );
+  });
+
+  try {
+    await tiged.clone(resolvedDest);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(red(`! ${error.message.replace('options.', '--')}`));
+
+      process.exit(1);
+    }
+  }
+}
 
 /**
  * The main function of the application.
  * It handles the logic for displaying help,
  * interactive mode, and running the application.
  *
- * @returns A promise that resolves when the main function completes.
+ * @returns A {@linkcode Promise | promise} that resolves when the main function completes.
  */
-async function main() {
-  if (args.help) {
+async function main(): Promise<void> {
+  if (CLIArguments?.help) {
     const help = (
-      await fs.readFile(path.join(__dirname, '..', 'help.md'), 'utf-8')
+      await fs.readFile(
+        path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          '..',
+          'help.md',
+        ),
+        { encoding: 'utf-8' },
+      )
     )
-      .replace(/^(\s*)#+ (.+)/gm, (m, s, _) => s + bold(_))
-      .replace(/_([^_]+)_/g, (m, _) => underline(_))
-      .replace(/`([^`]+)`/g, (m, _) => cyan(_)); //` syntax highlighter fix
+      .replaceAll(
+        /^(\s*)#+ (.+)/gm,
+        (
+          _headerWithLeadingWhiteSpaces,
+          leadingWhiteSpaces: string,
+          header: string,
+        ) => leadingWhiteSpaces + bold(header),
+      )
+      .replaceAll(/_([^_]+)_/g, (_tigedTitleInItalics, tigedTitle: 'tiged') =>
+        underline(tigedTitle),
+      )
+      .replaceAll(/`([^`]+)`/g, (_inlineCode, inlineCodeContent: string) =>
+        cyanBright(inlineCodeContent),
+      ); //` syntax highlighter fix
 
     process.stdout.write(`\n${help}\n`);
   } else if (!src) {
     // interactive mode
 
-    const accessLookup = new Map<string, number>();
+    const accessLookup = /* @__PURE__ */ new Map<string, number>();
 
     const hasCacheDir = await pathExists(base);
 
+    await fs.mkdir(base, { recursive: true });
+
     const accessJsonFiles = hasCacheDir
-      ? await glob(`**/access.json`, {
+      ? await glob(`**/${accessLogsFileName}`, {
           cwd: base,
         })
       : [];
 
     await Promise.all(
-      accessJsonFiles.map(async file => {
-        const [host, user, repo] = file.split(path.sep);
+      accessJsonFiles.map(file => {
+        const [host = 'github', user = '', repo = ''] = file.split(path.sep);
 
-        const json = await fs.readFile(`${base}/${file}`, 'utf-8');
-        const logs: Record<string, string> = JSON.parse(json);
+        const logs: Partial<Record<string, string>> =
+          tryRequire(path.join(base, file)) || {};
 
         Object.entries(logs).forEach(([ref, timestamp]) => {
           const id = `${host}:${user}/${repo}#${ref}`;
-          accessLookup.set(id, new Date(timestamp).getTime());
+          accessLookup.set(
+            id,
+            timestamp ? new Date(timestamp).getTime() : new Date().getTime(),
+          );
         });
       }),
     );
 
     const getChoice = (file: string) => {
-      const [host, user, repo] = file.split(path.sep);
+      const [host = 'github', user = '', repo = ''] = file.split(path.sep);
 
-      const cacheLogs: Record<string, string> = tryRequire(`${base}/${file}`);
+      const cacheLogs: Partial<Record<string, string>> =
+        tryRequire(path.join(base, file)) || {};
 
-      return Object.entries(cacheLogs).map(([ref, hash]) => ({
-        name: hash,
+      return Object.entries(cacheLogs).map(([ref, hash = '']) => ({
         message: `${host}:${user}/${repo}#${ref}`,
+        name: hash,
         value: `${host}:${user}/${repo}#${ref}`,
       }));
     };
@@ -146,7 +239,7 @@ async function main() {
 
     const empty =
       !(await pathExists(options.dest)) ||
-      (await fs.readdir(options.dest)).length === 0;
+      (await fs.readdir(options.dest, { encoding: 'utf-8' })).length === 0;
 
     if (!empty) {
       const force = await promptToggle({
@@ -154,48 +247,21 @@ async function main() {
       });
 
       if (!force) {
-        console.error(magenta(`! Directory not empty — aborting`));
+        console.error(magentaBright(`! Directory not empty — aborting`));
+
         return;
       }
     }
 
-    await run(options.src, options.dest, {
+    const { dest, src, ...tigedOptions } = options;
+
+    await run(src, dest, {
+      ...tigedOptions,
       force: true,
-      cache: options.cache,
     });
   } else {
-    await run(src, destArg, args);
+    await run(src.toString(), destArg?.toString(), CLIArguments ?? {});
   }
 }
 
-/**
- * Runs the cloning process from the specified source
- * to the destination directory.
- *
- * @param src - The source repository to clone from.
- * @param dest - The destination directory where the repository will be cloned to.
- * @param args - Additional options for the cloning process.
- */
-async function run(src: string, dest: string | undefined, args: Options) {
-  const t = tiged(src, args);
-  const resolvedDest = dest ?? t.repo.name;
-
-  t.on('info', event => {
-    console.error(cyan(`> ${event.message?.replace('options.', '--')}`));
-  });
-
-  t.on('warn', event => {
-    console.error(magenta(`! ${event.message?.replace('options.', '--')}`));
-  });
-
-  try {
-    await t.clone(resolvedDest);
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error(red(`! ${err.message.replace('options.', '--')}`));
-      process.exit(1);
-    }
-  }
-}
-
-main();
+void main();

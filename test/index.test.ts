@@ -2,7 +2,7 @@ import * as child_process from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
-import { tiged } from 'tiged';
+import { createTiged } from 'tiged';
 
 const exec = promisify(child_process.exec);
 const tigedPath = process.env.TEST_DIST
@@ -14,7 +14,7 @@ const timeout = 30_000;
 const convertSpecialCharsToHyphens = (str: string) =>
   str.replace(/[^a-zA-Z0-9]+/g, '-');
 
-describe(tiged, { timeout }, () => {
+describe(createTiged, { timeout }, () => {
   beforeAll(async () => {
     await fs.rm('.tmp', { recursive: true, force: true });
   });
@@ -92,9 +92,9 @@ describe(tiged, { timeout }, () => {
       });
     });
 
-    it('https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo', async ({
-      task,
+    it('https://gitlab.com/group-test-repo/subgroup-test-repo/test-repo.git', async ({
       expect,
+      task,
     }) => {
       const sanitizedPath = `${convertSpecialCharsToHyphens(task.name)}-1`;
       await exec(
@@ -211,7 +211,7 @@ describe(tiged, { timeout }, () => {
         exec(
           `${tigedPath} tiged/tiged-test-repo .tmp/test-repo-${sanitizedPath} -fv`,
         ),
-      ).resolves.not.toThrow();
+      ).resolves.not.toThrowError();
     });
   });
 
@@ -298,7 +298,7 @@ describe(tiged, { timeout }, () => {
         exec(
           `${tigedPath} tiged/tiged-test-repo/subdir/file.txt .tmp/test-repo-${sanitizedPath} -fv`,
         ),
-      ).resolves.not.toThrow();
+      ).resolves.not.toThrowError();
 
       await expect(`.tmp/test-repo-${sanitizedPath}`).toMatchFiles({
         'file.txt': 'hello from a subdirectory!',
@@ -309,7 +309,7 @@ describe(tiged, { timeout }, () => {
   describe('api', () => {
     it('is usable from node scripts', async ({ task, expect }) => {
       const sanitizedPath = convertSpecialCharsToHyphens(task.name);
-      await tiged('tiged/tiged-test-repo', {
+      await createTiged('tiged/tiged-test-repo', {
         force: true,
         disableCache: true,
         verbose: true,
@@ -324,7 +324,7 @@ describe(tiged, { timeout }, () => {
 
     it('can clone one file', async ({ task, expect }) => {
       const sanitizedPath = convertSpecialCharsToHyphens(task.name);
-      await tiged('tiged/tiged-test-repo/subdir/file.txt', {
+      await createTiged('tiged/tiged-test-repo/subdir/file.txt', {
         force: true,
         disableCache: true,
         verbose: true,
