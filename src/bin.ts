@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import enquirer from 'enquirer';
 import parseCliArgs from './cli-parser.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -14,6 +13,7 @@ import {
   pathExists,
   tryRequire,
 } from './utils.js';
+import { promptAutocomplete, promptInput, promptToggle } from './prompt.js';
 
 const { bold, cyan, magenta, red, underline } = picocolors;
 
@@ -114,51 +114,44 @@ async function main() {
         return bTime - aTime;
       });
 
-    const options = await enquirer.prompt<
-      { dest: string; src: string } & Options
-    >([
-      // FIXME: `suggest` is not in the type definition
-      {
-        type: 'autocomplete',
-        name: 'src',
-        message: 'Repo to clone?',
-        suggest: (input: string, choices: { value: string }[]) => {
-          const query = input.trim();
-          if (!query) return choices;
-          const queryLower = query.toLowerCase();
-          return choices.filter(({ value }) => {
-            const valueLower = value.toLowerCase();
-            if (valueLower.includes(queryLower)) return true;
-            return damerauLevenshteinSimilarity(queryLower, valueLower) >= 0.5;
-          });
-        },
-        choices,
-      } as any,
-      {
-        type: 'input',
-        name: 'dest',
-        message: 'Destination directory?',
-        initial: '.',
+    const srcAnswer = await promptAutocomplete({
+      message: 'Repo to clone?',
+      suggest: (input: string, suggestChoices) => {
+        const query = input.trim();
+        if (!query) return suggestChoices;
+        const queryLower = query.toLowerCase();
+        return suggestChoices.filter(({ value }) => {
+          const valueLower = value.toLowerCase();
+          if (valueLower.includes(queryLower)) return true;
+          return damerauLevenshteinSimilarity(queryLower, valueLower) >= 0.5;
+        });
       },
-      {
-        type: 'toggle',
-        name: 'cache',
-        message: 'Use cached version?',
-      },
-    ]);
+      choices,
+    });
+
+    const destAnswer = await promptInput({
+      message: 'Destination directory?',
+      initial: '.',
+    });
+
+    const cacheAnswer = await promptToggle({
+      message: 'Use cached version?',
+    });
+
+    const options = {
+      src: srcAnswer,
+      dest: destAnswer,
+      cache: cacheAnswer,
+    };
 
     const empty =
       !(await pathExists(options.dest)) ||
       (await fs.readdir(options.dest)).length === 0;
 
     if (!empty) {
-      const { force } = await enquirer.prompt<Options>([
-        {
-          type: 'toggle',
-          name: 'force',
-          message: 'Overwrite existing files?',
-        },
-      ]);
+      const force = await promptToggle({
+        message: 'Overwrite existing files?',
+      });
 
       if (!force) {
         console.error(magenta(`! Directory not empty — aborting`));
