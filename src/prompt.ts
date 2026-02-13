@@ -149,7 +149,9 @@ export const promptAutocomplete = async (config: AutocompletePromptConfig) => {
 
   const resolveSelection = () => {
     if (!inputValue) {
-      return currentChoices.length === 1 ? currentChoices[0]?.value ?? null : null;
+      return currentChoices.length === 1
+        ? (currentChoices[0]?.value ?? null)
+        : null;
     }
 
     const selectedIndex = Number.parseInt(inputValue, 10);
