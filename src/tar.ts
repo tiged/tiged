@@ -1,23 +1,26 @@
+import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { gunzip } from 'node:zlib';
 import { promisify } from 'node:util';
+import { gunzip } from 'node:zlib';
 import { TigedError } from './utils.js';
 
 const gunzipAsync = promisify(gunzip);
 
 type TarType = 'file' | 'directory' | 'other';
 
-interface TarHeader {
+type TarHeader = {
   name: string;
   mode?: number;
   size: number;
   type: TarType;
-}
+};
 
 const isZeroBlock = (block: Uint8Array) => {
   for (const b of block) {
-    if (b !== 0) return false;
+    if (b !== 0) {
+      return false;
+    }
   }
   return true;
 };
@@ -89,9 +92,12 @@ const ensureSafeOutPath = (destResolved: string, relativePosixPath: string) => {
 
 const parseHeaderAt = (tar: Uint8Array, offset: number) => {
   const block = tar.subarray(offset, offset + 512);
-  if (block.length < 512) return null;
-  if (isZeroBlock(block))
-    return { header: null as any, nextOffset: offset + 512 };
+  if (block.length < 512) {
+    return null;
+  }
+  if (isZeroBlock(block)) {
+    return { header: null, nextOffset: offset + 512 };
+  }
 
   const name = decodeCString(block.subarray(0, 100));
   const mode = parseOctal(block.subarray(100, 108));
@@ -134,11 +140,11 @@ const parseHeaderAt = (tar: Uint8Array, offset: number) => {
   return { header, dataStart, nextOffset };
 };
 
-interface ScanResult {
+type ScanResult = {
   rootPrefix: string;
   subdirRelNorm: string | null;
   isSubDirFile: boolean;
-}
+};
 
 const scanTarGz = async (tgz: Uint8Array, subdirNorm: string | null) => {
   const tar = new Uint8Array(await gunzipAsync(tgz));
@@ -215,7 +221,7 @@ const scanTarGz = async (tgz: Uint8Array, subdirNorm: string | null) => {
 /**
  * Extract a .tar.gz to dest, optionally extracting only a repo subdir.
  *
- * Returns a list of extracted relative paths.
+ * @returns a list of extracted relative paths.
  */
 export async function untarToDir(
   file: string,

@@ -2,13 +2,13 @@ import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveAppDirs } from '../src/utils.js';
 
-describe('resolveAppDirs', () => {
+describe(resolveAppDirs, () => {
   it('uses XDG directories on linux', () => {
     const env = {
       XDG_CACHE_HOME: '/xdg/cache',
       XDG_CONFIG_HOME: '/xdg/config',
       XDG_DATA_HOME: '/xdg/data',
-    } as NodeJS.ProcessEnv;
+    } as const satisfies NodeJS.ProcessEnv;
 
     const dirs = resolveAppDirs('tiged', {
       platform: 'linux',
@@ -51,7 +51,7 @@ describe('resolveAppDirs', () => {
     const env = {
       LOCALAPPDATA: 'C:\\Users\\Tester\\AppData\\Local',
       APPDATA: 'C:\\Users\\Tester\\AppData\\Roaming',
-    } as NodeJS.ProcessEnv;
+    } as const satisfies NodeJS.ProcessEnv;
 
     const dirs = resolveAppDirs('tiged', {
       platform: 'win32',

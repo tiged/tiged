@@ -2,23 +2,25 @@ type Arrayable<T> = T | T[];
 
 type Dict<T> = Record<string, T>;
 
-export interface CliParserOptions {
+export type CliParserOptions = {
   boolean?: Arrayable<string>;
   string?: Arrayable<string>;
   alias?: Dict<Arrayable<string>>;
-  default?: Dict<any>;
-  unknown?(flag: string): any;
-}
+  default?: Dict<unknown>;
+  unknown?(flag: string): unknown;
+};
 
-export type CliParserArgv<T = Dict<any>> = T & { _: any[] };
+export type CliParserArgv<T = Dict<unknown>> = T & {
+  _: (string | number | boolean)[];
+};
 
-interface NormalizedOptions {
+type NormalizedOptions = {
   alias: Record<string, string[]>;
   boolean: string[];
   string: string[];
-  default: Dict<any>;
-  unknown?: (flag: string) => any;
-}
+  default: Dict<unknown>;
+  unknown?: (flag: string) => unknown;
+};
 
 const toArray = <T>(value: Arrayable<T> | undefined | null): T[] => {
   if (value == null) return [];
@@ -28,17 +30,17 @@ const toArray = <T>(value: Arrayable<T> | undefined | null): T[] => {
 const toValue = (
   out: CliParserArgv,
   key: string,
-  val: any,
+  val: boolean | string | number,
   opts: Pick<NormalizedOptions, 'string' | 'boolean'>,
 ) => {
   const oldValue = out[key];
-  let nextValue: any;
+  let nextValue: boolean | string | number;
 
-  if (opts.string.indexOf(key) !== -1) {
+  if (opts.string.includes(key)) {
     nextValue = val == null || val === true ? '' : String(val);
   } else if (typeof val === 'boolean') {
     nextValue = val;
-  } else if (opts.boolean.indexOf(key) !== -1) {
+  } else if (opts.boolean.includes(key)) {
     if (val === 'false') {
       nextValue = false;
     } else if (val === 'true') {
@@ -94,10 +96,10 @@ const normalizeOptions = (options: CliParserOptions): NormalizedOptions => {
   };
 };
 
-export default function parseCliArgs<T = Dict<any>>(
-  args: any[] = [],
+export function parseCliArgs<T = Dict<unknown>>(
+  args: (boolean | string | number)[] = [],
   options: CliParserOptions = {},
-): CliParserArgv<T> | any {
+): CliParserArgv<T> | undefined {
   const out: CliParserArgv = { _: [] };
   const opts = normalizeOptions(options);
 
@@ -150,7 +152,7 @@ export default function parseCliArgs<T = Dict<any>>(
   const allowedKeys = strict ? Object.keys(opts.alias) : [];
 
   for (let i = 0; i < args.length; i += 1) {
-    const arg = args[i];
+    const arg = args[i] ?? '';
 
     if (arg === '--') {
       out._ = out._.concat(args.slice(i + 1));
@@ -174,8 +176,10 @@ export default function parseCliArgs<T = Dict<any>>(
 
     if (arg.substring(dashCount, dashCount + 3) === 'no-') {
       const name = arg.substring(dashCount + 3);
-      if (strict && allowedKeys.indexOf(name) === -1) {
-        return opts.unknown ? opts.unknown(arg) : undefined;
+      if (strict && !allowedKeys.includes(name)) {
+        return typeof opts.unknown === 'function'
+          ? (opts.unknown?.(arg) as CliParserArgv<T>)
+          : undefined;
       }
       out[name] = false;
       continue;
@@ -192,8 +196,9 @@ export default function parseCliArgs<T = Dict<any>>(
     const nextArg = args[i + 1];
     const nextArgString = nextArg == null ? '' : String(nextArg);
     const nextIsFlag = nextArgString.charCodeAt(0) === 45;
-    const value =
-      inlineValue || (i + 1 === args.length || nextIsFlag ? true : args[++i]);
+    const value: boolean | string | number =
+      inlineValue ||
+      (i + 1 === args.length || nextIsFlag ? true : (args[++i] ?? ''));
 
     const list = dashCount === 2 ? [name] : name;
 
@@ -201,9 +206,9 @@ export default function parseCliArgs<T = Dict<any>>(
       const nextName = typeof list === 'string' ? list.charAt(j) : list[j];
       if (!nextName) continue;
       name = nextName;
-      if (strict && allowedKeys.indexOf(name) === -1) {
-        return opts.unknown
-          ? opts.unknown('-'.repeat(dashCount) + name)
+      if (strict && !allowedKeys.includes(name)) {
+        return typeof opts.unknown === 'function'
+          ? (opts.unknown?.('-'.repeat(dashCount) + name) as CliParserArgv<T>)
           : undefined;
       }
       toValue(out, name, j + 1 < list.length || value, opts);

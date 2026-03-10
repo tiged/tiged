@@ -76,7 +76,7 @@ expect.extend({
               })
             )
               .trim()
-              .replace('\r', ''),
+              .replaceAll('\r', ''),
           ] as const;
         }),
       ),
