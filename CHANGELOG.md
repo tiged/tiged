@@ -2,6 +2,54 @@
 
 ## 3.0.0
 
+- feat(prompt): replace enquirer ([#159](https://github.com/tiged/tiged/pull/159))
+
+- chore: update CI dependencies ([#157](https://github.com/tiged/tiged/pull/157))
+
+- chore(cache): replace xdg with local app dirs ([#155](https://github.com/tiged/tiged/pull/155))
+
+- chore: update node versions in CI ([#154](https://github.com/tiged/tiged/pull/154))
+
+- feat(cli): replace mri parser ([#153](https://github.com/tiged/tiged/pull/153))
+
+- ci: drop node 18 from tests ([#151](https://github.com/tiged/tiged/pull/151))
+
+- feat(cli): add proxy option ([#150](https://github.com/tiged/tiged/pull/150))
+
+- refactor(fetch): switch to undici proxy ([#149](https://github.com/tiged/tiged/pull/149))
+
+- refactor(cli): replace fuzzysearch ([#148](https://github.com/tiged/tiged/pull/148))
+
+- Replace tar depedency with native zlib ([#147](https://github.com/tiged/tiged/pull/147))
+
+- feat: default dest folder ([#146](https://github.com/tiged/tiged/pull/146))
+
+- feat: XDG cache dir support ([#145](https://github.com/tiged/tiged/pull/145))
+
+- Clones single file ([#144](https://github.com/tiged/tiged/pull/144))
+
+- chore(deps): update dependencies ([#143](https://github.com/tiged/tiged/pull/143))
+
+- Fix/cache v2 v3 ([#142](https://github.com/tiged/tiged/pull/142))
+
+- fix: download tarballs on SourceHut ([#141](https://github.com/tiged/tiged/pull/141))
+
+- chore: update executable scripts ([#132](https://github.com/tiged/tiged/pull/132))
+
+- chore: enable noUncheckedIndexedAccess in tsconfig.json ([#131](https://github.com/tiged/tiged/pull/131))
+
+- chore: replace tiny-glob dependency with tinyglobby ([#130](https://github.com/tiged/tiged/pull/130))
+
+- chore: replace ansis dependencies with picocolors ([#129](https://github.com/tiged/tiged/pull/129))
+
+- chore: update the .gitignore file ([#128](https://github.com/tiged/tiged/pull/128))
+
+- chore: fix typo in help.md ([#127](https://github.com/tiged/tiged/pull/127))
+
+- chore: update lint-staged ([#126](https://github.com/tiged/tiged/pull/126))
+
+- fix: using commit hashes that doesn't have a ref ([#125](https://github.com/tiged/tiged/pull/125))
+
 - Support cloning a single file ([#113](https://github.com/tiged/tiged/pull/113))
 
 - chore: remove `.npmrc` file ([#116](https://github.com/tiged/tiged/pull/116))
