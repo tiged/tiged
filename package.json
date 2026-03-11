@@ -64,7 +64,7 @@
   "dependencies": {
     "picocolors": "^1.1.1",
     "tinyglobby": "^0.2.15",
-    "undici": "^7.22.0"
+    "undici": "^7.23.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -80,7 +80,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.0",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "sideEffects": false,
   "files": [
