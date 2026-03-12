@@ -1,6 +1,7 @@
 import * as child_process from 'node:child_process';
 import { createWriteStream } from 'node:fs';
 import * as fs from 'node:fs/promises';
+import type { OutgoingHttpHeaders } from 'node:http';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { pipeline } from 'node:stream/promises';
@@ -190,22 +191,28 @@ export async function downloadTarball(
   proxy?: string,
 ): Promise<void> {
   await fs.mkdir(path.dirname(tarballFilePath), { recursive: true });
+
   const dispatcher = proxy ? new ProxyAgent(proxy) : undefined;
+
   try {
     const maxRedirects = 10;
+
     const requestHeaders = {
       accept: '*/*',
       'user-agent': 'tiged',
-    };
+    } as const satisfies OutgoingHttpHeaders;
 
     const resolveLocation = (location: string | string[] | undefined) => {
       if (!location) {
         return null;
       }
+
       const value = Array.isArray(location) ? location[0] : location;
+
       if (!value) {
         return null;
       }
+
       return value;
     };
 
@@ -222,7 +229,7 @@ export async function downloadTarball(
       const { statusCode, statusText, headers, body } = await request(
         currentUrl,
         {
-          dispatcher,
+          ...(dispatcher ? { dispatcher } : {}),
           headers: requestHeaders,
         },
       );
@@ -284,14 +291,12 @@ export async function stashFiles(dir: string, dest: string): Promise<void> {
   try {
     await fs.rm(tmpDir, { force: true, recursive: true });
   } catch (error) {
-    if (
-      !(
-        error instanceof Error &&
-        'errno' in error &&
-        'syscall' in error &&
-        'code' in error
-      )
-    ) {
+    if (!(
+      error instanceof Error &&
+      'errno' in error &&
+      'syscall' in error &&
+      'code' in error
+    )) {
       return;
     }
     if (
@@ -533,7 +538,7 @@ export const ensureGitExists = async (): Promise<void> => {
  * @internal
  * @since 3.0.0
  */
-export const isHostNameSupported = (
+const isHostNameSupported = (
   hostName: string,
 ): hostName is SupportedHostNames =>
   supportedHostNames.includes(hostName as never);

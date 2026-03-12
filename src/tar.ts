@@ -220,7 +220,7 @@ const scanTarGz = async (
   let pendingPax: Record<string, string> | null = null;
   let pendingLongName: string | null = null;
 
-  for (let offset = 0; offset + 512 <= tar.length; ) {
+  for (let offset = 0; offset + 512 <= tar.length;) {
     const parsed = parseHeaderAt(tar, offset);
 
     if (!parsed) {
@@ -337,7 +337,7 @@ export async function untarToDir(
   let pendingPax: Record<string, string> | null = null;
   let pendingLongName: string | null = null;
 
-  for (let offset = 0; offset + 512 <= tar.length; ) {
+  for (let offset = 0; offset + 512 <= tar.length;) {
     const parsed = parseHeaderAt(tar, offset);
     if (!parsed) {
       break;
