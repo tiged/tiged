@@ -83,7 +83,7 @@ export class Tiged extends EventEmitter {
   /**
    * The source repository to be cloned, specified as a string.
    */
-  public src: string;
+  declare public src: string;
 
   /**
    * Enables offline mode, where operations rely on cached data.
