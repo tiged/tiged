@@ -163,7 +163,7 @@ const exec = promisify(child_process.exec);
  * ```ts
  * await expect(
  *   runTigedCLI(['--mode', mode, src, outputDirectory]),
- * ).resolves.not.toThrowError();
+ * ).resolves.not.toThrow();
  * ```
  *
  * @internal
@@ -219,7 +219,7 @@ export const runTigedCLI = async (
  * ```ts
  * await expect(
  *   runTigedAPI(src, outputDirectory, { mode }),
- * ).resolves.not.toThrowError();
+ * ).resolves.not.toThrow();
  * ```
  *
  * @internal
