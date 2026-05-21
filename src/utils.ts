@@ -166,7 +166,27 @@ export function tryRequire(
  * @internal
  * @since 3.0.0
  */
-export const executeCommand = promisify(child_process.exec);
+// CWE-78 fix (2026-05): the previous implementation
+// promisify(child_process.exec) spawned /bin/sh -c and interpolated
+// user-controlled args (repo.url, repo.ref, url) through the shell.
+// Switching to execFile takes (command, args[]) and bypasses the shell.
+//
+// Back-compat: callers passing a single string with no args continue to
+// work by whitespace-splitting (only used for static developer-authored
+// constants like 'git --version' / 'git init' / 'git rev-list FETCH_HEAD').
+const _execFile = promisify(child_process.execFile);
+export const executeCommand = (
+  cmdOrFull: string,
+  args?: readonly string[],
+  options?: Parameters<typeof child_process.execFile>[2],
+) => {
+  if (args !== undefined) {
+    return _execFile(cmdOrFull, args as string[], options ?? {});
+  }
+  const parts = cmdOrFull.split(/\s+/);
+  const [cmd, ...rest] = parts;
+  return _execFile(cmd!, rest, {});
+};
 
 /**
  * Fetches a resource from the specified URL
@@ -636,9 +656,12 @@ export async function fetchRefs(repo: Repo): Promise<
   }[]
 > {
   try {
-    const { stdout } = await executeCommand(
-      `git ls-remote ${repo.url} ${repo.ref}`,
-    );
+    // argv array prevents shell interpretation of repo.url / repo.ref.
+    const { stdout } = await executeCommand('git', [
+      'ls-remote',
+      repo.url,
+      repo.ref,
+    ]);
 
     return stdout
       .trim()
@@ -803,7 +826,8 @@ export const getOldHash = async (repo: Repo): Promise<string> => {
 
   await executeCommand('git init');
 
-  await executeCommand(`git fetch --depth 1 ${repo.url} ${ref}`);
+  // argv array prevents shell interpretation of repo.url / ref.
+  await executeCommand('git', ['fetch', '--depth', '1', repo.url, ref]);
 
   const { stdout } = await executeCommand('git rev-list FETCH_HEAD');
 

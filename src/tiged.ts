@@ -1091,18 +1091,29 @@ export class Tiged extends EventEmitter {
 
     await fs.mkdir(cloneRepoDestination, { recursive: true });
 
-    if (isWindows) {
+    // Replace shell-compound (`cd X && git Y && ...`) with sequential
+    // execFile calls using the `cwd` option. The previous shell-compound
+    // form interpolated user-controlled `url` and `ref` through /bin/sh -c.
+    // Merging Windows + POSIX branches: the shell-separator difference
+    // disappears when we drop the shell entirely.
+    if (isWindows || (ref && ref !== 'HEAD')) {
+      const opts = { cwd: cloneRepoDestination };
+      await executeCommand('git', ['init'], opts);
+      await executeCommand('git', ['remote', 'add', 'origin', url], opts);
       await executeCommand(
-        `cd ${cloneRepoDestination} && git init && git remote add origin ${url} && git fetch --depth 1 origin ${ref} && git checkout FETCH_HEAD`,
+        'git',
+        ['fetch', '--depth', '1', 'origin', ref],
+        opts,
       );
-    } else if (ref && ref !== 'HEAD') {
-      await executeCommand(
-        `cd ${cloneRepoDestination}; git init; git remote add origin ${url}; git fetch --depth 1 origin ${ref}; git checkout FETCH_HEAD`,
-      );
+      await executeCommand('git', ['checkout', 'FETCH_HEAD'], opts);
     } else {
-      await executeCommand(
-        `git clone --depth 1 ${url} ${cloneRepoDestination}`,
-      );
+      await executeCommand('git', [
+        'clone',
+        '--depth',
+        '1',
+        url,
+        cloneRepoDestination,
+      ]);
     }
 
     await fs.rm(path.join(cloneRepoDestination, '.git'), {
