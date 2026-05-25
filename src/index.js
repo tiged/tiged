@@ -363,11 +363,18 @@ class Degit extends EventEmitter {
 			await fs.mkdir(path.join(dest, '.tiged'), { recursive: true });
 			const tempDir = path.join(dest, '.tiged');
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
+				await exec('git', ['init'], { cwd: tempDir });
+				await exec('git', ['remote', 'add', 'origin', gitPath], {
+					cwd: tempDir
+				});
 				await exec(
-					`cd ${tempDir}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					'git',
+					['fetch', '--depth', '1', 'origin', this.repo.ref],
+					{ cwd: tempDir }
 				);
+				await exec('git', ['checkout', 'FETCH_HEAD'], { cwd: tempDir });
 			} else {
-				await exec(`git clone --depth 1 ${gitPath} ${tempDir}`);
+				await exec('git', ['clone', '--depth', '1', gitPath, tempDir]);
 			}
 			const files = await fs.readdir(`${tempDir}${this.repo.subdir}`);
 			await Promise.all(
@@ -382,11 +389,18 @@ class Degit extends EventEmitter {
 		} else {
 			if (this.repo.ref && this.repo.ref !== 'HEAD' && !isWin) {
 				await fs.mkdir(dest, { recursive: true });
+				await exec('git', ['init'], { cwd: dest });
+				await exec('git', ['remote', 'add', 'origin', gitPath], {
+					cwd: dest
+				});
 				await exec(
-					`cd ${dest}; git init; git remote add origin ${gitPath}; git fetch --depth 1 origin ${this.repo.ref}; git checkout FETCH_HEAD`
+					'git',
+					['fetch', '--depth', '1', 'origin', this.repo.ref],
+					{ cwd: dest }
 				);
+				await exec('git', ['checkout', 'FETCH_HEAD'], { cwd: dest });
 			} else {
-				await exec(`git clone --depth 1 ${gitPath} ${dest}`);
+				await exec('git', ['clone', '--depth', '1', gitPath, dest]);
 			}
 			await rimraf(path.resolve(dest, '.git'));
 		}
@@ -446,7 +460,7 @@ async function untar(file, dest, subdir = null) {
 
 async function fetchRefs(repo) {
 	try {
-		const { stdout } = await exec(`git ls-remote ${repo.url}`);
+		const { stdout } = await exec('git', ['ls-remote', repo.url]);
 
 		return stdout
 			.split('\n')

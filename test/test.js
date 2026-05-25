@@ -23,6 +23,22 @@ function exec(cmd) {
 	});
 }
 
+function execFile(cmd, args, options = {}) {
+	return new Promise((fulfil, reject) => {
+		child_process.execFile(cmd, args, options, (err, stdout, stderr) => {
+			if (err) {
+				err.stdout = stdout;
+				err.stderr = stderr;
+				return reject(err);
+			}
+
+			console.log(stdout);
+			console.error(stderr);
+			fulfil();
+		});
+	});
+}
+
 describe('degit', function () {
 	this.timeout(timeout);
 
@@ -290,6 +306,35 @@ describe('degit', function () {
 			compare(`.tmp/test-repo`, {
 				file: 'Hello, champ!'
 			});
+		});
+
+		it('does not execute shell metacharacters from repo input', async () => {
+			const cwd = path.resolve('.tmp/injection-test');
+			const marker = path.join(cwd, 'marker_pwn');
+
+			await rimraf('.tmp');
+			await fs.mkdirp(cwd);
+
+			let error;
+
+			try {
+				await execFile(
+					'node',
+					[
+						degitPath,
+						'github:foo/bar;:>marker_pwn',
+						'out',
+						'--mode=git',
+						'--force'
+					],
+					{ cwd }
+				);
+			} catch (err) {
+				error = err;
+			}
+
+			assert.ok(error);
+			assert.strictEqual(await fs.pathExists(marker), false);
 		});
 	});
 

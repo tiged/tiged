@@ -34,11 +34,12 @@ function tryRequire(file, opts) {
 	}
 }
 
-function exec(command, size = 500) {
+function exec(command, args = [], options = {}, size = 500) {
 	return new Promise((fulfil, reject) => {
-		child_process.exec(
+		child_process.execFile(
 			command,
-			{ maxBuffer: 1024 * size },
+			args,
+			Object.assign({}, options, { maxBuffer: 1024 * size }),
 			(err, stdout, stderr) => {
 				if (err) {
 					reject(err);
@@ -50,7 +51,7 @@ function exec(command, size = 500) {
 		);
 	}).catch(err => {
 		if (err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER') {
-			return exec(command, size * 2);
+			return exec(command, args, options, size * 2);
 		}
 		return Promise.reject(err);
 	});
