@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../src/tar.js', async importOriginal => {
-  const actual = await importOriginal();
+  const actual = (await importOriginal()) as Record<string, unknown>;
 
   return {
     ...actual,
