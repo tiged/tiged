@@ -3,8 +3,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../src/tar.js', async importOriginal => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+vi.mock(import('../src/tar.js'), async importOriginal => {
+  const actual = await importOriginal();
 
   return {
     ...actual,
