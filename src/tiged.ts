@@ -25,6 +25,7 @@ import {
   executeCommand,
   extractRepositoryInfo,
   fetchRefs,
+  getGitHubToken,
   getOldHash,
   pathExists,
   stashFiles,
@@ -1000,7 +1001,18 @@ export class Tiged extends EventEmitter {
             repo,
           });
 
-          await downloadTarball(url, tarballFilePath, this.proxy);
+          const token = repo.site === 'github' ? getGitHubToken() : undefined;
+
+          if (token) {
+            this.logVerbose({
+              code: 'CREDENTIALS',
+              dest: destinationDirectoryPath,
+              message: `using GitHub credentials from environment variables`,
+              repo,
+            });
+          }
+
+          await downloadTarball(url, tarballFilePath, this.proxy, { token });
         }
       }
     } catch (error) {

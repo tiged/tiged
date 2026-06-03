@@ -175,6 +175,7 @@ export type Repo = {
  * @since 3.0.0
  */
 export type InfoCode =
+  | 'CREDENTIALS'
   | 'DEST_IS_EMPTY'
   | 'DEST_NOT_EMPTY'
   | 'DOWNLOADING'
