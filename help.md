@@ -75,6 +75,7 @@ Options:
 `--force`, `-f` Overwrite existing destination directory (deletes its contents)
 `--verbose`, `-v` Extra logging
 `--proxy`, `-p` Proxy server URL for network requests
+`--use-token`, `-T` Enable use of GH_TOKEN or GITHUB_TOKEN (needed for private repo downloads in HTTPS mode)
 `--subgroup`, `-s` Use if repo is in a subgroup (GitLab)
 `--sub-directory`, `-d` Clone only a subdirectory of the repo
 `--mode=`, `-m=` Force the mode by which tiged clones the repo

@@ -146,6 +146,16 @@ export class Tiged extends EventEmitter {
   declare public verbose?: boolean;
 
   /**
+   * Enables the use of `GH_TOKEN` or `GITHUB_TOKEN` environment variables.
+   * Needed for private repository downloads in HTTPS mode.
+   *
+   * **CLI-Equivalent**: **`-T`**, **`--use-token`**
+   *
+   * @default false
+   */
+  declare public useToken?: boolean;
+
+  /**
    * Specifies the proxy server to be used for network requests.
    *
    * This option allows routing network traffic through a
@@ -898,17 +908,19 @@ export class Tiged extends EventEmitter {
 
     const isFullCommitHash = /^[0-9a-f]{40}$/.test(repo.ref);
 
-    const hash = this.offlineMode
-      ? isFullCommitHash
-        ? repo.ref
-        : cached[repo.ref]
-      : await this.getHash(repo, cached);
+    const hash = this.useToken
+      ? repo.ref
+      : this.offlineMode
+        ? isFullCommitHash
+          ? repo.ref
+          : cached[repo.ref]
+        : await this.getHash(repo, cached);
 
     // const subDirectory = repo.subDirectory
     //   ? `${repo.name}-${hash}${repo.subDirectory}`
     //   : null;
 
-    if (!hash) {
+    if (!hash && !this.useToken) {
       // TODO 'did you mean...?'
       throw new TigedError(`could not find commit hash for ${repo.ref}`, {
         code: 'MISSING_REF',
@@ -934,7 +946,12 @@ export class Tiged extends EventEmitter {
         ? `${repo.url}/-/archive/${hash}/${repo.name}-${tarballFileName}`
         : repo.site === 'bitbucket'
           ? `${repo.url}/get/${tarballFileName}`
-          : `${repo.url}/archive/${tarballFileName}`;
+          : this.useToken
+            ? `https://api.github.com/repos${repo.url.replace(
+                'https://github.com',
+                '',
+              )}/tarball/${hash}`
+            : `${repo.url}/archive/${tarballFileName}`;
 
     try {
       if (this.offlineMode) {
@@ -1001,7 +1018,10 @@ export class Tiged extends EventEmitter {
             repo,
           });
 
-          const token = repo.site === 'github' ? getGitHubToken() : undefined;
+          const token =
+            this.useToken && repo.site === 'github'
+              ? getGitHubToken()
+              : undefined;
 
           if (token) {
             this.logVerbose({
@@ -1034,7 +1054,7 @@ export class Tiged extends EventEmitter {
       });
     }
 
-    if (!this.disableCache) {
+    if (!this.disableCache && hash) {
       await updateCache(repositoryCacheDirectoryPath, repo, hash, cached);
     }
 

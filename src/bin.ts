@@ -47,6 +47,7 @@ const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
       o: ['offline-mode', 'offlineMode'],
       p: 'proxy',
       s: 'subgroup',
+      T: 'use-token',
       v: 'verbose',
     },
 
@@ -55,6 +56,7 @@ const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
       'force',
       'offlineMode',
       'subgroup',
+      'useToken',
       'verbose',
     ] as const satisfies TigedOptionsBooleanKeys[],
 

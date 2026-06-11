@@ -106,6 +106,16 @@ export type TigedOptions = {
    * @default false
    */
   verbose?: boolean;
+
+  /**
+   * Enables the use of `GH_TOKEN` or `GITHUB_TOKEN` environment variables.
+   * Needed for private repository downloads in HTTPS mode.
+   *
+   * **CLI-Equivalent**: **`-T`**, **`--use-token`**
+   *
+   * @default false
+   */
+  useToken?: boolean;
 };
 
 /**

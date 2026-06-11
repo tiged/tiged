@@ -217,7 +217,9 @@ export async function downloadTarball(
     };
 
     if (options?.token) {
-      requestHeaders.authorization = `token ${options.token}`;
+      requestHeaders.accept = 'application/vnd.github+json';
+      requestHeaders.authorization = `Bearer ${options.token}`;
+      requestHeaders['x-github-api-version'] = '2026-03-10';
     }
 
     const resolveLocation = (location: string | string[] | undefined) => {
