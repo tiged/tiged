@@ -169,6 +169,16 @@ Private repos can be cloned by specifying `--mode=git` (the default is `tar`). I
 
 Note: this clones over SSH, not HTTPS.
 
+### Token-based authentication
+
+To download private repositories via HTTPS (tar mode), use the `--use-token` option:
+
+```bash
+tiged --use-token user/private-repo
+```
+
+This enables the use of `GH_TOKEN` or `GITHUB_TOKEN` environment variables for authenticated downloads.
+
 ### See all options
 
 ```bash
