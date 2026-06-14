@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
 import packageJson from './package.json' with { type: 'json' };
 
@@ -8,13 +7,9 @@ const vitestConfig = defineConfig({
     'import.meta.vitest': 'undefined',
   },
 
-  plugins: [
-    tsconfigPaths({
-      configNames: ['tsconfig.json'],
-      projects: [path.join(import.meta.dirname, 'tsconfig.json')],
-      root: import.meta.dirname,
-    }),
-  ],
+  resolve: {
+    tsconfigPaths: true,
+  },
 
   root: import.meta.dirname,
 
