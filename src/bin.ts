@@ -13,11 +13,22 @@ import { promptAutocomplete, promptInput, promptToggle } from './prompt.js';
 import {
   base,
   damerauLevenshteinSimilarity,
+  getGitHubToken,
   pathExists,
   tryRequire,
 } from './utils.js';
 
 const { bold, cyanBright, magentaBright, red, underline } = picocolors;
+
+/**
+ * Prints an error message and exits the process.
+ *
+ * @param message - The error message to display.
+ */
+const exitWithError = (message: string): never => {
+  console.error(red(`! ${message}`));
+  process.exit(1);
+};
 
 type TigedOptionsStringKeys = keyof {
   [key in keyof Required<TigedOptions> as [
@@ -47,7 +58,7 @@ const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
       o: ['offline-mode', 'offlineMode'],
       p: 'proxy',
       s: 'subgroup',
-      T: 'use-token',
+      T: ['use-token', 'useToken'],
       v: 'verbose',
     },
 
@@ -69,6 +80,13 @@ const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
 );
 
 const [src = '', destArg] = CLIArguments!._;
+
+// Early failure: --use-token requires GH_TOKEN or GITHUB_TOKEN to be set
+if (CLIArguments?.useToken && !getGitHubToken()) {
+  exitWithError(
+    'The --use-token flag requires the GH_TOKEN or GITHUB_TOKEN environment variable to be set.',
+  );
+}
 
 /**
  * Runs the cloning process from the specified source

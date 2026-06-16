@@ -7,7 +7,7 @@ import {
   validModes,
 } from './test-utils.js';
 
-const shouldRunPrivateRepoTests = process.env.PRIVATE_REPO_TEST === 'true';
+const shouldSkipPrivateRepoTests = process.env.PRIVATE_REPO_TEST !== 'true';
 
 describe('GitHub', () => {
   describe.for(validModes)('with %s mode', mode => {
@@ -32,7 +32,7 @@ describe('GitHub', () => {
     });
   });
 
-  describe.skipIf(shouldRunPrivateRepoTests)('private repos', () => {
+  describe.skipIf(shouldSkipPrivateRepoTests)('private repos', () => {
     it.for([
       'tiged/private-test',
       'github:tiged/private-test',
@@ -41,11 +41,11 @@ describe('GitHub', () => {
       const outputDirectory = getOutputDirectoryPath(`${task.name}-${task.id}`);
 
       await expect(
-        runTigedAPI(src, outputDirectory, { mode: 'tar' }),
+        runTigedAPI(src, outputDirectory, { mode: 'tar', useToken: true }),
       ).resolves.not.toThrowError();
 
       await expect(outputDirectory).toMatchFiles({
-        'file.txt': 'hello from private repo!',
+        'README.md': '# private-test',
       });
     });
   });
