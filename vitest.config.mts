@@ -20,8 +20,7 @@ const vitestConfig = defineConfig({
             find: packageJson.name,
             replacement: path.join(
               import.meta.dirname,
-              'node_modules',
-              'tiged',
+              'dist',
             ),
           },
         ]

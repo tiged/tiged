@@ -41,10 +41,12 @@
     "format": "prettier --config=prettier.config.mjs --write .",
     "format:check": "prettier --config=prettier.config.mjs --check .",
     "clean": "tsx scripts/remove.mts",
-    "build": "npm run clean && tsup --config=tsup.config.ts",
+    "build:verbose": "npm run clean && tsup --config=tsup.config.ts",
+    "build": "npm run build:verbose > /dev/null 2>&1 && echo Build ready",
     "test": "vitest --config=vitest.config.mts",
     "test-types": "tsc -p tsconfig.json --noEmit",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "dev": "npm run build && node dist/bin.js"
   },
   "repository": {
     "type": "git",

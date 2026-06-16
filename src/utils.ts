@@ -184,19 +184,43 @@ export const executeCommand = promisify(child_process.exec);
  * @internal
  * @since 3.0.0
  */
+/**
+ * Retrieves a GitHub personal access token from environment variables.
+ *
+ * Checks for the following environment variables in order:
+ * - `GH_TOKEN`
+ * - `GITHUB_TOKEN`
+ *
+ * @returns The GitHub token if found, otherwise `undefined`.
+ */
+export function getGitHubToken(): string | undefined {
+  return process.env.GH_TOKEN ?? process.env.GITHUB_TOKEN;
+}
+
+export type DownloadOptions = {
+  token?: string;
+};
+
 export async function downloadTarball(
   url: string,
   tarballFilePath: string,
   proxy?: string,
+  options?: DownloadOptions,
 ): Promise<void> {
   await fs.mkdir(path.dirname(tarballFilePath), { recursive: true });
   const dispatcher = proxy ? new ProxyAgent(proxy) : undefined;
   try {
     const maxRedirects = 10;
-    const requestHeaders = {
+    const requestHeaders: Record<string, string> = {
       accept: '*/*',
       'user-agent': 'tiged',
     };
+
+    if (options?.token) {
+      requestHeaders.accept = 'application/vnd.github+json';
+      requestHeaders.authorization = `Bearer ${options.token}`;
+      requestHeaders['x-github-api-version'] = '2026-03-10';
+    }
 
     const resolveLocation = (location: string | string[] | undefined) => {
       if (!location) {

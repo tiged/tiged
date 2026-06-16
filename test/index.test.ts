@@ -1,10 +1,13 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { describe } from 'vitest';
 import {
   getOutputDirectoryPath,
   runTigedAPI,
   validModes,
 } from './test-utils.js';
+
+const shouldSkipPrivateRepoTests = process.env.PRIVATE_REPO_TEST !== 'true';
 
 describe('GitHub', () => {
   describe.for(validModes)('with %s mode', mode => {
@@ -25,6 +28,24 @@ describe('GitHub', () => {
         'file.txt': 'hello from github!',
         subdir: null,
         'subdir/file.txt': 'hello from a subdirectory!',
+      });
+    });
+  });
+
+  describe.skipIf(shouldSkipPrivateRepoTests)('private repos', () => {
+    it.for([
+      'tiged/private-test',
+      'github:tiged/private-test',
+      'https://github.com/tiged/private-test.git',
+    ] as const)('%s', async (src, { expect, task }) => {
+      const outputDirectory = getOutputDirectoryPath(`${task.name}-${task.id}`);
+
+      await expect(
+        runTigedAPI(src, outputDirectory, { mode: 'tar', useToken: true }),
+      ).resolves.not.toThrowError();
+
+      await expect(outputDirectory).toMatchFiles({
+        'README.md': '# private-test',
       });
     });
   });
