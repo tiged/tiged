@@ -3,6 +3,7 @@ name: Node.js CI
 on:
   pull_request:
   push:
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -170,4 +171,4 @@ jobs:
           name: artifact
 
       - name: Run are-the-types-wrong
-        run: npx @arethetypeswrong/cli@latest ${{ needs.build.outputs.artifact }} --format table
+        run: npx attw ${{ needs.build.outputs.artifact }} --format table
