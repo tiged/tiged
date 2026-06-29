@@ -19,7 +19,7 @@ type NormalizedOptions = {
   boolean: string[];
   string: string[];
   default: Dict<unknown>;
-  unknown?: (flag: string) => unknown;
+  unknown?: ((flag: string) => unknown) | undefined;
 };
 
 const toArray = <T>(value: Arrayable<T> | undefined | null): T[] => {
@@ -110,21 +110,21 @@ export function parseCliArgs<T = Dict<unknown>>(
     normalizeAliases(opts);
   }
 
-  for (let i = opts.boolean.length; i-- > 0; ) {
+  for (let i = opts.boolean.length; i-- > 0;) {
     const key = opts.boolean[i];
     if (!key) continue;
     const list = opts.alias[key] ?? [];
-    for (let j = list.length; j-- > 0; ) {
+    for (let j = list.length; j-- > 0;) {
       const alias = list[j];
       if (alias) opts.boolean.push(alias);
     }
   }
 
-  for (let i = opts.string.length; i-- > 0; ) {
+  for (let i = opts.string.length; i-- > 0;) {
     const key = opts.string[i];
     if (!key) continue;
     const list = opts.alias[key] ?? [];
-    for (let j = list.length; j-- > 0; ) {
+    for (let j = list.length; j-- > 0;) {
       const alias = list[j];
       if (alias) opts.string.push(alias);
     }

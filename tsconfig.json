@@ -7,6 +7,7 @@
     "declarationMap": true,
     "erasableSyntaxOnly": true,
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "libReplacement": false,
@@ -37,5 +38,7 @@
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": true
-  }
+  },
+  "exclude": ["dist", "build"],
+  "include": ["**/*.*"]
 }
