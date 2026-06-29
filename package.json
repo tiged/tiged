@@ -67,6 +67,7 @@
     "undici": "^7.23.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.4",
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.4.0",
     "@vitest/eslint-plugin": "^1.6.10",
