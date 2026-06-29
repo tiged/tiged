@@ -19,7 +19,7 @@ describe('GitHub', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from github!',
@@ -41,7 +41,7 @@ describe('GitLab', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from gitlab!',
@@ -64,7 +64,7 @@ describe('GitLab', () => {
 
         await expect(
           runTigedAPI(src, outputDirectory, { mode, subgroup: true }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'main.tf': 'Subgroup test',
@@ -88,7 +88,7 @@ describe('GitLab', () => {
               subDirectory: 'subdir1',
               subgroup: true,
             }),
-          ).resolves.not.toThrowError();
+          ).resolves.not.toThrow();
 
           await expect(outputDirectory).toMatchFiles({
             '.gitkeep': '',
@@ -111,7 +111,7 @@ describe('GitLab', () => {
               subDirectory: 'subdir1/subdir2',
               subgroup: true,
             }),
-          ).resolves.not.toThrowError();
+          ).resolves.not.toThrow();
 
           await expect(outputDirectory).toMatchFiles({
             '.gitkeep': '',
@@ -134,7 +134,7 @@ describe('BitBucket', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from bitbucket',
@@ -154,7 +154,7 @@ describe('SourceHut', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from sourcehut!',
@@ -174,7 +174,7 @@ describe('Codeberg', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from codeberg!',
@@ -195,7 +195,7 @@ describe('Hugging Face', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from Hugging Face',
@@ -224,7 +224,7 @@ describe('sub-directories', () => {
 
         await expect(
           runTigedAPI(`${src}/subdir`, outputDirectory, { mode }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -243,7 +243,7 @@ describe('sub-directories', () => {
             mode,
             subDirectory: 'subdir',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -260,7 +260,7 @@ describe('sub-directories', () => {
 
           await expect(
             runTigedAPI(`${src}/non-existent-dir`, outputDirectory, { mode }),
-          ).rejects.toThrowError(
+          ).rejects.toThrow(
             /No files to extract\. Make sure you typed in the sub-directory name correctly\./,
           );
         });
@@ -277,7 +277,7 @@ describe('sub-directories', () => {
               mode,
               subDirectory: 'non-existent-dir',
             }),
-          ).rejects.toThrowError(
+          ).rejects.toThrow(
             /No files to extract\. Make sure you typed in the sub-directory name correctly\./,
           );
         });
@@ -295,7 +295,7 @@ describe('sub-directories', () => {
             mode,
             subDirectory: 'subdir',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -314,7 +314,7 @@ describe('sub-directories', () => {
             mode,
             subDirectory: 'subdir',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -333,7 +333,7 @@ describe('sub-directories', () => {
             mode,
             subDirectory: '',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from github!',
@@ -354,7 +354,7 @@ describe('sub-directories', () => {
             mode,
             subDirectory: '',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -401,7 +401,7 @@ describe('non-empty directories', () => {
 
       await expect(
         runTigedAPI(src, undefined, { mode, verbose: true }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       process.chdir(cwd);
 
@@ -423,7 +423,7 @@ describe('non-empty directories', () => {
           mode,
           verbose: true,
         }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from github!',
@@ -436,7 +436,7 @@ describe('non-empty directories', () => {
 
       await expect(
         runTigedAPI(`${src}/subdir/file.txt`, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from a subdirectory!',
@@ -467,7 +467,7 @@ describe('non-empty directories', () => {
             mode,
             verbose: true,
           }),
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           /destination directory is not empty, aborting\. Use options.force to override/,
         );
       });
@@ -479,7 +479,7 @@ describe('non-empty directories', () => {
             mode,
             verbose: true,
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -493,7 +493,7 @@ describe('non-empty directories', () => {
           mode,
           verbose: true,
         }),
-      ).rejects.toThrowError(
+      ).rejects.toThrow(
         /destination directory is not empty, aborting\. Use options.force to override/,
       );
     });
@@ -505,7 +505,7 @@ describe('non-empty directories', () => {
           mode,
           verbose: true,
         }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
     });
   });
 });
@@ -524,7 +524,7 @@ describe('can clone one file', () => {
           mode,
           verbose: true,
         }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'file.txt': 'hello from a subdirectory!',
@@ -542,7 +542,7 @@ describe('actions', () => {
         runTigedAPI('tiged/tiged-test-repo-remove-only', outputDirectory, {
           mode,
         }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({});
     });
@@ -552,7 +552,7 @@ describe('actions', () => {
 
       await expect(
         runTigedAPI('tiged/tiged-test-repo-remove', outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'other.txt': 'hello from github!',
@@ -568,7 +568,7 @@ describe('actions', () => {
         runTigedAPI('tiged/tiged-test-repo-nested-actions', outputDirectory, {
           mode,
         }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         dir: null,
@@ -595,7 +595,7 @@ describe('old hash', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'README.md': '# tiged-test\nFor testing',
@@ -619,7 +619,7 @@ describe('old hash', () => {
 
         await expect(
           runTigedAPI(src, outputDirectory, { mode }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'README.md': '# tiged-test\nFor testing',
@@ -646,7 +646,7 @@ describe('old hash', () => {
 
         await expect(
           runTigedAPI(src, outputDirectory, { mode }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           file: 'Hello, champ!',
@@ -670,7 +670,7 @@ describe('is able to clone correctly', () => {
 
       await expect(
         runTigedAPI(src, outputDirectory, { mode }),
-      ).resolves.not.toThrowError();
+      ).resolves.not.toThrow();
 
       await expect(outputDirectory).toMatchFiles({
         'README.md': 'tiged is awesome',
@@ -698,7 +698,7 @@ describe('can clone a single file', () => {
 
         await expect(
           runTigedAPI(`${src}/subdir/file.txt`, outputDirectory, { mode }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',
@@ -717,7 +717,7 @@ describe('can clone a single file', () => {
             mode,
             subDirectory: 'subdir/file.txt',
           }),
-        ).resolves.not.toThrowError();
+        ).resolves.not.toThrow();
 
         await expect(outputDirectory).toMatchFiles({
           'file.txt': 'hello from a subdirectory!',

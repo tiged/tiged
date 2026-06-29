@@ -20,19 +20,23 @@ import {
 const { bold, cyanBright, magentaBright, red, underline } = picocolors;
 
 type TigedOptionsStringKeys = keyof {
-  [key in keyof Required<TigedOptions> as [
-    NonNullable<TigedOptions[key]>,
-  ] extends [string]
-    ? key
-    : never]: TigedOptions[key];
+  [
+    key in keyof Required<TigedOptions> as [
+      NonNullable<TigedOptions[key]>,
+    ] extends [string]
+      ? key
+      : never
+  ]: TigedOptions[key];
 };
 
 type TigedOptionsBooleanKeys = keyof {
-  [key in keyof Required<TigedOptions> as [boolean] extends [
-    NonNullable<TigedOptions[key]>,
-  ]
-    ? key
-    : never]: TigedOptions[key];
+  [
+    key in keyof Required<TigedOptions> as [boolean] extends [
+      NonNullable<TigedOptions[key]>,
+    ]
+      ? key
+      : never
+  ]: TigedOptions[key];
 };
 
 const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(

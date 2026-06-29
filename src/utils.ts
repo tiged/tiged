@@ -222,7 +222,7 @@ export async function downloadTarball(
       const { statusCode, statusText, headers, body } = await request(
         currentUrl,
         {
-          dispatcher,
+          ...(dispatcher ? { dispatcher } : {}),
           headers: requestHeaders,
         },
       );
@@ -284,14 +284,12 @@ export async function stashFiles(dir: string, dest: string): Promise<void> {
   try {
     await fs.rm(tmpDir, { force: true, recursive: true });
   } catch (error) {
-    if (
-      !(
-        error instanceof Error &&
-        'errno' in error &&
-        'syscall' in error &&
-        'code' in error
-      )
-    ) {
+    if (!(
+      error instanceof Error &&
+      'errno' in error &&
+      'syscall' in error &&
+      'code' in error
+    )) {
       return;
     }
     if (
