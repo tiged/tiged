@@ -83,7 +83,7 @@ export class Tiged extends EventEmitter {
   /**
    * The source repository to be cloned, specified as a string.
    */
-  public src: string;
+  declare public src: string;
 
   /**
    * Enables offline mode, where operations rely on cached data.
@@ -371,7 +371,7 @@ export class Tiged extends EventEmitter {
 
     this.repo.subDirectory = this.subDirectory || this.repo.subDirectory;
 
-    this.proxy = tigedOptions.proxy ?? this.getHttpsProxy();
+    this.proxy = tigedOptions.proxy ?? this.getHttpsProxy() ?? '';
 
     this.repo = extractRepositoryInfo(
       src,
@@ -426,11 +426,12 @@ export class Tiged extends EventEmitter {
 
           this.hasStashed = true;
         }
+
         const tigedOptions = Object.assign(
-          { force: true },
+          { force: true } satisfies TigedOptions,
           {
             cache: action.cache,
-            verbose: action.verbose,
+            verbose: action.verbose ?? this.verbose ?? false,
             proxy: this.proxy,
           },
         );
@@ -525,8 +526,7 @@ export class Tiged extends EventEmitter {
 
     const directives =
       (tryRequire(directivesPath, { clearCache: true }) as
-        | (TigedAction | RemoveAction)[]
-        | undefined) ?? false;
+        (TigedAction | RemoveAction)[] | undefined) ?? false;
 
     if (directives) {
       await fs.unlink(directivesPath);
@@ -538,7 +538,7 @@ export class Tiged extends EventEmitter {
   /**
    * Clones the repository to the specified destination.
    *
-   * @param [destinationDirectoryName] - The destination directory where the repository will be cloned (default: **{@linkcode repo.name}**).
+   * @param [destinationDirectoryName] - The destination directory where the repository will be cloned (default: **{@linkcode Repo.name | repo.name}**).
    */
   public async clone(destinationDirectoryName?: string): Promise<void> {
     const { repo } = this;

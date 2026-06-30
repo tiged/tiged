@@ -2,7 +2,6 @@
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import picocolors from 'picocolors';
 import type { TigedOptions } from 'tiged';
 import { createTiged } from 'tiged';
@@ -20,19 +19,23 @@ import {
 const { bold, cyanBright, magentaBright, red, underline } = picocolors;
 
 type TigedOptionsStringKeys = keyof {
-  [key in keyof Required<TigedOptions> as [
-    NonNullable<TigedOptions[key]>,
-  ] extends [string]
-    ? key
-    : never]: TigedOptions[key];
+  [
+    key in keyof Required<TigedOptions> as [
+      NonNullable<TigedOptions[key]>,
+    ] extends [string]
+      ? key
+      : never
+  ]: TigedOptions[key];
 };
 
 type TigedOptionsBooleanKeys = keyof {
-  [key in keyof Required<TigedOptions> as [boolean] extends [
-    NonNullable<TigedOptions[key]>,
-  ]
-    ? key
-    : never]: TigedOptions[key];
+  [
+    key in keyof Required<TigedOptions> as [boolean] extends [
+      NonNullable<TigedOptions[key]>,
+    ]
+      ? key
+      : never
+  ]: TigedOptions[key];
 };
 
 const CLIArguments = parseCliArgs<TigedOptions & { help?: string }>(
@@ -119,14 +122,9 @@ async function run(
 async function main(): Promise<void> {
   if (CLIArguments?.help) {
     const help = (
-      await fs.readFile(
-        path.join(
-          path.dirname(fileURLToPath(import.meta.url)),
-          '..',
-          'help.md',
-        ),
-        { encoding: 'utf-8' },
-      )
+      await fs.readFile(path.join(import.meta.dirname, '..', 'help.md'), {
+        encoding: 'utf-8',
+      })
     )
       .replaceAll(
         /^(\s*)#+ (.+)/gm,
@@ -211,11 +209,20 @@ async function main(): Promise<void> {
       message: 'Repo to clone?',
       suggest(input: string, suggestChoices) {
         const query = input.trim();
-        if (!query) return suggestChoices;
+
+        if (!query) {
+          return suggestChoices;
+        }
+
         const queryLower = query.toLowerCase();
+
         return suggestChoices.filter(({ value }) => {
           const valueLower = value.toLowerCase();
-          if (valueLower.includes(queryLower)) return true;
+
+          if (valueLower.includes(queryLower)) {
+            return true;
+          }
+
           return damerauLevenshteinSimilarity(queryLower, valueLower) >= 0.5;
         });
       },
